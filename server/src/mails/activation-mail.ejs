@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Activate Your Account</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f8fafc;
+        color: #333;
+        padding: 0;
+        margin: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 30px auto;
+        background: white;
+        border-radius: 10px;
+        padding: 25px 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        color: #2d6a4f;
+      }
+      .code {
+        display: inline-block;
+        font-size: 24px;
+        font-weight: bold;
+        letter-spacing: 4px;
+        color: #1b4332;
+        background-color: #d8f3dc;
+        padding: 10px 20px;
+        border-radius: 8px;
+        margin: 15px 0;
+      }
+      .footer {
+        margin-top: 30px;
+        font-size: 13px;
+        color: #777;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Welcome, <%= user.name %>! 🌱</h2>
+      <p>Thank you for signing up with <strong>Our App</strong>.</p>
+
+      <p>
+        To complete your registration, please use the activation code below:
+      </p>
+
+      <div class="code"><%= activationCode %></div>
+
+      <p>This code will expire in <strong>5 minutes</strong>.</p>
+
+      <p>If you didn’t request this, you can safely ignore this email.</p>
+
+      <div class="footer">
+        <p>— The Our App Team</p>
+      </div>
+    </div>
+  </body>
+</html>

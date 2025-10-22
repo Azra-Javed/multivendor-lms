@@ -6,10 +6,11 @@ import express, {
 export const app = express();
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
 import errorMiddleware from "./middleware/error.js";
+import userRouter from "./features/user/user.route.js";
 
 // dotenv
-import dotenv from "dotenv";
 dotenv.config();
 
 //body parser
@@ -24,6 +25,9 @@ app.use(
     origin: process.env.ORIGIN,
   })
 );
+
+//routes
+app.use("/api/v1/user", userRouter);
 
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {
   res.status(200).json({
@@ -41,4 +45,5 @@ app.all(/.*/, (req: Request, res: Response, next: NextFunction) => {
   next(error);
 });
 
+//global error middleware
 app.use(errorMiddleware);

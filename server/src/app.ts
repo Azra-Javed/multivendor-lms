@@ -8,7 +8,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import errorMiddleware from "./middleware/error.js";
-import userRouter from "./features/user/user.route.js";
+import userRouter from "./modules/user/user.route.js";
 
 // dotenv
 dotenv.config();

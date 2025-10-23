@@ -5,21 +5,15 @@ import { CatchAsyncError } from "../../middleware/catchAsyncErrors.js";
 import ErrorHandler from "../../utils/ErrorHandler.js";
 import sendMail from "../../utils/sendMail.js";
 import userModel from "./user.model.js";
+import { IUser } from "./user.model.js";
+
+import {
+  IActivateUser,
+  IActivationToken,
+  IRegistration,
+} from "./user.types.js";
 
 dotenv.config();
-
-// Register user
-interface IRegistration {
-  name: string;
-  email: string;
-  password: string;
-  avatar?: string;
-}
-
-interface IActivationToken {
-  token: string;
-  activationCode: string;
-}
 
 const createActivationToken = (user: IRegistration): IActivationToken => {
   const activationCode = Math.floor(1000 + Math.random() * 9000).toString();
@@ -36,7 +30,12 @@ const createActivationToken = (user: IRegistration): IActivationToken => {
 export const registerUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     const { name, email, password } = req.body;
-    console.log(req.body);
+
+    if (!password || password.length < 6) {
+      return next(
+        new ErrorHandler("Password must be at least 6 characters", 400)
+      );
+    }
 
     // Check existing user
     const isEmailExists = await userModel.findOne({ email });
@@ -69,5 +68,37 @@ export const registerUser = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
+  }
+);
+
+export const activateUser = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { activation_token, activation_code } = req.body as IActivateUser;
+
+    //verify token
+    const payload = jwt.verify(
+      activation_token,
+      process.env.ACTIVATION_SECRET as string
+    ) as { user: IUser; activationCode: string };
+
+    if (payload.activationCode !== activation_code) {
+      return next(new ErrorHandler("Invalid activation code", 400));
+    }
+
+    const { name, email, password } = payload.user;
+    const existUser = await userModel.findOne({ email });
+    if (existUser) {
+      return next(new ErrorHandler("Email already exists", 400));
+    }
+
+    const user = await userModel.create({
+      name,
+      email,
+      password,
+    });
+
+    res.status(201).json({
+      success: true,
+    });
   }
 );

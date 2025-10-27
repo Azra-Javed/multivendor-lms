@@ -10,8 +10,11 @@ import { IUser } from "./user.model.js";
 import {
   IActivateUser,
   IActivationToken,
+  ILogin,
   IRegistration,
 } from "./user.types.js";
+import { send } from "process";
+import { sendToken } from "../../utils/jwt.js";
 
 dotenv.config();
 
@@ -27,6 +30,8 @@ const createActivationToken = (user: IRegistration): IActivationToken => {
   return { token, activationCode };
 };
 
+//@desc: register user
+//@route: POST /api/user/v1/register
 export const registerUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     const { name, email, password } = req.body;
@@ -71,6 +76,8 @@ export const registerUser = CatchAsyncError(
   }
 );
 
+//@desc: activate user
+//@route: POST /api/user/v1/activate-user
 export const activateUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     const { activation_token, activation_code } = req.body as IActivateUser;
@@ -99,6 +106,46 @@ export const activateUser = CatchAsyncError(
 
     res.status(201).json({
       success: true,
+    });
+  }
+);
+
+//@desc: login user
+//@route: POST /api/user/v1/login
+export const loginUser = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { email, password } = req.body as ILogin;
+
+    if (!email || !password) {
+      return next(new ErrorHandler("Please enter email and password", 400));
+    }
+
+    const user = await userModel.findOne({ email }).select("+password");
+    console.log(user);
+
+    if (!user) {
+      return next(new ErrorHandler("Invalid email or password", 400));
+    }
+
+    const isPasswordMatch = await user.comparePassword(password);
+
+    if (!isPasswordMatch) {
+      return next(new ErrorHandler("Invalid email or password", 400));
+    }
+
+    sendToken(user, 200, res);
+  }
+);
+
+//@desc: logout user
+//@route: POST /api/user/v1/logout
+export const logoutUser = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    res.cookie("access_token", "", { maxAge: 1 });
+    res.cookie("refresh_token", "", { maxAge: 1 });
+    res.status(200).json({
+      success: true,
+      message: "User logout successfully",
     });
   }
 );

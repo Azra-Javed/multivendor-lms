@@ -17,7 +17,7 @@ interface IEmail {
 
 const sendMail = async (options: IEmail): Promise<void> => {
   const transporter: Transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
+    host: process.env.SMTP_HOST, //mail server address
     port: Number(process.env.SMTP_PORT),
     service: process.env.SMTP_SERVICE,
     auth: {

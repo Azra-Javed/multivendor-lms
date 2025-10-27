@@ -17,3 +17,9 @@ export interface IActivateUser {
   activation_token: string;
   activation_code: string;
 }
+
+// login user
+export interface ILogin {
+  email: string;
+  password: string;
+}

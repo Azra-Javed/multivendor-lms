@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import type { NextFunction, Request, Response } from "express";
-import jwt, { type Secret } from "jsonwebtoken";
+import jwt, { JwtPayload, type Secret } from "jsonwebtoken";
 import { CatchAsyncError } from "../../middleware/catchAsyncErrors.js";
 import ErrorHandler from "../../utils/ErrorHandler.js";
 import sendMail from "../../utils/sendMail.js";
@@ -12,10 +12,15 @@ import {
   IActivationToken,
   ILogin,
   IRegistration,
+  IsocialAuth,
 } from "./user.types.js";
-import { send } from "process";
-import { sendToken } from "../../utils/jwt.js";
+import {
+  accessTokenOPtions,
+  refreshTokenOPtions,
+  sendToken,
+} from "../../utils/jwt.js";
 import { redis } from "../../utils/redis.js";
+import { getUserById } from "./user.services.js";
 
 dotenv.config();
 
@@ -32,7 +37,7 @@ const createActivationToken = (user: IRegistration): IActivationToken => {
 };
 
 //@desc: register user
-//@route: POST /api/user/v1/register
+//@route: POST /api/v1/user/register
 export const registerUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     const { name, email, password } = req.body;
@@ -78,7 +83,7 @@ export const registerUser = CatchAsyncError(
 );
 
 //@desc: activate user
-//@route: POST /api/user/v1/activate-user
+//@route: POST /api/v1/user/activate-user
 export const activateUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     const { activation_token, activation_code } = req.body as IActivateUser;
@@ -112,7 +117,7 @@ export const activateUser = CatchAsyncError(
 );
 
 //@desc: login user
-//@route: POST /api/user/v1/login
+//@route: POST /api/v1/user/login
 export const loginUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body as ILogin;
@@ -122,7 +127,6 @@ export const loginUser = CatchAsyncError(
     }
 
     const user = await userModel.findOne({ email }).select("+password");
-    console.log(user);
 
     if (!user) {
       return next(new ErrorHandler("Invalid email or password", 400));
@@ -152,5 +156,99 @@ export const logoutUser = CatchAsyncError(
       success: true,
       message: "User logout successfully",
     });
+  }
+);
+
+//@desc: update access token
+//@route: GET /api/v1/user/refresh
+export const updateToken = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const refresh_token = req.cookies.refresh_token as string;
+
+      if (!refresh_token) {
+        return next(new ErrorHandler("No refresh token provided", 400));
+      }
+
+      const decoded = jwt.verify(
+        refresh_token,
+        process.env.REFRESH_TOKEN as string
+      ) as JwtPayload;
+
+      if (!decoded || !decoded.id) {
+        return next(new ErrorHandler("Invalid refresh token", 400));
+      }
+
+      const session = await redis.get(decoded.id);
+      if (!session) {
+        return next(new ErrorHandler("Session expired or invalid", 400));
+      }
+
+      const user = JSON.parse(session);
+
+      const accessToken = jwt.sign(
+        { id: user._id },
+        process.env.ACCESS_TOKEN as string,
+        { expiresIn: "5m" }
+      );
+
+      const refreshToken = jwt.sign(
+        { id: user._id },
+        process.env.REFRESH_TOKEN as string,
+        {
+          expiresIn: "7d",
+        }
+      );
+
+      // Optionally refresh Redis session TTL
+      await redis.set(decoded.id, JSON.stringify(user));
+
+      // Send new access token as cookie
+      res.cookie("access_token", accessToken, accessTokenOPtions);
+      res.cookie("refresh_token", refreshToken, refreshTokenOPtions);
+
+      return res.status(200).json({
+        success: true,
+        accessToken,
+      });
+    } catch (error) {
+      return next(new ErrorHandler("Could not refresh token", 400));
+    }
+  }
+);
+
+//@desc: get user info
+//@route: GET /api/v1/user/userInfo
+export const getUserInfo = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?._id;
+      if (!userId) {
+        return next(new ErrorHandler("User not authenticated", 401));
+      }
+      const user = await getUserById(userId.toString());
+      res.status(200).json({ success: true, user });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+//@desc: social auth
+//@route: GET /api/v1/user/social-auths
+export const socialAuth = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email, name, avatar } = req.body as IsocialAuth;
+      const user = await userModel.findOne({ email });
+      if (!user) {
+        const newUser = await userModel.create({ email, name, avatar });
+        sendToken(newUser, 200, res);
+      } else {
+        sendToken(user, 200, res);
+      }
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
   }
 );

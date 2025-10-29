@@ -23,3 +23,10 @@ export interface ILogin {
   email: string;
   password: string;
 }
+
+//social auth
+export interface IsocialAuth {
+  name: string;
+  email: string;
+  avatar: string;
+}

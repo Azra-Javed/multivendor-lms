@@ -24,6 +24,14 @@ export interface IUser extends Document {
   signRefreshToken: () => string;
 }
 
+declare global {
+  namespace Express {
+    interface Request {
+      user?: IUser;
+    }
+  }
+}
+
 const userSchema: Schema<IUser> = new mongoose.Schema(
   {
     name: {

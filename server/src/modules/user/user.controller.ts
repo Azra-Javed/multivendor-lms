@@ -15,6 +15,7 @@ import {
 } from "./user.types.js";
 import { send } from "process";
 import { sendToken } from "../../utils/jwt.js";
+import { redis } from "../../utils/redis.js";
 
 dotenv.config();
 
@@ -143,6 +144,10 @@ export const logoutUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     res.cookie("access_token", "", { maxAge: 1 });
     res.cookie("refresh_token", "", { maxAge: 1 });
+
+    const userId = req.user?._id || req.user?.id;
+
+    await redis.del(userId);
     res.status(200).json({
       success: true,
       message: "User logout successfully",

@@ -7,6 +7,7 @@ import {
   logoutUser,
   registerUser,
   socialAuth,
+  udpateUserInfo,
   updateToken,
 } from "./user.controller.js";
 
@@ -19,4 +20,5 @@ router.post("/logout", isAuthenticated, logoutUser);
 router.get("/refresh", updateToken);
 router.get("/me", isAuthenticated, getUserInfo);
 router.post("/social-auth", socialAuth);
+router.patch("/update-user", isAuthenticated, udpateUserInfo);
 export default router;

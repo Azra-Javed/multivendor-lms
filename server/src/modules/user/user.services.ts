@@ -1,12 +1,14 @@
+import { redis } from "../../utils/redis.js";
 import userModel from "./user.model.js";
 
 // get user by id
 export const getUserById = async (id: string) => {
-  const user = await userModel.findById(id);
+  const userJson = await redis.get(id);
 
-  if (!user) {
+  if (!userJson) {
     throw new Error("User not found");
   }
+  const user = JSON.parse(userJson);
 
   return user;
 };

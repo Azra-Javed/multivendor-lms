@@ -30,3 +30,9 @@ export interface IsocialAuth {
   email: string;
   avatar: string;
 }
+
+//update user-info
+export interface IUpdateUserInfo {
+  name?: string;
+  email?: string;
+}

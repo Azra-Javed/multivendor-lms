@@ -13,6 +13,7 @@ import {
   ILogin,
   IRegistration,
   IsocialAuth,
+  IUpdateUserInfo,
 } from "./user.types.js";
 import {
   accessTokenOPtions,
@@ -202,6 +203,7 @@ export const updateToken = CatchAsyncError(
 
       // Optionally refresh Redis session TTL
       await redis.set(decoded.id, JSON.stringify(user));
+      req.user = user;
 
       // Send new access token as cookie
       res.cookie("access_token", accessToken, accessTokenOPtions);
@@ -235,7 +237,7 @@ export const getUserInfo = CatchAsyncError(
 );
 
 //@desc: social auth
-//@route: GET /api/v1/user/social-auths
+//@route: Post /api/v1/user/social-auths
 export const socialAuth = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -247,6 +249,45 @@ export const socialAuth = CatchAsyncError(
       } else {
         sendToken(user, 200, res);
       }
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+//@desc: update user info
+//@route: patch /api/v1/user/update-user
+
+export const udpateUserInfo = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { name, email } = req.body as IUpdateUserInfo;
+      const userId = req.user?._id;
+      if (!userId) {
+        return next(new ErrorHandler("User not authenticated", 401));
+      }
+      const user = await userModel.findById(userId);
+
+      if (email && user) {
+        const isEmailExists = await userModel.findOne({ email });
+        if (isEmailExists) {
+          return next(new ErrorHandler("Email already exist", 400));
+        }
+        user.email = email;
+      }
+
+      if (name && user) {
+        user.name = name;
+      }
+
+      await user?.save();
+
+      //update reids data
+      await redis.set(userId.toString(), JSON.stringify(user));
+      res.status(200).json({
+        success: true,
+        user,
+      });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }

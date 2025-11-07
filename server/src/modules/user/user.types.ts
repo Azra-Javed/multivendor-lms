@@ -36,3 +36,14 @@ export interface IUpdateUserInfo {
   name?: string;
   email?: string;
 }
+
+//upate user-password
+export interface IUpdateUserPassword{
+  oldPassword: string;
+  newPassword: string;
+}
+
+//update user avatar
+export interface IUpdateProfilePicture{
+  avatar: string
+}

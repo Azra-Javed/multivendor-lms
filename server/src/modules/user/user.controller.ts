@@ -6,6 +6,7 @@ import ErrorHandler from "../../utils/ErrorHandler.js";
 import sendMail from "../../utils/sendMail.js";
 import userModel from "./user.model.js";
 import { IUser } from "./user.model.js";
+import cloudinary from "cloudinary";
 
 import {
   IActivateUser,
@@ -14,6 +15,7 @@ import {
   IRegistration,
   IsocialAuth,
   IUpdateUserInfo,
+  IUpdateUserPassword,
 } from "./user.types.js";
 import {
   accessTokenOPtions,
@@ -152,7 +154,7 @@ export const logoutUser = CatchAsyncError(
 
     const userId = req.user?._id || req.user?.id;
 
-    await redis.del(userId);
+    await redis.del(userId.toString());
     res.status(200).json({
       success: true,
       message: "User logout successfully",
@@ -288,6 +290,95 @@ export const udpateUserInfo = CatchAsyncError(
         success: true,
         user,
       });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+//@desc: update user password
+//@route: patch /api/v1/user/update-password
+export const updatePassword = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { oldPassword, newPassword } = req.body as IUpdateUserPassword;
+
+      const user = await userModel.findById(req.user?._id).select("+password");
+
+      if (!oldPassword || !newPassword) {
+        return next(
+          new ErrorHandler("Please provide both old and new passwords", 400)
+        );
+      }
+
+      if (user?.password === undefined) {
+        return next(
+          new ErrorHandler(
+            "Password change is not allowed for social login accounts",
+            400
+          )
+        );
+      }
+
+      const isPasswordMatch = await user?.comparePassword(oldPassword);
+      if (!isPasswordMatch) {
+        return next(new ErrorHandler("Invalid old password", 400));
+      }
+
+      user.password = newPassword;
+      await user.save();
+
+      await redis.set(req.user._id.toString(), JSON.stringify(user));
+
+      res.status(200).json({
+        success: true,
+        user,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+//@desc: update user profile avatar
+//@route: patch /api/v1/user/update-avatar
+export const updateProfilePicture = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { avatar } = req.body;
+      const userId = req.user._id;
+
+      const user = await userModel.findById(userId);
+      if (!user) {
+        return next(new ErrorHandler("User not found", 404));
+      }
+
+      //if  user already has an avatar, delete the old one
+      if (user?.avatar?.public_id) {
+        await cloudinary.v2.uploader.destroy(user?.avatar?.public_id);
+      }
+
+      //upload new avatar
+      const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+        folder: "avatars",
+        width: 150,
+      });
+
+      //update user document
+      user.avatar = {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      };
+
+      await user.save();
+
+      await redis.set(userId.toString(), JSON.stringify(user));
+        res.status(200).json({
+        success: true,
+        message: "Profile picture updated successfully",
+        avatar: user.avatar,
+      });
+      
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }

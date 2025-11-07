@@ -8,6 +8,8 @@ import {
   registerUser,
   socialAuth,
   udpateUserInfo,
+  updatePassword,
+  updateProfilePicture,
   updateToken,
 } from "./user.controller.js";
 
@@ -21,4 +23,7 @@ router.get("/refresh", updateToken);
 router.get("/me", isAuthenticated, getUserInfo);
 router.post("/social-auth", socialAuth);
 router.patch("/update-user", isAuthenticated, udpateUserInfo);
+router.patch("/update-user-password",isAuthenticated, updatePassword)
+router.patch("/update-user-avatar",isAuthenticated, updateProfilePicture)
+
 export default router;

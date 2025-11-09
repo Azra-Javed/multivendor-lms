@@ -5,7 +5,12 @@ import cloudinary from "cloudinary";
 import { createCourse } from "./course.services.js";
 import CourseModel from "./course.model.js";
 import { redis } from "../../utils/redis.js";
-import { IAddAnswerData, IAddQuestionData } from "./course.types.js";
+import {
+  IAddAnswerData,
+  IAddAnswerToReviewData,
+  IAddQuestionData,
+  IAddReviewData,
+} from "./course.types.js";
 import mongoose from "mongoose";
 import path from "path";
 import ejs from "ejs";
@@ -294,6 +299,105 @@ export const addAnswer = CatchAsyncError(
 
       //  Response
       return res.status(200).json({
+        success: true,
+        course,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
+//@desc: add review in course
+//@route: PUT /api/v1/course/add-review
+export const addReview = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userCourseList = req.user?.courses;
+      const courseId = req.params.id;
+
+      //check courseId alrady exists in userCourseList based on _id
+      const courseExists = userCourseList?.some(
+        (course: any) => course._id.toString() === courseId?.toString()
+      );
+
+      if (!courseExists) {
+        return next(
+          new ErrorHandler("You are not eligible to access this course", 400)
+        );
+      }
+
+      const course = await CourseModel.findById(courseId);
+      if (!course) {
+        return next(new ErrorHandler("Course not found", 404));
+      }
+      const { review, rating } = req.body as IAddReviewData;
+
+      const reviewData: any = {
+        user: req.user,
+        comment: review,
+        rating,
+      };
+
+      course?.reviews.push(reviewData);
+      //calculate average rating
+      const total = course.reviews.reduce(
+        (sum: number, rev: any) => sum + rev.rating,
+        0
+      );
+      course.ratings = total / course.reviews.length;
+
+      await course.save();
+
+      const notification = {
+        title: "New Review Received",
+        message: `${req.user?.name} has given a review in ${course?.unmarkModified}`,
+      };
+
+      //create notification
+
+      res.status(200).json({
+        success: true,
+        course,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
+//@desc: add reply to review in course
+//@route: PUT /api/v1/course/add-reply
+export const addReplyToReview = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { comment, courseId, reviewId } =
+        req.body as IAddAnswerToReviewData;
+      const course = await CourseModel.findById(courseId);
+
+      if (!course) {
+        return next(new ErrorHandler("Course not found", 404));
+      }
+
+      const review = course?.reviews?.find(
+        (rev: any) => rev._id.toString() === reviewId
+      );
+      if (!review) {
+        return next(new ErrorHandler("Review not found", 404));
+      }
+
+      const replyData: any = {
+        user: req.user,
+        comment,
+      };
+
+      if(!review.commentReplies){
+        review.commentReplies = [];
+      }
+      review.commentReplies?.push(replyData);
+      await course?.save();
+
+      res.status(200).json({
         success: true,
         course,
       });

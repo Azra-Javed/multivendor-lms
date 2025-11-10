@@ -277,7 +277,7 @@ export const addAnswer = CatchAsyncError(
           title: courseContent.title,
         };
 
-        // Recreate __dirname in ES module
+        // create __dirname in ES module
         const __filename = fileURLToPath(import.meta.url);
         const __dirname = path.dirname(__filename);
         const html = await ejs.renderFile(

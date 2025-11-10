@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order Confirmation</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: #f5f7fa;
+        color: #333;
+        padding: 20px;
+      }
+      .container {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 30px;
+        max-width: 600px;
+        margin: auto;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        color: #2c3e50;
+        text-align: center;
+      }
+      .order-info {
+        margin-top: 20px;
+        border-top: 1px solid #ddd;
+        padding-top: 15px;
+      }
+      .order-info p {
+        line-height: 1.6;
+        font-size: 15px;
+      }
+      .highlight {
+        font-weight: bold;
+        color: #2b7a78;
+      }
+      .footer {
+        margin-top: 30px;
+        text-align: center;
+        font-size: 13px;
+        color: #888;
+      }
+      .btn {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #2b7a78;
+        color: #fff;
+        border-radius: 5px;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>🎉 Order Confirmation</h2>
+      <p>Hi there,</p>
+      <p>
+        Thank you for your purchase! Your order has been successfully created.
+        Below are your order details:
+      </p>
+
+      <div class="order-info">
+        <p><span class="highlight">Order ID:</span> <%= order._id %></p>
+        <p><span class="highlight">Course Name:</span> <%= order.name %></p>
+        <p><span class="highlight">Price:</span> $<%= order.price %></p>
+        <p><span class="highlight">Date:</span> <%= order.date %></p>
+      </div>
+
+      <p>
+        You can now access your course in your dashboard. If you have any
+        questions, feel free to reach out to our support team.
+      </p>
+
+      <div style="text-align: center">
+        <a href="https://yourwebsite.com/dashboard" class="btn"
+          >Go to Dashboard</a
+        >
+      </div>
+
+      <div class="footer">
+        <p>
+          © <%= new Date().getFullYear() %> Your Company Name. All rights
+          reserved.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

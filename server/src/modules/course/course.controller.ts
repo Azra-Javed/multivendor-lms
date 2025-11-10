@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { CatchAsyncError } from "../../middleware/catchAsyncErrors.js";
 import ErrorHandler from "../../utils/ErrorHandler.js";
 import cloudinary from "cloudinary";
-import { createCourse } from "./course.services.js";
+import { createCourse, getAllCoursesService } from "./course.services.js";
 import CourseModel from "./course.model.js";
 import { redis } from "../../utils/redis.js";
 import {
@@ -421,6 +421,19 @@ export const addReplyToReview = CatchAsyncError(
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
+
+//@desc: get all courses -- only for admins
+//@route: patch /api/v1/user/get-all-courses
+export const getAllCourses = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      getAllCoursesService(res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
     }
   }
 );

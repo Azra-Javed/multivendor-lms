@@ -1,7 +1,8 @@
 import express from "express";
-import { isAuthenticated } from "../../middleware/auth.js";
+import { authorizeRoles, isAuthenticated } from "../../middleware/auth.js";
 import {
   activateUser,
+  getAllUsers,
   getUserInfo,
   loginUser,
   logoutUser,
@@ -25,5 +26,7 @@ router.post("/social-auth", socialAuth);
 router.patch("/update-user", isAuthenticated, udpateUserInfo);
 router.patch("/update-user-password",isAuthenticated, updatePassword)
 router.patch("/update-user-avatar",isAuthenticated, updateProfilePicture)
+router.get("/get-all-users",isAuthenticated,authorizeRoles("admin"), getAllUsers)
+
 
 export default router;

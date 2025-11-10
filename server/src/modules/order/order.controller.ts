@@ -9,12 +9,11 @@ import path from "path";
 import ejs from "ejs";
 import sendMail from "../../utils/sendMail.js";
 import NotificationModel from "../notification/notification.model.js";
-import { newOrder } from "./order.service.js";
+import { getAllOrdersService, newOrder } from "./order.service.js";
 import { fileURLToPath } from "url";
 
 //@desc: create order
 //@route: PUT /api/v1/order/create-order
-
 export const createOrder = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -101,3 +100,17 @@ export const createOrder = CatchAsyncError(
     }
   }
 );
+
+//@desc: get all orders -- only for admins
+//@route: patch /api/v1/user/get-all-orders
+export const getAllOrers = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      getAllOrdersService(res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+

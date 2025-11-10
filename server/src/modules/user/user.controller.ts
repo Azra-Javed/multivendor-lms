@@ -23,7 +23,7 @@ import {
   sendToken,
 } from "../../utils/jwt.js";
 import { redis } from "../../utils/redis.js";
-import { getUserById } from "./user.services.js";
+import { getAllUsersService, getUserById } from "./user.services.js";
 
 dotenv.config();
 
@@ -373,12 +373,23 @@ export const updateProfilePicture = CatchAsyncError(
       await user.save();
 
       await redis.set(userId.toString(), JSON.stringify(user));
-        res.status(200).json({
+      res.status(200).json({
         success: true,
         message: "Profile picture updated successfully",
         avatar: user.avatar,
       });
-      
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+//@desc: get all users -- only for admins
+//@route: patch /api/v1/user/get-all-users
+export const getAllUsers = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      getAllUsersService(res);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }

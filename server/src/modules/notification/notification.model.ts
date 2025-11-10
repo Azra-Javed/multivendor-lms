@@ -3,8 +3,8 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 export interface INotification extends Document {
   title: string;
   message: string;
-  status: string;
-  userId: string;
+  status: "read" | "unread";
+  userId: Object;
 }
 
 const NotificationSchema = new Schema<INotification>(
@@ -21,6 +21,11 @@ const NotificationSchema = new Schema<INotification>(
       type: String,
       required: true,
       default: "unread",
+    },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
   },
   { timestamps: true }

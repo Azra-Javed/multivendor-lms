@@ -16,6 +16,7 @@ import path from "path";
 import ejs from "ejs";
 import sendMail from "../../utils/sendMail.js";
 import { fileURLToPath } from "url";
+import NotificationModel from "../notification/notification.model.js";
 
 //@desc: upload course
 //@route: POST /api/v1/course/create-course
@@ -209,6 +210,13 @@ export const addQuestion = CatchAsyncError(
       courseContent.questions.push(newQuestion);
       await course.save();
 
+      //create notification
+      await NotificationModel.create({
+        user: req.user._id,
+        title: "new Question Received",
+        message: `You have a new question in ${courseContent?.title}`,
+      });
+
       // Send response
       res.status(200).json({
         success: true,
@@ -270,7 +278,12 @@ export const addAnswer = CatchAsyncError(
 
       // Notify or email
       if (req.user._id === question.user._id) {
-        // Create notification logic here
+        //create notification
+        await NotificationModel.create({
+          user: req.user._id,
+          title: "New Question Reply Received",
+          message: `You have a new question in ${course.name}`,
+        });
       } else {
         const data = {
           name: question.user.name || "User",
@@ -351,10 +364,15 @@ export const addReview = CatchAsyncError(
 
       const notification = {
         title: "New Review Received",
-        message: `${req.user?.name} has given a review in ${course?.unmarkModified}`,
+        message: `${req.user?.name} has given a review in ${course?.name}`,
       };
 
       //create notification
+      await NotificationModel.create({
+        userId: req.user._id,
+        title: notification.title,
+        message: notification.message,
+      });
 
       res.status(200).json({
         success: true,
@@ -391,7 +409,7 @@ export const addReplyToReview = CatchAsyncError(
         comment,
       };
 
-      if(!review.commentReplies){
+      if (!review.commentReplies) {
         review.commentReplies = [];
       }
       review.commentReplies?.push(replyData);

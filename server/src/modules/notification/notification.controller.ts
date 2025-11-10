@@ -2,6 +2,7 @@ import NotificationModel from "./notification.model.js";
 import { Request, Response, NextFunction } from "express";
 import { CatchAsyncError } from "../../middleware/catchAsyncErrors.js";
 import ErrorHandler from "../../utils/ErrorHandler.js";
+import cron from "node-cron";
 
 //@desc: get all notification --> only for admin
 //@route: GET /api/v1/notification/get-all-notifications
@@ -32,7 +33,7 @@ export const updateNotification = CatchAsyncError(
       const notification = await NotificationModel.findByIdAndUpdate(
         req.params.id,
         { status: "read" },
-        { new: true } 
+        { new: true }
       );
 
       if (!notification) {
@@ -40,7 +41,9 @@ export const updateNotification = CatchAsyncError(
       }
 
       // Fetch all notifications sorted by latest --> to update the frontend
-      const notifications = await NotificationModel.find().sort({ createdAt: -1 });
+      const notifications = await NotificationModel.find().sort({
+        createdAt: -1,
+      });
 
       res.status(200).json({
         success: true,
@@ -51,3 +54,12 @@ export const updateNotification = CatchAsyncError(
     }
   }
 );
+
+//@desc: delete notificaions --> only for admin
+cron.schedule("0 0 0 * * *", async () => {
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  await NotificationModel.deleteMany({
+    status: "read",
+    createdAt: { $lt: thirtyDaysAgo },
+  });
+});

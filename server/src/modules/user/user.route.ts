@@ -12,6 +12,7 @@ import {
   updatePassword,
   updateProfilePicture,
   updateToken,
+  updateUserRole,
 } from "./user.controller.js";
 
 const router = express.Router();
@@ -27,6 +28,8 @@ router.patch("/update-user", isAuthenticated, udpateUserInfo);
 router.patch("/update-user-password",isAuthenticated, updatePassword)
 router.patch("/update-user-avatar",isAuthenticated, updateProfilePicture)
 router.get("/get-all-users",isAuthenticated,authorizeRoles("admin"), getAllUsers)
+router.post("/update-role",isAuthenticated,authorizeRoles("admin"), updateUserRole)
+
 
 
 export default router;

@@ -23,7 +23,7 @@ import {
   sendToken,
 } from "../../utils/jwt.js";
 import { redis } from "../../utils/redis.js";
-import { getAllUsersService, getUserById } from "./user.services.js";
+import { getAllUsersService, getUserById, updateUserRoleService } from "./user.services.js";
 
 dotenv.config();
 
@@ -395,3 +395,14 @@ export const getAllUsers = CatchAsyncError(
     }
   }
 );
+
+//@desc: update user role -- only for admins
+//@route: patch /api/v1/user/update-role
+export const updateUserRole = CatchAsyncError(async(req:Request, res:Response, next:NextFunction)=>{
+   try {
+        const {id, role} = req.body;
+        updateUserRoleService(id,role,res);
+   } catch (error:any) {
+    return next(new ErrorHandler(error.message, 500))
+   }
+})

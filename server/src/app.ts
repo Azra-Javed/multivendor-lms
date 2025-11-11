@@ -12,6 +12,7 @@ import userRouter from "./modules/user/user.route.js";
 import courseRouter from "./modules/course/course.route.js";
 import orderRouter from "./modules/order/order.route.js";
 import NotificationRouter from "./modules/notification/notificaion.route.js";
+import analyticsRouter from "./modules/analytics/analytics.route.js";
 
 // dotenv
 dotenv.config();
@@ -31,9 +32,10 @@ app.use(
 
 //routes
 app.use("/api/v1/user", userRouter);
-app.use("/api/v1/course", courseRouter)
+app.use("/api/v1/course", courseRouter);
 app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/notification", NotificationRouter);
+app.use("/api/v1/analytics", analyticsRouter);
 
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {
   res.status(200).json({

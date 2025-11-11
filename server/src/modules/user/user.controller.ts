@@ -23,7 +23,11 @@ import {
   sendToken,
 } from "../../utils/jwt.js";
 import { redis } from "../../utils/redis.js";
-import { getAllUsersService, getUserById, updateUserRoleService } from "./user.services.js";
+import {
+  getAllUsersService,
+  getUserById,
+  updateUserRoleService,
+} from "./user.services.js";
 
 dotenv.config();
 
@@ -398,11 +402,41 @@ export const getAllUsers = CatchAsyncError(
 
 //@desc: update user role -- only for admins
 //@route: patch /api/v1/user/update-role
-export const updateUserRole = CatchAsyncError(async(req:Request, res:Response, next:NextFunction)=>{
-   try {
-        const {id, role} = req.body;
-        updateUserRoleService(id,role,res);
-   } catch (error:any) {
-    return next(new ErrorHandler(error.message, 500))
-   }
-})
+export const updateUserRole = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id, role } = req.body;
+      updateUserRoleService(id, role, res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
+//@desc: delete user -- only for admins
+//@route: delete /api/v1/user/delete-user/:id
+export const deleteUser = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+
+      const user = await userModel.findById(id);
+      if (!user) {
+        return next(new ErrorHandler("User not found", 404));
+      }
+
+      await user.deleteOne();
+
+      if (id) {
+        await redis.del(id);
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "User deleted successfully",
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);

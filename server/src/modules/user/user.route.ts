@@ -2,6 +2,7 @@ import express from "express";
 import { authorizeRoles, isAuthenticated } from "../../middleware/auth.js";
 import {
   activateUser,
+  deleteUser,
   getAllUsers,
   getUserInfo,
   loginUser,
@@ -29,6 +30,7 @@ router.patch("/update-user-password",isAuthenticated, updatePassword)
 router.patch("/update-user-avatar",isAuthenticated, updateProfilePicture)
 router.get("/get-all-users",isAuthenticated,authorizeRoles("admin"), getAllUsers)
 router.post("/update-role",isAuthenticated,authorizeRoles("admin"), updateUserRole)
+router.delete("/delete-user/:id",isAuthenticated,authorizeRoles("admin"), deleteUser)
 
 
 

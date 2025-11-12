@@ -13,6 +13,7 @@ import courseRouter from "./modules/course/course.route.js";
 import orderRouter from "./modules/order/order.route.js";
 import NotificationRouter from "./modules/notification/notificaion.route.js";
 import analyticsRouter from "./modules/analytics/analytics.route.js";
+import layoutRouter from "./modules/layout/layout.route.js";
 
 // dotenv
 dotenv.config();
@@ -36,6 +37,7 @@ app.use("/api/v1/course", courseRouter);
 app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/notification", NotificationRouter);
 app.use("/api/v1/analytics", analyticsRouter);
+app.use("/api/v1/layout", layoutRouter);
 
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {
   res.status(200).json({

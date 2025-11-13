@@ -103,7 +103,8 @@ export const getCourse = CatchAsyncError(
           "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links"
         );
 
-        await redis.set(courseId, JSON.stringify(course));
+        await redis.set(courseId, JSON.stringify(course), "EX", 604800);
+
         res.status(200).json({
           success: true,
           course,
@@ -424,7 +425,6 @@ export const addReplyToReview = CatchAsyncError(
     }
   }
 );
-
 
 //@desc: get all courses -- only for admins
 //@route: patch /api/v1/user/get-all-courses

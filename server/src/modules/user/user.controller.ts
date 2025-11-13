@@ -188,7 +188,12 @@ export const updateToken = CatchAsyncError(
 
       const session = await redis.get(decoded.id);
       if (!session) {
-        return next(new ErrorHandler("Session expired or invalid", 400));
+        return next(
+          new ErrorHandler(
+            "Session expired or invalid. Please Login to access this resource",
+            400
+          )
+        );
       }
 
       const user = JSON.parse(session);
@@ -207,8 +212,8 @@ export const updateToken = CatchAsyncError(
         }
       );
 
-      // Optionally refresh Redis session TTL
-      await redis.set(decoded.id, JSON.stringify(user));
+      // refresh Redis session
+      await redis.set(decoded.id, JSON.stringify(user), "EX", 604800);
       req.user = user;
 
       // Send new access token as cookie

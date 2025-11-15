@@ -1,31 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Josefin+Sans:wght@400;600&display=swap');
+/* Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Josefin+Sans:wght@400;500;600;700&display=swap");
 
+/* Tailwind */
 @import "tailwindcss";
 
-
+/* Light Mode Variables */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
+
+  /* Fonts */
+  --font-Poppins: "Poppins", sans-serif;
+  --font-Josefin: "Josefin Sans", sans-serif;
 }
 
-/* Dark Mode */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Dark Mode (class-based for next-themes) */
+html.dark {
+  --foreground-rgb: 255, 255, 255;
+  --background-rgb: 10, 10, 10;
 }
 
-/*  Tailwind v4 Theme Customization */
+/* Tailwind v4 THEME from your tailwind.config.js */
 @theme {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-poppins: var(--font-Poppins);
-  --font-josefin: var(--font-Josefin);
+  /* Colors */
+  --color-foreground: rgb(var(--foreground-rgb));
+  --color-background: rgb(var(--background-rgb));
 
-  /*  Custom Breakpoints (Screens) */
+  /* Fonts */
+  --font-Poppins: var(--font-Poppins);
+  --font-Josefin: var(--font-Josefin);
+
+  /* Breakpoints */
   --breakpoint-400px: 400px;
   --breakpoint-800px: 800px;
   --breakpoint-1000px: 1000px;
@@ -33,11 +38,76 @@
   --breakpoint-1200px: 1200px;
   --breakpoint-1300px: 1300px;
   --breakpoint-1500px: 1500px;
+
+  /* Background gradients */
+  --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
+  --background-image-gradient-conic: conic-gradient(
+    from 180deg at 50% 50%,
+    var(--tw-gradient-stops)
+  );
 }
 
-/*  Body Styling */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Body Defaults */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  background: rgb(var(--background-rgb));
+  color: rgb(var(--foreground-rgb));
+  font-family: var(--font-Poppins);
+}
+
+.hero_animation {
+  background-image: linear-gradient(
+    147.92deg,
+    hsla(239, 76%, 53%, 0.456) 10.41%,
+    hsla(0, 0%, 100%, 0) 89.25%
+  );
+  animation: changeBackgroundColor 8s infinite alternate;
+}
+
+@keyframes changeBackgroundColor {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  16.67% {
+    opacity: 0.9;
+  }
+  33.33% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  66.67% {
+    opacity: 0.5;
+  }
+  83.33% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-2px);
+  }
+  40% {
+    transform: translateX(2px);
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.shake {
+  animation: shake 0.5s ease-in-out;
 }

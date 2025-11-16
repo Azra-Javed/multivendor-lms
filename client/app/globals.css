@@ -56,6 +56,16 @@ body {
   font-family: var(--font-Poppins);
 }
 
+input::--webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 .hero_animation {
   background-image: linear-gradient(
     147.92deg,

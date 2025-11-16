@@ -5,18 +5,25 @@ import { useState } from "react";
 import NavItems from "../utils/NavItems";
 import ThemeSwitcher from "../utils/ThemeSwitcher";
 import { HiOutlineMenuAlt3, HiOutlineUserCircle } from "react-icons/hi";
+import CustomModel from "../utils/CustomModel";
+import Login from "../components/Auth/Login";
+import SignUp from "../components/Auth/SignUp";
+import Verification from "../components/Auth/Verification";
 
 interface Props {
   open: boolean;
   setOpen: (open: boolean) => void;
   activeItem: number;
+  route: String;
+  setRoute: (route: string) => void;
 }
 
-const Header = ({ open, setOpen, activeItem }: Props) => {
+const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
   const [active, setActive] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(false);
 
   if (typeof window !== "undefined") {
+    //scroll detector
     window.addEventListener("scroll", () => {
       if (window.scrollY > 80) setActive(true);
       else setActive(false);
@@ -94,6 +101,36 @@ const Header = ({ open, setOpen, activeItem }: Props) => {
           </div>
         )}
       </div>
+
+      {/* popup */}
+      {route === "Login" && open && (
+        <CustomModel
+          open={open}
+          setOpen={setOpen}
+          setRoute={setRoute}
+          activeItem={activeItem}
+          Component={Login}
+        />
+      )}
+
+      {route === "Sign-Up" && open && (
+        <CustomModel
+          open={open}
+          setOpen={setOpen}
+          setRoute={setRoute}
+          activeItem={activeItem}
+          Component={SignUp}
+        />
+      )}
+      {route === "Verification" && open && (
+        <CustomModel
+          open={open}
+          setOpen={setOpen}
+          setRoute={setRoute}
+          activeItem={activeItem}
+          Component={Verification}
+        />
+      )}
     </div>
   );
 };

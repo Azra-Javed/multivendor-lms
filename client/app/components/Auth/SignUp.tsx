@@ -7,8 +7,10 @@ import {
   AiFillGithub,
 } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { styles } from "@/app/styles/styles";
+import { useRegisterMutation } from "@/redux/features/auth/authApi";
+import toast from "react-hot-toast";
 
 type Props = {
   setRoute: (route: string) => void;
@@ -24,12 +26,33 @@ const schema = Yup.object().shape({
 
 const SignUp = ({ setRoute }: Props) => {
   const [show, setShow] = useState(false);
+  const [register, { isError, isLoading, data, error, isSuccess }] =
+    useRegisterMutation();
+
+  useEffect(() => {
+    if (isSuccess) {
+      const message = data?.message || "Registeration successful";
+      toast.success(message);
+      setRoute("Verification");
+    }
+    if (error) {
+      if ("data" in error) {
+        const errorData = error as any;
+        toast.error(errorData.data.message);
+      }
+    }
+  }, [isSuccess, error]);
 
   const formik = useFormik({
     initialValues: { name: "", email: "", password: "" },
     validationSchema: schema,
-    onSubmit: async ({ email, password }) => {
-      setRoute("Verification");
+    onSubmit: async ({ name, email, password }) => {
+      const data = {
+        name,
+        email,
+        password,
+      };
+      await register(data);
     },
   });
 
@@ -129,7 +152,7 @@ const SignUp = ({ setRoute }: Props) => {
               className="text-[#2190ff] pl-1 cursor-pointer"
               onClick={() => setRoute("Login")}
             >
-              Login
+              Sign in
             </span>
           </h5>
           <br />

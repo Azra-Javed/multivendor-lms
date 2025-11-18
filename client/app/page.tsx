@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Header from "../app/components/Header";
 import Hero from "../app/components/Hero";
+import Heading from "./utils/Heading";
 interface Props {}
 
 const page = () => {
@@ -11,6 +12,11 @@ const page = () => {
 
   return (
     <>
+      <Heading
+        title="ELearning"
+        description="ELearning is a platform for students to learn and get help from teachers"
+        keywords="Prograaming,MERN,Redux,Machine Learning"
+      />
       <Header
         open={open}
         activeItem={activeItem}

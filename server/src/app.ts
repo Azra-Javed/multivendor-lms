@@ -27,17 +27,21 @@ app.use(cookieParser());
 //cors => cross origin resource sharing
 app.use(
   cors({
-    origin: process.env.ORIGIN,
+    origin: "http://localhost:3000",
+    credentials: true,
   })
 );
 
 //routes
-app.use("/api/v1/user", userRouter);
-app.use("/api/v1/course", courseRouter);
-app.use("/api/v1/order", orderRouter);
-app.use("/api/v1/notification", NotificationRouter);
-app.use("/api/v1/analytics", analyticsRouter);
-app.use("/api/v1/layout", layoutRouter);
+app.use(
+  "/api/v1/",
+  userRouter,
+  courseRouter,
+  orderRouter,
+  NotificationRouter,
+  analyticsRouter,
+  layoutRouter
+);
 
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {
   res.status(200).json({

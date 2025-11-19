@@ -7,11 +7,15 @@ import {
   AiFillGithub,
 } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { styles } from "@/app/styles/styles";
+import { useLoginMutation } from "@/redux/features/auth/authApi";
+import toast from "react-hot-toast";
+import { signIn } from "next-auth/react";
 
 type Props = {
   setRoute: (route: string) => void;
+  setOpen: (open: boolean) => void;
 };
 
 const schema = Yup.object().shape({
@@ -21,14 +25,28 @@ const schema = Yup.object().shape({
   password: Yup.string().required("Please enter your password").min(6),
 });
 
-const Login = ({ setRoute }: Props) => {
+const Login = ({ setRoute, setOpen }: Props) => {
   const [show, setShow] = useState(false);
+  const [login, { isSuccess, error, data }] = useLoginMutation();
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Login Successfully!");
+      setOpen(false);
+    }
+    if (error) {
+      if ("data" in error) {
+        const errorData = error as any;
+        toast.error(errorData.data.message);
+      }
+    }
+  }, [isSuccess, error]);
 
   const formik = useFormik({
     initialValues: { email: "", password: "" },
     validationSchema: schema,
     onSubmit: async ({ email, password }) => {
-      console.log(email, password);
+      await login({ email, password });
     },
   });
 
@@ -97,8 +115,16 @@ const Login = ({ setRoute }: Props) => {
             or join with
           </h5>
           <div className="flex items-center justify-center my-3">
-            <FcGoogle size={30} className="cursor-pointer mr-2" />
-            <AiFillGithub size={30} className="cursor-pointer ml-2" />
+            <FcGoogle
+              size={30}
+              className="cursor-pointer mr-2"
+              onClick={() => signIn("google")}
+            />
+            <AiFillGithub
+              size={30}
+              className="cursor-pointer ml-2"
+              onClick={() => signIn("github")}
+            />
           </div>
           <h5 className="text-center pt-4 font-Poppins text-[14px]">
             Not have any account?{" "}

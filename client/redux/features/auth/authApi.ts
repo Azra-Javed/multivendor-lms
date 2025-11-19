@@ -1,8 +1,6 @@
 //actions
-
-import toast from "react-hot-toast";
 import { apiSlice } from "../api/apiSlice";
-import { userRegisteration } from "./authSlice";
+import { userLoggedIn, userRegisteration } from "./authSlice";
 
 type RegisterationResponse = {
   message: string;
@@ -13,7 +11,7 @@ type RegisterationData = {};
 
 export const authApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    //endpoints here
+    //endpoints
     register: builder.mutation<RegisterationResponse, RegisterationData>({
       query: (data) => ({
         url: "registeration",
@@ -45,6 +43,62 @@ export const authApi = apiSlice.injectEndpoints({
         },
       }),
     }),
+
+    login: builder.mutation({
+      query: ({ email, password }) => ({
+        url: "login",
+        method: "POST",
+        body: {
+          email,
+          password,
+        },
+        credentials: "include" as const,
+      }),
+      async onQueryStarted(arg, { queryFulfilled, dispatch }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(
+            userLoggedIn({
+              accessToken: data.activationToken,
+              user: data.user,
+            })
+          );
+        } catch (error) {
+          console.log(error);
+        }
+      },
+    }),
+
+    socialAuth: builder.mutation({
+      query: ({ email, name, avatar }) => ({
+        url: "social-auth",
+        method: "POST",
+        body: {
+          email,
+          name,
+          avatar,
+        },
+        credentials: "include" as const,
+      }),
+      async onQueryStarted(arg, { queryFulfilled, dispatch }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(
+            userLoggedIn({
+              accessToken: data.activationToken,
+              user: data.user,
+            })
+          );
+        } catch (error) {
+          console.log(error);
+        }
+      },
+    }),
   }),
 });
-export const { useRegisterMutation, useActivationMutation } = authApi;
+export const {
+  useRegisterMutation,
+  useActivationMutation,
+  useLoginMutation,
+  useSocialAuthMutation,
+} = authApi;

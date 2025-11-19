@@ -5,6 +5,8 @@ import "./globals.css";
 import { Providers } from "./provider";
 import { ThemeProvider } from "./utils/theme-provider";
 import { SessionProvider } from "next-auth/react";
+import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
+import Loader from "../app/components/Loader";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -31,7 +33,7 @@ export default function RootLayout({
         <Providers>
           <SessionProvider>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-              {children}
+              <UserLoader>{children}</UserLoader>
               <Toaster position="top-center" reverseOrder={false} />
             </ThemeProvider>
           </SessionProvider>
@@ -40,3 +42,11 @@ export default function RootLayout({
     </html>
   );
 }
+
+const UserLoader = ({ children }: { children: React.ReactNode }) => {
+  const { isLoading } = useLoadUserQuery({});
+
+  if (isLoading) return <Loader />;
+
+  return <>{children}</>;
+};

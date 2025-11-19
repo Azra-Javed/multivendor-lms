@@ -13,7 +13,10 @@ import { useSelector } from "react-redux";
 import Image from "next/image";
 import avatar from "../../public/assets/avatar.png";
 import { useSession } from "next-auth/react";
-import { useSocialAuthMutation } from "@/redux/features/auth/authApi";
+import {
+  useLogOutQuery,
+  useSocialAuthMutation,
+} from "@/redux/features/auth/authApi";
 import toast from "react-hot-toast";
 
 interface Props {
@@ -29,31 +32,41 @@ const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
   const [openSidebar, setOpenSidebar] = useState(false);
   const { user } = useSelector((state: any) => state.auth);
   const [socialAuth, { isSuccess, error }] = useSocialAuthMutation();
+  const [logout, setLogout] = useState(false);
+  const {} = useLogOutQuery(undefined, {
+    skip: !logout,
+  });
 
   const { data } = useSession();
 
   useEffect(() => {
-    if (!user) {
-      if (data) {
-        socialAuth({
-          email: data?.user?.email,
-          name: data?.user?.name,
-          avatar: data?.user?.image,
-        });
-      }
+    if (!user && data) {
+      socialAuth({
+        email: data.user?.email,
+        name: data.user?.name,
+        avatar: data.user?.image,
+      });
     }
 
-    if (isSuccess) {
-      toast.success("Login successful");
+    if (data === null && isSuccess) {
+      toast.success("Login successfully");
+    }
+
+    // User logged OUT from NextAuth
+    if (!data && user) {
+      setLogout(true);
     }
   }, [data, user]);
-  if (typeof window !== "undefined") {
-    //scroll detector
-    window.addEventListener("scroll", () => {
-      if (window.scrollY > 80) setActive(true);
-      else setActive(false);
-    });
-  }
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setActive(window.scrollY > 80);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleClose = (e: any) => {
     if (e.target.id === "screen") {
@@ -98,9 +111,14 @@ const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
                 <>
                   <Link href={"/profile"}>
                     <Image
-                      src={user.image ? user.image : avatar}
+                      src={user.avatar ? user.avatar.url : avatar}
+                      width={30}
+                      height={30}
                       alt=""
                       className="h-[30px] w-[30px] rounded-full cursor-pointer"
+                      style={{
+                        border: activeItem === 5 ? "2px solid #37a39a" : "none",
+                      }}
                     />
                   </Link>
                 </>

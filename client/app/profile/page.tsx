@@ -1,10 +1,11 @@
 "use client";
-import { use, useState } from "react";
-import Protected from "../hooks/useAuth";
-import Heading from "../utils/Heading";
+import { useState } from "react";
+
+import { useSelector } from "react-redux";
 import Header from "../components/Header";
 import Profile from "../components/Profile/Profile";
-import { useSelector } from "react-redux";
+import Heading from "../utils/Heading";
+import Protected from "../hooks/userProtected";
 
 type Props = {};
 const page = ({}: Props) => {
@@ -17,7 +18,7 @@ const page = ({}: Props) => {
     <>
       <Protected>
         <Heading
-          title={`${user.name}/profile`}
+          title={`${user.name} profile - E-learing`}
           description="ELearning is a platform for students to learn and get help from teachers"
           keywords="Prograaming,MERN,Redux,Machine Learning"
         />

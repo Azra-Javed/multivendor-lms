@@ -272,20 +272,12 @@ export const socialAuth = CatchAsyncError(
 export const udpateUserInfo = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { name, email } = req.body as IUpdateUserInfo;
+      const { name } = req.body as IUpdateUserInfo;
       const userId = req.user?._id;
       if (!userId) {
         return next(new ErrorHandler("User not authenticated", 401));
       }
       const user = await userModel.findById(userId);
-
-      if (email && user) {
-        const isEmailExists = await userModel.findOne({ email });
-        if (isEmailExists) {
-          return next(new ErrorHandler("Email already exist", 400));
-        }
-        user.email = email;
-      }
 
       if (name && user) {
         user.name = name;

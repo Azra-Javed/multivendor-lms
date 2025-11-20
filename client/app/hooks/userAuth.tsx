@@ -1,3 +1,4 @@
+"use client";
 import { useSelector, UseSelector } from "react-redux";
 
 export default function userAuth() {

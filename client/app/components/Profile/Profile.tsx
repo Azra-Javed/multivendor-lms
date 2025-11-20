@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import SidebarProfile from "./SidebarProfile";
 import ProfileInfo from "./ProfileInfo";
+import ChangePassword from "./ChangePassword";
 type Props = {
   user: any;
 };
@@ -12,7 +13,7 @@ const Profile = ({ user }: Props) => {
   const [avatar, setAvatar] = useState(null);
   const [active, setActive] = useState(1);
 
-  // FIXED: Proper scroll listener
+  //scroll listener
   useEffect(() => {
     const handleScroll = () => {
       setScroll(window.scrollY > 85);
@@ -40,6 +41,11 @@ const Profile = ({ user }: Props) => {
       {active === 1 && (
         <div className="w-full h-full bg-transparent mt-[80px]">
           <ProfileInfo avatar={avatar} user={user} />
+        </div>
+      )}
+      {active === 2 && (
+        <div className="w-full h-full bg-transparent mt-[80px]">
+          <ChangePassword />
         </div>
       )}
     </div>

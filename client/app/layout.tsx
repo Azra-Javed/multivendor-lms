@@ -1,12 +1,11 @@
 "use client";
+import { SessionProvider } from "next-auth/react";
 import { Josefin_Sans, Poppins } from "next/font/google";
 import { Toaster } from "react-hot-toast";
+import UserLoader from "./components/Loader/UserLoader";
 import "./globals.css";
 import { Providers } from "./provider";
 import { ThemeProvider } from "./utils/theme-provider";
-import { SessionProvider } from "next-auth/react";
-import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
-import Loader from "../app/components/Loader";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -42,11 +41,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-const UserLoader = ({ children }: { children: React.ReactNode }) => {
-  const { isLoading } = useLoadUserQuery({});
-
-  if (isLoading) return <Loader />;
-
-  return <>{children}</>;
-};

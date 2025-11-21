@@ -53,7 +53,7 @@ const ChangePassword = (props: Props) => {
                 className={`${styles.input} !w-[95%] mb-4 800px:mb-0 text-black dark:text-[#fff]`}
                 required
                 value={oldPassword}
-                onChange={(e) => setOldPassword(e.target.value)}
+                onChange={(e: any) => setOldPassword(e.target.value)}
               />
             </div>
             <div className=" w-[100%] 800px:w-[60%] mt-2">
@@ -65,7 +65,7 @@ const ChangePassword = (props: Props) => {
                 className={`${styles.input} !w-[95%] mb-4 800px:mb-0 text-black dark:text-[#fff]`}
                 required
                 value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
+                onChange={(e: any) => setNewPassword(e.target.value)}
               />
             </div>
             <div className=" w-[100%] 800px:w-[60%] mt-2">
@@ -77,7 +77,7 @@ const ChangePassword = (props: Props) => {
                 className={`${styles.input} !w-[95%] mb-4 800px:mb-0 text-black dark:text-[#fff]`}
                 required
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e: any) => setConfirmPassword(e.target.value)}
               />
               <input
                 className={`w-[95%] h-[40px] border border-[#37a39a] text-center text-black dark:text-[#fff] rounded-[3px] mt-8 cursor-pointer`}

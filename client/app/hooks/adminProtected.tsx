@@ -1,15 +1,29 @@
-import { redirect } from "next/navigation";
-import { ReactNode } from "react";
+"use client";
+
 import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { ReactNode } from "react";
 
 type Props = {
   children: ReactNode;
 };
 
-const adminProtected = ({ children }: Props) => {
+const AdminProtected = ({ children }: Props) => {
+  const router = useRouter();
   const { user } = useSelector((state: any) => state.auth);
-  const isAdmin = user?.role === "amdin";
-  return isAdmin ? children : redirect("/");
+
+  useEffect(() => {
+    // If user is not admin → redirect
+    if (!user || user.role !== "admin") {
+      router.replace("/");
+    }
+  }, [user, router]);
+
+  // While checking → return nothing or loader
+  if (!user || user.role !== "admin") return null;
+
+  return <>{children}</>;
 };
 
-export default adminProtected;
+export default AdminProtected;

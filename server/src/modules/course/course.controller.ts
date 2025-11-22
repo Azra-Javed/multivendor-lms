@@ -17,6 +17,7 @@ import ejs from "ejs";
 import sendMail from "../../utils/sendMail.js";
 import { fileURLToPath } from "url";
 import NotificationModel from "../notification/notification.model.js";
+import axios from "axios";
 
 //@desc: upload course
 //@route: POST /api/v1/course/create-course
@@ -462,6 +463,38 @@ export const deleteCourse = CatchAsyncError(
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
+//@desc: generate video url
+//@route: POST /api/getVideoCipherOTP
+
+export const generateVideoUrl = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { videoId } = req.body;
+      console.log("Video ID:", videoId);
+
+      if (!videoId) {
+        return res.status(400).json({ message: "Video ID missing" });
+      }
+
+      const response = await axios.post(
+        `https://dev.vdocipher.com/api/videos/${videoId}/otp`,
+        { ttl: 300 },
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Apisecret ${process.env.VDOCIPHER_API_SECRET}`,
+          },
+        }
+      );
+
+      res.json(response.data);
+    } catch (error: any) {
+      console.log("OTP ERROR:", error.response?.data || error.message);
+      return next(new ErrorHandler(error.message, 400));
     }
   }
 );

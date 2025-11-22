@@ -7,6 +7,7 @@ import {
   addReview,
   deleteCourse,
   editCourse,
+  generateVideoUrl,
   getAllCourses,
   getCourse,
   getCourseByUser,
@@ -33,8 +34,19 @@ router.get("/get-course-content/:id", isAuthenticated, getCourseByUser);
 router.put("/add-question", isAuthenticated, addQuestion);
 router.put("/add-answer", isAuthenticated, addAnswer);
 router.put("/add-review/:id", isAuthenticated, addReview);
-router.put("/add-reply", isAuthenticated,authorizeRoles("admin"), addReplyToReview);
-router.get("/get-all-courses", isAuthenticated,authorizeRoles("admin"), getAllCourses);
-router.delete("/delete-course/:id", isAuthenticated,authorizeRoles("admin"), deleteCourse);
+router.put(
+  "/add-reply",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  addReplyToReview
+);
+router.get(
+  "/get-all-courses",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  getAllCourses
+);
+router.post("/getVdoCipherOTP", generateVideoUrl);
+router.delete("/delete-course/:id", authorizeRoles("admin"), deleteCourse);
 
 export default router;

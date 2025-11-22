@@ -5,23 +5,27 @@ import {
   getOrdersAnalytics,
   getUsersAnalytics,
 } from "./analytics.controller.js";
+import { updateToken } from "../user/user.controller.js";
 
 const router = express.Router();
 
 router.get(
   "/get-users-analytics",
+  updateToken,
   isAuthenticated,
   authorizeRoles("admin"),
   getUsersAnalytics
 );
 router.get(
   "/get-courses-analytics",
+  updateToken,
   isAuthenticated,
   authorizeRoles("admin"),
   getCoursesAnalytics
 );
 router.get(
   "/get-orders-analytics",
+  updateToken,
   isAuthenticated,
   authorizeRoles("admin"),
   getOrdersAnalytics

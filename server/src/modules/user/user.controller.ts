@@ -220,10 +220,7 @@ export const updateToken = CatchAsyncError(
       res.cookie("access_token", accessToken, accessTokenOPtions);
       res.cookie("refresh_token", refreshToken, refreshTokenOPtions);
 
-      return res.status(200).json({
-        success: true,
-        accessToken,
-      });
+      next();
     } catch (error) {
       return next(new ErrorHandler("Could not refresh token", 400));
     }

@@ -57,6 +57,6 @@ router.get(
   getAllCourses
 );
 router.post("/getVdoCipherOTP", generateVideoUrl);
-router.delete("/delete-course/:id", authorizeRoles("admin"), deleteCourse);
+router.delete("/delete-course/:id", deleteCourse);
 
 export default router;

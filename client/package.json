@@ -13,6 +13,7 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.5",
     "@mui/material": "^7.3.5",
+    "@mui/x-data-grid": "^8.19.0",
     "@reduxjs/toolkit": "^2.10.1",
     "axios": "^1.13.2",
     "formik": "^2.4.9",
@@ -25,6 +26,7 @@
     "react-icons": "^5.5.0",
     "react-pro-sidebar": "^1.1.0",
     "react-redux": "^9.2.0",
+    "timeago.js": "^4.0.2",
     "yup": "^1.7.1"
   },
   "devDependencies": {

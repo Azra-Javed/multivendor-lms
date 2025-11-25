@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post("/create-order", updateToken, isAuthenticated, createOrder);
 router.get(
-  "/get-all-orders",
+  "/get-orders",
   updateToken,
   isAuthenticated,
   authorizeRoles("admin"),

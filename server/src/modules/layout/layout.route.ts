@@ -15,12 +15,12 @@ router.post(
   authorizeRoles("admin"),
   createLayout
 );
-router.patch(
+router.put(
   "/edit-layout",
   updateToken,
   isAuthenticated,
   authorizeRoles("admin"),
   editLayout
 );
-router.get("/get-layout", getLayoutBYType);
+router.get("/get-layout/:type", getLayoutBYType);
 export default router;

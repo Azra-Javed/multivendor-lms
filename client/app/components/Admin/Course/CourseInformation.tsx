@@ -1,5 +1,6 @@
 import { styles } from "@/app/styles/styles";
-import { useState } from "react";
+import { useGetHeroDataQuery } from "@/redux/features/layout/layoutApi";
+import { useEffect, useState } from "react";
 
 type Props = {
   courseInfo: any;
@@ -17,6 +18,13 @@ const CourseInformation = ({
   const [dragging, setDragging] = useState(false);
 
   const [categories, setCategories] = useState([]);
+  const { data } = useGetHeroDataQuery("Categories");
+
+  useEffect(() => {
+    if (data) {
+      setCategories(data.layout.categories);
+    }
+  }, [data]);
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -173,13 +181,13 @@ const CourseInformation = ({
                   setCourseInfo({ ...courseInfo, categories: e.target.value })
                 }
               >
-                <option className="dark:bg-[#000] text-[#fff]" value="">
+                <option className="dark:bg-[#000] dark:text-[#fff]" value="">
                   Select Category
                 </option>
                 {categories &&
                   categories.map((item: any) => (
                     <option
-                      className="dark:bg-[#000] text-[#fff]"
+                      className="dark:bg-[#000] dark:text-[#fff]"
                       value={item.title}
                       key={item._id}
                     >

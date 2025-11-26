@@ -3,6 +3,10 @@ import { useState } from "react";
 import Header from "../app/components/Header";
 import Hero from "../app/components/Hero";
 import Heading from "./utils/Heading";
+import Courses from "../app/components/Route/Courses";
+import Reviews from "../app/components/Route/Reviews";
+import FAQ from "../app/components/FAQ/FAQ";
+import Footer from "../app/components/footer";
 interface Props {}
 
 const page = () => {
@@ -25,6 +29,10 @@ const page = () => {
         route={route}
       />
       <Hero />
+      <Courses />
+      <Reviews />
+      <FAQ />
+      <Footer />
     </>
   );
 };

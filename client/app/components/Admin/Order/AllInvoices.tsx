@@ -27,9 +27,9 @@ const AllInvoices = ({ isDashboard }: Props) => {
 
   useEffect(() => {
     if (data && usersData && coursesData) {
-      const temp = data.orders.map((item: any) => {
-        const user = usersData.users.find((u: any) => u._id === item.userId);
-        const course = coursesData.courses.find(
+      const temp = data?.orders?.map((item: any) => {
+        const user = usersData?.users?.find((u: any) => u._id === item.userId);
+        const course = coursesData?.courses?.find(
           (c: any) => c._id === item.courseId
         );
 

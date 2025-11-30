@@ -6,6 +6,7 @@ import UserLoader from "./components/Loader/UserLoader";
 import "./globals.css";
 import { Providers } from "./provider";
 import { ThemeProvider } from "./utils/theme-provider";
+import Script from "next/script";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -18,6 +19,8 @@ const josefin = Josefin_Sans({
   variable: "--font-Josefin",
   weight: ["400", "500", "600", "700"],
 });
+
+<Script src="https://player.vdocipher.com/v2/api.js" strategy="lazyOnload" />;
 
 export default function RootLayout({
   children,

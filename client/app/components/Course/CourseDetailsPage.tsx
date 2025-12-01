@@ -1,10 +1,15 @@
 import { useGetCourseDetailsQuery } from "@/redux/features/courses/coursesApi";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Loader from "../Loader/Loader";
 import Heading from "@/app/utils/Heading";
 import Header from "../Header";
 import CourseDetails from "./CourseDetails";
 import Footer from "../footer";
+import {
+  useCreatePaymentIntentMutation,
+  useGetStripePublishableKeyQuery,
+} from "@/redux/features/orders/ordersApi";
+import { loadStripe } from "@stripe/stripe-js";
 
 type Props = {
   id: string;
@@ -15,6 +20,29 @@ const CourseDetailsPage = ({ id }: Props) => {
   const [open, setOpen] = useState(false);
 
   const { data, isLoading } = useGetCourseDetailsQuery(id);
+  const { data: config } = useGetStripePublishableKeyQuery({});
+  const [createPaymenIntent, { data: paymentIntentData }] =
+    useCreatePaymentIntentMutation();
+  const [stripePromise, setStripePromise] = useState<any>(null);
+  const [clientSecret, setClientSecret] = useState("");
+
+  useEffect(() => {
+    if (config) {
+      const publishableKey = config?.publishableKey;
+      setStripePromise(loadStripe(publishableKey));
+    }
+
+    if (data) {
+      const amount = Math.round(data.course.price * 100);
+      createPaymenIntent(amount);
+    }
+  }, [config, data]);
+
+  useEffect(() => {
+    if (paymentIntentData) {
+      setClientSecret(paymentIntentData?.clientSecret);
+    }
+  }, [paymentIntentData]);
 
   return (
     <>
@@ -35,11 +63,13 @@ const CourseDetailsPage = ({ id }: Props) => {
             activeItem={1}
           />
 
-          <CourseDetails
-            data={data.course}
-            setRoute={setRoute}
-            setOpen={setOpen}
-          />
+          {stripePromise && (
+            <CourseDetails
+              data={data.course}
+              stripePromise={stripePromise}
+              clientSecret={clientSecret}
+            />
+          )}
           <Footer />
         </>
       )}

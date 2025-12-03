@@ -44,17 +44,17 @@ const Hero = () => {
         <div className="1500px:w-[55%] 1100px:w-[78%] w-[90%] flex items-center">
           <Image
             src={require("../../public/assets/client-1.png")}
-            alt=""
+            alt="client-1"
             className="rounded-full ml-[-20px]"
           />
           <Image
             src={require("../../public/assets/client-2.png")}
-            alt=""
+            alt="client-2"
             className="rounded-full ml-[-20px]"
           />
           <Image
             src={require("../../public/assets/client-3.png")}
-            alt=""
+            alt="client-3"
             className="rounded-full ml-[-20px]"
           />
           <p className="font-Josefin dark:text-[#edfff4] text-[#000000b3] 1000px:pl-3 text-[18px] font-semibold ">

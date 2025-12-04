@@ -13,6 +13,11 @@ import { BiMessage } from "react-icons/bi";
 import { VscVerifiedFilled } from "react-icons/vsc";
 import Ratings from "@/app/utils/Ratings";
 import { styles } from "@/app/styles/styles";
+import {
+  useAddAnswerInQuestionMutation,
+  useAddNewQeustionMutation,
+} from "@/redux/features/courses/coursesApi";
+import CommentReply from "./CommentReply";
 
 type Props = {
   data: any;
@@ -40,6 +45,93 @@ const CourseContentMedia = ({
   const [reply, setReply] = useState("");
   const [reviewId, setReviewId] = useState("");
   const [isReviewReply, setIsReviewReply] = useState(false);
+
+  const [
+    addNewQuestion,
+    { isSuccess, error, isLoading: questionCreationLoading },
+  ] = useAddNewQeustionMutation();
+
+  const [
+    addAnswerInQuestion,
+    {
+      isSuccess: answerSuccess,
+      error: answerError,
+      isLoading: answerCreationLoading,
+    },
+  ] = useAddAnswerInQuestionMutation();
+  useEffect(() => {
+    if (isSuccess) {
+      setQuestion("");
+      refetch();
+    }
+    if (answerSuccess) {
+      setAnswer("");
+      refetch();
+    }
+    if (error) {
+      if ("data" in error) {
+        const errorMessage = error as any;
+        toast.error(errorMessage.data.message);
+      }
+    }
+    if (answerError) {
+      if ("data" in answerError) {
+        const errorMessage = error as any;
+        toast.error(errorMessage.data.message);
+      }
+    }
+    // if (reviewSuccess) {
+    //   setReview("");
+    //   setRating(1);
+    //   courseRefetch();
+    // }
+    // if (reviewError) {
+    //   if ("data" in reviewError) {
+    //     const errorMessage = error as any;
+    //     toast.error(errorMessage.data.message);
+    //   }
+    // }
+    // if (replySuccess) {
+    //   setReply("");
+    //   courseRefetch();
+    // }
+    // if (replyError) {
+    //   if ("data" in replyError) {
+    //     const errorMessage = error as any;
+    //     toast.error(errorMessage.data.message);
+    //   }
+    // }
+  }, [
+    isSuccess,
+    error,
+    answerSuccess,
+    answerError,
+    // reviewSuccess,
+    // reviewError,
+    // replySuccess,
+    // replyError,
+  ]);
+
+  const handleQuestion = () => {
+    if (question.length === 0) {
+      toast.error("Queston can't be empty");
+    } else {
+      addNewQuestion({
+        question,
+        courseId: id,
+        contentId: data?.[activeVideo]?._id,
+      });
+    }
+  };
+
+  const handleAnswerSubmit = () => {
+    addAnswerInQuestion({
+      answer,
+      courseId: id,
+      contentId: data[activeVideo]._id,
+      questionId: questionId,
+    });
+  };
 
   return (
     <div className="w-[95%] 800px:w-[86%] py-4 m-auto">
@@ -148,7 +240,7 @@ const CourseContentMedia = ({
               className="outline-none bg-transparent ml-3 border dark:text-white text-black border-[#0000001d] dark:border-[#ffffff57] 800px:w-full p-2 rounded w-[90%] 800px:text-[18px] font-Poppins"
             ></textarea>
           </div>
-          {/* <div className="w-full flex justify-end">
+          <div className="w-full flex justify-end">
             <div
               className={`${
                 styles.button
@@ -159,10 +251,10 @@ const CourseContentMedia = ({
             >
               Submit
             </div>
-          </div> */}
+          </div>
           <br />
           <br />
-          {/* <div className="w-full h-[1px] bg-[#ffffff3b]"></div>
+          <div className="w-full h-[1px] bg-[#ffffff3b]"></div>
           <div>
             <CommentReply
               data={data}
@@ -175,9 +267,183 @@ const CourseContentMedia = ({
               setQuestionId={setQuestionId}
               answerCreationLoading={answerCreationLoading}
             />
-          </div>  */}
+          </div>
         </>
       )}
+
+      {/* {activeBar === 3 && (
+        <div className="w-full">
+          <>
+            {!isReviewExists && (
+              <>
+                <div className="flex w-full">
+                  <Image
+                    src={
+                      user.avatar
+                        ? user.avatar.url
+                        : "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
+                    }
+                    width={50}
+                    height={50}
+                    alt=""
+                    className="w-[50px] h-[50px] rounded-full object-cover"
+                  />
+                  <div className="w-full">
+                    <h5 className="pl-3 text-[20px] font-[500] dark:text-white text-black ">
+                      Give a Rating <span className="text-red-500">*</span>
+                    </h5>
+                    <div className="flex w-full ml-2 pb-3">
+                      {[1, 2, 3, 4, 5].map((i) =>
+                        rating >= i ? (
+                          <AiFillStar
+                            key={i}
+                            className="mr-1 cursor-pointer"
+                            color="rgb(246,186,0)"
+                            size={25}
+                            onClick={() => setRating(i)}
+                          />
+                        ) : (
+                          <AiOutlineStar
+                            key={i}
+                            className="mr-1 cursor-pointer"
+                            color="rgb(246,186,0)"
+                            size={25}
+                            onClick={() => setRating(i)}
+                          />
+                        )
+                      )}
+                    </div>
+                    <textarea
+                      name=""
+                      value={review}
+                      onChange={(e) => setReview(e.target.value)}
+                      id=""
+                      cols={40}
+                      rows={5}
+                      placeholder="Write your comment..."
+                      className="outline-none bg-transparent 800px:ml-3 dark:text-white text-black border border-[#00000027] dark:border-[#ffffff57] w-[95%] 800px:w-full p-2 rounded text-[18px] font-Poppins"
+                    ></textarea>
+                  </div>
+                </div>
+                <div className="w-full flex justify-end">
+                  <div
+                    className={`${
+                      styles.button
+                    } !w-[120px] !h-[40px] text-[18px] mt-5 800px:mr-0 mr-2 ${
+                      reviewCreationLoading && "cursor-no-drop"
+                    }`}
+                    onClick={
+                      reviewCreationLoading ? () => {} : handleReviewSubmit
+                    }
+                  >
+                    Submit
+                  </div>
+                </div>
+              </>
+            )}
+            <br />
+            <div className="w-full h-[1px] bg-[#ffffff3b]"></div>
+            <div className="w-full">
+              {(course?.reviews && [...course.reviews].reverse())?.map(
+                (item: any, index: number) => {
+                  return (
+                    <div
+                      className="w-full my-5 dark:text-white text-black"
+                      key={index}
+                    >
+                      <div className="w-full flex">
+                        <div>
+                          <Image
+                            src={
+                              item.user.avatar
+                                ? item.user.avatar.url
+                                : "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
+                            }
+                            width={50}
+                            height={50}
+                            alt=""
+                            className="w-[50px] h-[50px] rounded-full object-cover"
+                          />
+                        </div>
+                        <div className="ml-2">
+                          <h1 className="text-[18px]">{item?.user.name}</h1>
+                          <Ratings rating={item.rating} />
+                          <p>{item.comment}</p>
+                          <small className="text-[#0000009e] dark:text-[#ffffff83]">
+                            {format(item.createdAt)} •
+                          </small>
+                        </div>
+                      </div>
+                      {user.role === "admin" &&
+                        item.commentReplies.length === 0 && (
+                          <span
+                            className={`${styles.label} !ml-10 cursor-pointer`}
+                            onClick={() => {
+                              setIsReviewReply(true);
+                              setReviewId(item._id);
+                            }}
+                          >
+                            Add Reply
+                          </span>
+                        )}
+
+                      {isReviewReply && reviewId === item._id && (
+                        <div className="w-full flex relative">
+                          <input
+                            type="text"
+                            placeholder="Enter your reply..."
+                            value={reply}
+                            onChange={(e: any) => setReply(e.target.value)}
+                            className="block 800px:ml-12 mt-2 outline-none bg-transparent border-b border-[#000] dark:border-[#fff] p-[5px] w-[95%]"
+                          />
+                          <button
+                            type="submit"
+                            className="absolute right-0 bottom-1"
+                            onClick={handleReviewReplySubmit}
+                          >
+                            Submit
+                          </button>
+                        </div>
+                      )}
+
+                      {item.commentReplies.map((i: any, index: number) => (
+                        <div
+                          className="w-full flex 800px:ml-16 my-5"
+                          key={index}
+                        >
+                          <div className="w-[50px] h-[50px]">
+                            <Image
+                              src={
+                                i.user.avatar
+                                  ? i.user.avatar.url
+                                  : "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
+                              }
+                              width={50}
+                              height={50}
+                              alt=""
+                              className="w-[50px] h-[50px] rounded-full object-cover"
+                            />
+                          </div>
+                          <div className="pl-2">
+                            <div className="flex items-center">
+                              <h5 className="text-[20px]">{i.user.name}</h5>{" "}
+                              <VscVerifiedFilled className="text-[#0095F6] ml-2 text-[20px]" />
+                            </div>
+                            <p>{i.comment}</p>
+                            <small className="text-[#ffffff83]">
+                              {format(i.createdAt)} •
+                            </small>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+              )}
+            </div>
+          </>
+        </div>
+      )} */}
     </div>
   );
 };

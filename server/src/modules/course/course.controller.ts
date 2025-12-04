@@ -214,7 +214,7 @@ export const addQuestion = CatchAsyncError(
 
       //create notification
       await NotificationModel.create({
-        user: req.user._id,
+        userId: req.user._id,
         title: "new Question Received",
         message: `You have a new question in ${courseContent?.title}`,
       });
@@ -230,8 +230,8 @@ export const addQuestion = CatchAsyncError(
   }
 );
 
-//@desc: add question in course
-//@route: PUT /api/v1/course/add-question
+//@desc: add answer in course
+//@route: PUT /api/v1/add-answer
 export const addAnswer = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -272,6 +272,8 @@ export const addAnswer = CatchAsyncError(
       const newAnswer: any = {
         user: req.user,
         answer,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       // Add and save
@@ -409,6 +411,8 @@ export const addReplyToReview = CatchAsyncError(
       const replyData: any = {
         user: req.user,
         comment,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       if (!review.commentReplies) {
@@ -469,73 +473,6 @@ export const deleteCourse = CatchAsyncError(
 
 //@desc: generate video url
 //@route: POST /api/getVideoCipherOTP
-
-// export const generateVideoUrl = CatchAsyncError(
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//       const { videoId } = req.body;
-
-//       if (!videoId) {
-//         return res.status(400).json({ message: "Video ID missing" });
-//       }
-
-//       const apiSecret = process.env.VDOCIPHER_API_SECRET;
-
-//       if (!apiSecret) {
-//         return next(
-//           new ErrorHandler("VdoCipher API Secret not configured", 500)
-//         );
-//       }
-
-//       // Try with Apisecret format (current format)
-//       try {
-//         const response = await axios.post(
-//           `https://dev.vdocipher.com/api/videos/${videoId}/otp`,
-//           { ttl: 300 },
-//           {
-//             headers: {
-//               Accept: "application/json",
-//               "Content-Type": "application/json",
-//               Authorization: `Apisecret ${apiSecret}`,
-//             },
-//           }
-//         );
-
-//         return res.json(response.data);
-//       } catch (firstError: any) {
-//         console.log("First attempt (Apisecret) failed, trying alternative...");
-
-//         // Try alternative endpoint or format
-//         try {
-//           const response = await axios.post(
-//             `https://api.vdocipher.com/v1/videos/${videoId}/otp`, // Different endpoint
-//             { ttl: 300 },
-//             {
-//               headers: {
-//                 Accept: "application/json",
-//                 "Content-Type": "application/json",
-//                 Authorization: `Apisecret ${apiSecret}`,
-//               },
-//             }
-//           );
-
-//           return res.json(response.data);
-//         } catch (secondError: any) {
-//           // Both failed, throw the original error
-//           throw firstError;
-//         }
-//       }
-//     } catch (error: any) {
-//       console.error("❌ OTP ERROR:", error.response?.data || error.message);
-//       console.error("Status:", error.response?.status);
-//       console.error("URL attempted:", error.config?.url);
-//       return next(
-//         new ErrorHandler(error.response?.data?.message || error.message, 400)
-//       );
-//     }
-//   }
-// );
-
 export const generateVideoUrl = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {

@@ -16,6 +16,9 @@ import { styles } from "@/app/styles/styles";
 import {
   useAddAnswerInQuestionMutation,
   useAddNewQeustionMutation,
+  useAddReplyInReviewMutation,
+  useAddReviewInCourseMutation,
+  useGetCourseDetailsQuery,
 } from "@/redux/features/courses/coursesApi";
 import CommentReply from "./CommentReply";
 
@@ -46,6 +49,11 @@ const CourseContentMedia = ({
   const [reviewId, setReviewId] = useState("");
   const [isReviewReply, setIsReviewReply] = useState(false);
 
+  const { data: courseData, refetch: courseRefetch } = useGetCourseDetailsQuery(
+    id,
+    { refetchOnMountOrArgChange: true }
+  );
+
   const [
     addNewQuestion,
     { isSuccess, error, isLoading: questionCreationLoading },
@@ -59,6 +67,29 @@ const CourseContentMedia = ({
       isLoading: answerCreationLoading,
     },
   ] = useAddAnswerInQuestionMutation();
+
+  const [
+    addReviewInCourse,
+    {
+      isSuccess: reviewSuccess,
+      error: reviewError,
+      isLoading: reviewCreationLoading,
+    },
+  ] = useAddReviewInCourseMutation();
+  const course = courseData?.course;
+  const [
+    addReplyInReview,
+    {
+      isSuccess: replySuccess,
+      error: replyError,
+      isLoading: replyCreationLoading,
+    },
+  ] = useAddReplyInReviewMutation();
+
+  const isReviewExists = course?.reviews?.find(
+    (item: any) => item.user._id === user._id
+  );
+
   useEffect(() => {
     if (isSuccess) {
       setQuestion("");
@@ -80,36 +111,36 @@ const CourseContentMedia = ({
         toast.error(errorMessage.data.message);
       }
     }
-    // if (reviewSuccess) {
-    //   setReview("");
-    //   setRating(1);
-    //   courseRefetch();
-    // }
-    // if (reviewError) {
-    //   if ("data" in reviewError) {
-    //     const errorMessage = error as any;
-    //     toast.error(errorMessage.data.message);
-    //   }
-    // }
-    // if (replySuccess) {
-    //   setReply("");
-    //   courseRefetch();
-    // }
-    // if (replyError) {
-    //   if ("data" in replyError) {
-    //     const errorMessage = error as any;
-    //     toast.error(errorMessage.data.message);
-    //   }
-    // }
+    if (reviewSuccess) {
+      setReview("");
+      setRating(1);
+      courseRefetch();
+    }
+    if (reviewError) {
+      if ("data" in reviewError) {
+        const errorMessage = error as any;
+        toast.error(errorMessage.data.message);
+      }
+    }
+    if (replySuccess) {
+      setReply("");
+      courseRefetch();
+    }
+    if (replyError) {
+      if ("data" in replyError) {
+        const errorMessage = error as any;
+        toast.error(errorMessage.data.message);
+      }
+    }
   }, [
     isSuccess,
     error,
     answerSuccess,
     answerError,
-    // reviewSuccess,
-    // reviewError,
-    // replySuccess,
-    // replyError,
+    reviewSuccess,
+    reviewError,
+    replySuccess,
+    replyError,
   ]);
 
   const handleQuestion = () => {
@@ -131,6 +162,24 @@ const CourseContentMedia = ({
       contentId: data[activeVideo]._id,
       questionId: questionId,
     });
+  };
+
+  const handleReviewSubmit = async () => {
+    if (review.length === 0) {
+      toast.error("Review can't be empty");
+    } else {
+      addReviewInCourse({ review, rating, courseId: id });
+    }
+  };
+
+  const handleReviewReplySubmit = () => {
+    if (!replyCreationLoading) {
+      if (reply === "") {
+        toast.error("Reply can't be empty");
+      } else {
+        addReplyInReview({ comment: reply, courseId: id, reviewId });
+      }
+    }
   };
 
   return (
@@ -271,7 +320,7 @@ const CourseContentMedia = ({
         </>
       )}
 
-      {/* {activeBar === 3 && (
+      {activeBar === 3 && (
         <div className="w-full">
           <>
             {!isReviewExists && (
@@ -407,10 +456,7 @@ const CourseContentMedia = ({
                       )}
 
                       {item.commentReplies.map((i: any, index: number) => (
-                        <div
-                          className="w-full flex 800px:ml-16 my-5"
-                          key={index}
-                        >
+                        <div className="w-full flex ml-16 my-5" key={index}>
                           <div className="w-[50px] h-[50px]">
                             <Image
                               src={
@@ -430,8 +476,8 @@ const CourseContentMedia = ({
                               <VscVerifiedFilled className="text-[#0095F6] ml-2 text-[20px]" />
                             </div>
                             <p>{i.comment}</p>
-                            <small className="text-[#ffffff83]">
-                              {format(i.createdAt)} •
+                            <small className="text-[#0000009e] dark:text-[#ffffff83]">
+                              {format(item.createdAt)} •
                             </small>
                           </div>
                         </div>
@@ -443,7 +489,7 @@ const CourseContentMedia = ({
             </div>
           </>
         </div>
-      )} */}
+      )}
     </div>
   );
 };

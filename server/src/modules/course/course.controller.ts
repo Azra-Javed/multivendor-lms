@@ -53,7 +53,7 @@ export const editCourse = CatchAsyncError(
       const data = req.body;
       const thumbnail = data.thumbnail;
 
-      const courseId = req.params.id;
+      const courseId = req.params.id!;
       const courseData = (await CourseModel.findById(courseId)) as any;
 
       if (thumbnail && !thumbnail.startsWith("https")) {
@@ -83,6 +83,8 @@ export const editCourse = CatchAsyncError(
         },
         { new: true }
       );
+      // update course in redis
+      await redis.set(courseId?.toString(), JSON.stringify(course));
 
       res.status(200).json({
         success: true,
@@ -331,7 +333,7 @@ export const addReview = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userCourseList = req.user?.courses;
-      const courseId = req.params.id;
+      const courseId = req.params.id!;
 
       //check courseId alrady exists in userCourseList based on _id
       const courseExists = userCourseList?.some(
@@ -365,6 +367,9 @@ export const addReview = CatchAsyncError(
       course.ratings = total / course.reviews.length;
 
       await course.save();
+
+      //update redis
+      await redis.set(courseId, JSON.stringify(course), "EX", 604800);
 
       const notification = {
         title: "New Review Received",
@@ -420,6 +425,14 @@ export const addReplyToReview = CatchAsyncError(
       }
       review.commentReplies?.push(replyData);
       await course?.save();
+
+      //update redis
+      await redis.set(
+        courseId.toString(),
+        JSON.stringify(course),
+        "EX",
+        604800
+      );
 
       res.status(200).json({
         success: true,

@@ -23,24 +23,6 @@ const Page = (props: Props) => {
   const [courses, setcourses] = useState([]);
   const [category, setCategory] = useState("All");
 
-  // useEffect(() => {
-  //   if (category === "All") {
-  //     setcourses(data?.courses);
-  //   }
-  //   if (category !== "All") {
-  //     setcourses(
-  //       data?.courses.filter((item: any) => item.categories === category)
-  //     );
-  //   }
-  //   if (search) {
-  //     setcourses(
-  //       data?.courses.filter((item: any) =>
-  //         item.name.toLowerCase().includes(search.toLowerCase())
-  //       )
-  //     );
-  //   }
-  // }, [data, category, search]);
-
   useEffect(() => {
     if (!data?.courses) return;
 

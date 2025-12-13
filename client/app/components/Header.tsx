@@ -151,11 +151,28 @@ const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
           >
             <div className="w-[70%] fixed z-9999999 h-screen bg-white dark:bg-slate-900 dark:bg-opacity-90 top-0 right-0">
               <NavItems activeItem={activeItem} isMobile={true} />
-              <HiOutlineUserCircle
-                size={25}
-                className="cursor-pointer ml-5 my-2 dark:text-white text-black"
-                onClick={() => setOpen(true)}
-              />
+              {userData ? (
+                <>
+                  <Link href={"/profile"}>
+                    <Image
+                      src={userData.avatar ? userData.avatar.url : avatar}
+                      width={30}
+                      height={30}
+                      alt=""
+                      className="h-[30px] w-[30px] rounded-full cursor-pointer"
+                      style={{
+                        border: activeItem === 5 ? "2px solid #37a39a" : "none",
+                      }}
+                    />
+                  </Link>
+                </>
+              ) : (
+                <HiOutlineUserCircle
+                  size={25}
+                  className="hidden 800px:block cursor-pointer text-black dark:text-white "
+                  onClick={() => setOpen(true)}
+                />
+              )}
               <br />
               <br />
               <p className="text-center px-2 pl-5 text-sm text-gray-500 dark:text-gray-400">

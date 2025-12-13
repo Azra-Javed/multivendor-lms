@@ -6,7 +6,7 @@ type Props = {
   activeItem: any;
   Component: any;
   setRoute: (route: string) => void;
-  refetch: any;
+  refetch?: any;
 };
 
 const CustomModel = ({

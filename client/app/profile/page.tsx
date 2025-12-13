@@ -6,6 +6,7 @@ import Header from "../components/Header";
 import Profile from "../components/Profile/Profile";
 import Heading from "../utils/Heading";
 import Protected from "../hooks/userProtected";
+import Footer from "../components/footer";
 
 type Props = {};
 const page = ({}: Props) => {
@@ -30,6 +31,7 @@ const page = ({}: Props) => {
           route={route}
         />
         <Profile user={user} />
+        <Footer />
       </Protected>
     </>
   );

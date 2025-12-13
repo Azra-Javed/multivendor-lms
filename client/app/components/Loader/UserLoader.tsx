@@ -3,37 +3,24 @@
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
 import { ReactNode, useEffect } from "react";
 import Loader from "./Loader";
+import socketIO from "socket.io-client";
+const ENDPOINT = process.env.NEXT_PUBLIC_SOCKET_SERVER_URI || "";
+const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
-// import { ReactNode, useEffect, useState } from "react";
-// import { useRouter } from "next/navigation";
-// import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
-// import Loader from "./Loader";
-
-// interface Props {
-//   children: ReactNode;
-// }
-
-// export default function UserLoader({ children }: Props) {
-//   const router = useRouter();
-//   const { data: user, isLoading } = useLoadUserQuery({});
-//   const [ready, setReady] = useState(false);
-
-//   useEffect(() => {
-//     setReady(true);
-
-//     // Redirect to home if user is loaded but not authenticated
-//     if (ready && !isLoading && !user) {
-//       router.replace("/"); // client-side redirect
-//     }
-//   }, [ready, isLoading, user, router]);
-
-//   // Show loader while loading or before ready
-//   if (!ready || isLoading || !user) return <Loader />;
-
-//   return <>{children}</>;
-// }
 const UserLoader = ({ children }: { children: ReactNode }) => {
   const { isLoading } = useLoadUserQuery({});
+
+  useEffect(() => {
+    if (!socketId) return;
+
+    socketId.on("connection", () => {
+      console.log("Socket connected with id:", socketId.id);
+    });
+
+    return () => {
+      socketId.disconnect(); // cleanup on unmount
+    };
+  }, [socketId]);
 
   return <>{isLoading ? <Loader /> : <div>{children}</div>}</>;
 };

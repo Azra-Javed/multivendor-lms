@@ -16,6 +16,7 @@ import { redis } from "../../utils/redis.js";
 //Stripe
 
 import Stripe from "stripe";
+import mongoose from "mongoose";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error("STRIPE_SECRET_KEY is missing in environment variables");
@@ -102,7 +103,7 @@ export const createOrder = CatchAsyncError(
         return next(new ErrorHandler(error.message, 500));
       }
 
-      user?.courses.push(course._id);
+      user?.courses.push(course._id as mongoose.Types.ObjectId);
       await redis.set(req.user?._id.toString(), JSON.stringify(user));
 
       await user?.save();
@@ -113,9 +114,7 @@ export const createOrder = CatchAsyncError(
         message: `You have a new order from ${course?.name}`,
       });
 
-      if (course.purchased) {
-        course.purchased += 1;
-      }
+      course.purchased += 1;
 
       await course.save();
       await newOrder(data, res, next);

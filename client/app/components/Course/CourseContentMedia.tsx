@@ -21,6 +21,9 @@ import {
   useGetCourseDetailsQuery,
 } from "@/redux/features/courses/coursesApi";
 import CommentReply from "./CommentReply";
+import socketIO from "socket.io-client";
+const ENDPOINT = process.env.NEXT_PUBLIC_SOCKET_SERVER_URI || "";
+const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
 type Props = {
   data: any;
@@ -91,46 +94,77 @@ const CourseContentMedia = ({
   );
 
   useEffect(() => {
+    // Question added
     if (isSuccess) {
       setQuestion("");
       refetch();
+      toast.success("Your question has been posted successfully!");
+
+      socketId.emit("notification", {
+        title: "New Question",
+        message: `A new question was posted in "${data[activeVideo]?.title}"`,
+        userId: user._id,
+      });
     }
+
+    // Answer added
     if (answerSuccess) {
       setAnswer("");
       refetch();
-    }
-    if (error) {
-      if ("data" in error) {
-        const errorMessage = error as any;
-        toast.error(errorMessage.data.message);
+      toast.success("Your answer has been submitted successfully!");
+
+      if (user.role !== "admin") {
+        socketId.emit("notification", {
+          title: "New Answer",
+          message: `A new answer was added in "${data[activeVideo]?.title}"`,
+          userId: user._id,
+        });
       }
     }
-    if (answerError) {
-      if ("data" in answerError) {
-        const errorMessage = error as any;
-        toast.error(errorMessage.data.message);
-      }
+
+    // Question error
+    if (error && "data" in error) {
+      const errorMessage = error as any;
+      toast.error(errorMessage.data.message || "Failed to post the question");
     }
+
+    // Answer error
+    if (answerError && "data" in answerError) {
+      const errorMessage = error as any;
+      toast.error(errorMessage.data.message || "Failed to submit the answer");
+    }
+
+    // Review added
     if (reviewSuccess) {
       setReview("");
       setRating(1);
       courseRefetch();
+      toast.success("Thank you! Your review has been added.");
+
+      socketId.emit("notification", {
+        title: "New Review",
+        message: `A new review was added for "${data[activeVideo]?.title}"`,
+        userId: user._id,
+      });
     }
-    if (reviewError) {
-      if ("data" in reviewError) {
-        const errorMessage = error as any;
-        toast.error(errorMessage.data.message);
-      }
+
+    // Review error
+    if (reviewError && "data" in reviewError) {
+      const errorMessage = error as any;
+      toast.error(errorMessage.data.message || "Failed to add the review");
     }
+
+    // Reply added
     if (replySuccess) {
       setReply("");
       courseRefetch();
+      toast.success("Reply posted successfully!");
     }
-    if (replyError) {
-      if ("data" in replyError) {
-        const errorMessage = error as any;
-        toast.error(errorMessage.data.message);
-      }
+
+    // Reply error
+    if (replyError && "data" in replyError) {
+      const errorMessage = error as any;
+      toast.error(errorMessage.data.message || "Failed to post the reply");
     }
   }, [
     isSuccess,

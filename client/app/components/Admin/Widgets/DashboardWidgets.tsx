@@ -21,23 +21,11 @@ const CircularProgressWithLabel: FC<Props> = ({ open, value }) => {
       <CircularProgress
         variant="determinate"
         value={value}
-        size={45}
-        color={value && value > 99 ? "info" : "error"}
+        size={46}
         thickness={4}
+        color={value && value > 99 ? "info" : "error"}
         style={{ zIndex: open ? -1 : 1 }}
       />
-      <Box
-        sx={{
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0,
-          position: "absolute",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      ></Box>
     </Box>
   );
 };
@@ -51,125 +39,134 @@ const DashboardWidgets: FC<Props> = ({ open }) => {
     useGetOrdersAnalyticsQuery({});
 
   useEffect(() => {
-    if (isLoading && ordersLoading) {
-      return;
-    } else {
-      if (data && ordersData) {
-        const usersLastTwoMonths = data.users.last12Months.slice(-2);
-        const ordersLastTwoMonths = ordersData.orders.last12Months.slice(-2);
+    if (isLoading && ordersLoading) return;
 
-        if (
-          usersLastTwoMonths.length === 2 &&
-          ordersLastTwoMonths.length === 2
-        ) {
-          const usersCurrentMonth = usersLastTwoMonths[1].count;
-          const usersPreviousMonth = usersLastTwoMonths[0].count;
-          const ordersCurrentMonth = ordersLastTwoMonths[1].count;
-          const ordersPreviousMonth = ordersLastTwoMonths[0].count;
+    if (data && ordersData) {
+      const usersLastTwoMonths = data.users.last12Months.slice(-2);
+      const ordersLastTwoMonths = ordersData.orders.last12Months.slice(-2);
 
-          const usersPercentChange =
-            usersPreviousMonth !== 0
-              ? ((usersCurrentMonth - usersPreviousMonth) /
-                  usersPreviousMonth) *
-                100
-              : 100;
+      if (usersLastTwoMonths.length === 2 && ordersLastTwoMonths.length === 2) {
+        const usersCurrentMonth = usersLastTwoMonths[1].count;
+        const usersPreviousMonth = usersLastTwoMonths[0].count;
+        const ordersCurrentMonth = ordersLastTwoMonths[1].count;
+        const ordersPreviousMonth = ordersLastTwoMonths[0].count;
 
-          const ordersPercentChange =
-            ordersPreviousMonth !== 0
-              ? ((ordersCurrentMonth - ordersPreviousMonth) /
-                  ordersPreviousMonth) *
-                100
-              : 100;
+        const usersPercentChange =
+          usersPreviousMonth !== 0
+            ? ((usersCurrentMonth - usersPreviousMonth) / usersPreviousMonth) *
+              100
+            : 100;
 
-          setuserComparePercentage({
-            currentMonth: usersCurrentMonth,
-            previousMonth: usersPreviousMonth,
-            percentChange: usersPercentChange,
-          });
+        const ordersPercentChange =
+          ordersPreviousMonth !== 0
+            ? ((ordersCurrentMonth - ordersPreviousMonth) /
+                ordersPreviousMonth) *
+              100
+            : 100;
 
-          setOrdersComparePercentage({
-            currentMonth: ordersCurrentMonth,
-            previousMonth: ordersPreviousMonth,
-            percentChange: ordersPercentChange,
-          });
-        }
+        setuserComparePercentage({
+          currentMonth: usersCurrentMonth,
+          previousMonth: usersPreviousMonth,
+          percentChange: usersPercentChange,
+        });
+
+        setOrdersComparePercentage({
+          currentMonth: ordersCurrentMonth,
+          previousMonth: ordersPreviousMonth,
+          percentChange: ordersPercentChange,
+        });
       }
     }
   }, [isLoading, ordersLoading, data, ordersData]);
 
   return (
-    <div className="mt-[30px] min-h-screen">
-      <div className="grid grid-cols-[75%,25%]">
-        <div className="p-8 ">
-          <UserAnalytics isDashboard={true} />
+    <div className="mt-20 min-h-screen px-4 space-y-6">
+      {/* TOP GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* USER ANALYTICS */}
+        <div className="lg:col-span-2 flex flex-col">
+          <div className="flex-1 rounded-xl shadow-sm">
+            <UserAnalytics isDashboard={true} />
+          </div>
         </div>
 
-        <div className="pt-[80px] pr-8">
-          <div className="w-full dark:bg-[#111C43] rounded-sm shadow">
-            <div className="flex items-center p-5 justify-between">
-              <div className="">
-                <BiBorderLeft className="dark:text-[#45CBA0] text-[#000] text-[30px]" />
-                <h5 className="pt-2 font-Poppins dark:text-[#fff] text-black text-[20px]">
+        {/* SALES & USERS CARDS */}
+        <div className="space-y-4 flex flex-col">
+          {/* SALES CARD */}
+          <div className="flex-1 rounded-xl bg-white dark:bg-[#111C43] shadow-sm px-6 py-3 flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <div>
+                <BiBorderLeft className="text-3xl text-teal-500" />
+                <h5 className="mt-2 text-2xl font-semibold text-black dark:text-white">
                   {ordersComparePercentage?.currentMonth}
                 </h5>
-                <h5 className="py-2 font-Poppins dark:text-[#45CBA0] text-black text-[20px] font-[400]">
+                <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
                   Sales Obtained
-                </h5>
+                </p>
               </div>
-              <div>
+
+              <div className="text-center">
                 <CircularProgressWithLabel
                   value={ordersComparePercentage?.percentChange > 0 ? 100 : 0}
                   open={open}
                 />
-                <h5 className="text-center pt-4">
+                <p className="pt-3 text-sm font-medium text-black dark:text-white">
                   {ordersComparePercentage?.percentChange > 0
                     ? "+" + ordersComparePercentage?.percentChange.toFixed(2)
-                    : "-" +
-                      ordersComparePercentage?.percentChange.toFixed(2)}{" "}
+                    : ordersComparePercentage?.percentChange.toFixed(2)}{" "}
                   %
-                </h5>
+                </p>
               </div>
             </div>
           </div>
 
-          <div className="w-full dark:bg-[#111C43] rounded-sm shadow my-8">
-            <div className="flex items-center p-5 justify-between">
-              <div className="">
-                <PiUsersFourLight className="dark:text-[#45CBA0] text-[#000] text-[30px]" />
-                <h5 className="pt-2 font-Poppins dark:text-[#fff] text-black text-[20px]">
+          {/* USERS CARD */}
+          <div className="flex-1 rounded-xl bg-white dark:bg-[#111C43] shadow-sm p-6 flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <div>
+                <PiUsersFourLight className="text-3xl text-teal-500" />
+                <h5 className="mt-2 text-2xl font-semibold text-black dark:text-white">
                   {userComparePercentage?.currentMonth}
                 </h5>
-                <h5 className="py-2 font-Poppins dark:text-[#45CBA0] text-black text-[20px] font-[400]">
+                <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
                   New Users
-                </h5>
+                </p>
               </div>
-              <div>
+
+              <div className="text-center">
                 <CircularProgressWithLabel
                   value={userComparePercentage?.percentChange > 0 ? 100 : 0}
                   open={open}
                 />
-                <h5 className="text-center pt-4">
+                <p className="pt-3 text-sm font-medium text-black dark:text-white">
                   {userComparePercentage?.percentChange > 0
                     ? "+" + userComparePercentage?.percentChange.toFixed(2)
-                    : "-" +
-                      userComparePercentage?.percentChange.toFixed(2)}{" "}
+                    : userComparePercentage?.percentChange.toFixed(2)}{" "}
                   %
-                </h5>
+                </p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-[65%,35%] mt-[-20px]">
-        <div className="dark:bg-[#111c43] w-[94%] mt-[30px] h-[40vh] shadow-sm m-auto">
-          <OrdersAnalytics isDashboard={true} />
+      {/* BOTTOM GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* ORDERS ANALYTICS */}
+        <div className="lg:col-span-2 flex flex-col">
+          <div className="flex-1 bg-white dark:bg-[#111c43] rounded-xl shadow-sm p-5 pb-[50px]">
+            <OrdersAnalytics isDashboard={true} />
+          </div>
         </div>
-        <div className="p-5">
-          <h5 className="dark:text-[#fff] text-black text-[20px] font-[400] font-Poppins pb-3">
-            Recent Transactions
-          </h5>
-          <AllInvoices isDashboard={true} />
+
+        {/* RECENT TRANSACTIONS */}
+        <div className="flex flex-col">
+          <div className="flex-1 bg-white dark:bg-[#0f172a] rounded-xl shadow-sm p-5 ">
+            <h5 className="text-lg font-medium text-black dark:text-white pb-4">
+              Recent Transactions
+            </h5>
+            <AllInvoices isDashboard={true} />
+          </div>
         </div>
       </div>
     </div>

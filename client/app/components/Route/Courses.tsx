@@ -11,24 +11,27 @@ const Courses = (props: Props) => {
   useEffect(() => {
     if (data) setCourses(data?.courses);
   }, [data]);
+
   return (
-    <>
-      <div className={`w-[90%] 800px:w-[80%] m-auto`}>
-        <h1 className="text-center font-Poppins text-[25px] leading-[35px] sm:text-3xl lg:text-4xl dark:text-white 800px:!leading-[60px] text-[#000] font-[700] tracking-tight">
-          Expand Your Career <span className="text-blue-700">Opportunity</span>{" "}
-          <br />
-          Opportunity With Our Courses
-        </h1>
+    <div className="w-[90%] 800px:w-[80%] m-auto py-12">
+      <h1 className="text-center font-Poppins font-semibold text-3xl sm:text-4xl 1000px:text-5xl leading-tight dark:text-white text-black tracking-tight">
+        Expand Your Career <span className="text-gradient">Opportunity</span>{" "}
         <br />
-        <br />
-        <div className="grid grid-cols-1 gap-[20px] md:grid-cols-2 md:gap-[25px] lg:grid-cols-3 lg:gap-[25px] 1500px:grid-cols-4 1500px:gap-[35px] mb-12 border-0">
-          {courses &&
-            courses.map((item: any, index: number) => (
-              <CourseCard item={item} key={index} />
-            ))}
-        </div>
+        With Our Courses
+      </h1>
+
+      <p className="mt-5 text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto text-center font-Poppins">
+        Explore our courses to enhance your skills and advance your career in
+        the tech world.
+      </p>
+
+      <div className="grid grid-cols-1 gap-[20px] md:grid-cols-2 md:gap-[25px] lg:grid-cols-3 lg:gap-[25px] 1500px:grid-cols-4 1500px:gap-[35px] mt-12">
+        {courses &&
+          courses.map((item: any, index: number) => (
+            <CourseCard item={item} key={index} />
+          ))}
       </div>
-    </>
+    </div>
   );
 };
 

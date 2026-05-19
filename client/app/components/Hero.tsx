@@ -19,7 +19,7 @@ const Hero = () => {
   if (isLoading) return <Loader />;
 
   return (
-    <section className="w-full min-h-[92vh] 1000px:min-h-[calc(100vh-64px)] flex flex-col 1000px:flex-row items-center max-w-6xl mx-auto px-6 py-12 1000px:py-0 gap-14">
+    <section className="w-full min-h-[92vh] 1000px:min-h-[calc(100vh-64px)] flex flex-col 1000px:flex-row items-center max-w-6xl mx-auto px-6 pt-12 1000px:py-0 gap-14">
       {/* Image */}
       <div className="relative w-full 1000px:w-[40%] flex justify-center items-center">
         {/* Decorative background */}
@@ -51,6 +51,11 @@ const Hero = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full h-[44px] rounded-md border px-4 pr-12 text-sm outline-none dark:bg-slate-800 dark:border-white/10 dark:text-white"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch();
+              }
+            }}
           />
           <button
             onClick={handleSearch}

@@ -30,34 +30,34 @@ router.patch(
   "/update-user-password",
   updateToken,
   isAuthenticated,
-  updatePassword
+  updatePassword,
 );
 router.patch(
   "/update-user-avatar",
   updateToken,
   isAuthenticated,
-  updateProfilePicture
+  updateProfilePicture,
 );
 router.get(
   "/get-all-users",
   updateToken,
   isAuthenticated,
   authorizeRoles("admin"),
-  getAllUsers
+  getAllUsers,
 );
 router.post(
   "/update-role",
   updateToken,
   isAuthenticated,
   authorizeRoles("admin"),
-  updateUserRole
+  updateUserRole,
 );
 router.delete(
   "/delete-user/:id",
   updateToken,
   isAuthenticated,
   authorizeRoles("admin"),
-  deleteUser
+  deleteUser,
 );
 
 export default router;

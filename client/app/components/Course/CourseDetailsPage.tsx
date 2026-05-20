@@ -21,7 +21,7 @@ const CourseDetailsPage = ({ id }: Props) => {
 
   const { data, isLoading } = useGetCourseDetailsQuery(id);
   const { data: config } = useGetStripePublishableKeyQuery({});
-  const [createPaymenIntent, { data: paymentIntentData }] =
+  const [createPaymentIntent, { data: paymentIntentData }] =
     useCreatePaymentIntentMutation();
   const [stripePromise, setStripePromise] = useState<any>(null);
   const [clientSecret, setClientSecret] = useState("");
@@ -31,10 +31,9 @@ const CourseDetailsPage = ({ id }: Props) => {
       const publishableKey = config?.publishableKey;
       setStripePromise(loadStripe(publishableKey));
     }
-
     if (data) {
       const amount = Math.round(data.course.price * 100);
-      createPaymenIntent(amount);
+      createPaymentIntent(amount);
     }
   }, [config, data]);
 
@@ -44,37 +43,32 @@ const CourseDetailsPage = ({ id }: Props) => {
     }
   }, [paymentIntentData]);
 
+  if (isLoading) return <Loader />;
+
   return (
     <>
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <>
-          <Heading
-            title={data.course.name + " - Elearning"}
-            description="ELearning is a platform for students to learn and get help from teachers"
-            keywords={data?.course?.tags}
-          />
-          <Header
-            route={route}
-            setRoute={setRoute}
-            open={open}
-            setOpen={setOpen}
-            activeItem={1}
-          />
-
-          {stripePromise && (
-            <CourseDetails
-              data={data.course}
-              stripePromise={stripePromise}
-              clientSecret={clientSecret}
-              setRoute={setRoute}
-              setOpen={setOpen}
-            />
-          )}
-          <Footer />
-        </>
+      <Heading
+        title={`${data?.course?.name} - ELearning`}
+        description="ELearning is a platform for students to learn and get help from teachers"
+        keywords={data?.course?.tags}
+      />
+      <Header
+        route={route}
+        setRoute={setRoute}
+        open={open}
+        setOpen={setOpen}
+        activeItem={1}
+      />
+      {stripePromise && (
+        <CourseDetails
+          data={data.course}
+          stripePromise={stripePromise}
+          clientSecret={clientSecret}
+          setRoute={setRoute}
+          setOpen={setOpen}
+        />
       )}
+      <Footer />
     </>
   );
 };

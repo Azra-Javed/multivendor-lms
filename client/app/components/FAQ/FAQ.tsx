@@ -26,7 +26,7 @@ const FAQ = (props: Props) => {
   const activeQ = questions.find((q) => q._id === activeQuestion);
 
   return (
-    <section className="w-[90%] 800px:w-[80%] mx-auto ">
+    <section className="w-[90%] 800px:w-[80%] mx-auto py-10">
       {/* Heading */}
       <div className="text-center max-w-2xl mx-auto mb-16">
         <h2 className="text-3xl sm:text-4xl 1000px:text-5xl font-semibold leading-tight text-gray-900 dark:text-white font-Poppins">

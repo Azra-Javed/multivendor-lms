@@ -72,7 +72,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 //hash Password before saving
@@ -99,9 +99,11 @@ userSchema.methods.signRefreshToken = function () {
 };
 
 // compare password
+
 userSchema.methods.comparePassword = async function (
-  enteredPassword: string
+  enteredPassword: string,
 ): Promise<boolean> {
+  if (!this.password) return false;
   return await bcrypt.compare(enteredPassword, this.password);
 };
 

@@ -1,36 +1,95 @@
+import { FiBook, FiAward, FiUsers } from "react-icons/fi";
 const About = () => {
+  const features = [
+    {
+      icon: <FiBook className="w-5 h-5 text-teal-500" />,
+      title: "Structured Learning",
+      desc: "Guided paths with interactive lessons, quizzes, and hands-on projects built for real jobs.",
+    },
+    {
+      icon: <FiAward className="w-5 h-5 text-teal-500" />,
+      title: "Certifications",
+      desc: "Earn recognised certificates on completion to stand out in the job market.",
+    },
+    {
+      icon: <FiUsers className="w-5 h-5 text-teal-500" />,
+      title: "Community",
+      desc: "A supportive community and industry-focused content to turn ambition into achievement.",
+    },
+  ];
+
   return (
-    <div className="text-black dark:text-white py-12">
-      <div className="w-[90%] 800px:w-[80%] m-auto ">
-        {/* Heading */}
-        <h1 className="text-3xl sm:text-4xl 1000px:text-5xl font-semibold leading-tight text-center">
-          What is <span className="text-gradient">E-Learning?</span>
+    <section className="w-[90%] 800px:w-[80%] mx-auto py-20 pb-0">
+      {/* ── Hero text block ── */}
+      <div className="text-center max-w-xl mx-auto">
+        <span className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.18em] uppercase text-teal-500">
+          <span className="w-5 h-px bg-teal-500 inline-block" />
+          Our Story
+          <span className="w-5 h-px bg-teal-500 inline-block" />
+        </span>
+
+        <h1 className="mt-4 text-3xl sm:text-4xl 1000px:text-5xl font-semibold leading-tight text-gray-900 dark:text-white font-Poppins">
+          What is <span className="text-teal-500">E-Learning?</span>
         </h1>
 
-        {/* Intro / Description */}
-        <p className="mt-5 text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto font-Poppins leading-relaxed">
-          E-Learning is a modern Learning Management System (LMS) built to help
-          students and professionals grow with confidence. We offer structured,
-          high-quality courses in programming, web development, data science,
-          and other in-demand tech fields — all designed for real-world impact.
+        <p className="mt-5 text-base text-gray-600 dark:text-gray-300 font-Poppins leading-relaxed">
+          A modern LMS built to help students and professionals grow with
+          confidence — with structured courses, real-world projects, and a
+          community that has your back.
         </p>
+      </div>
 
-        {/* Long content (readable block) */}
-        <div className="mt-8 max-w-3xl mx-auto text-left text-base sm:text-lg text-gray-600 dark:text-gray-300 font-Poppins leading-relaxed space-y-6">
+      {/* ── Feature cards ── */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 mt-16">
+        {features.map((card, i) => (
+          <div
+            key={i}
+            className="rounded-xl border border-gray-200 dark:border-white/10
+                       bg-white dark:bg-slate-800
+                       p-6 shadow-sm
+                       hover:border-teal-500/50 hover:shadow-md hover:-translate-y-0.5
+                       transition-all duration-200"
+          >
+            <div className="w-10 h-10 rounded-lg bg-teal-500/10 flex items-center justify-center mb-5">
+              {card.icon}
+            </div>
+            <h3 className="font-semibold text-gray-900 dark:text-white font-Poppins mb-2">
+              {card.title}
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-Poppins leading-relaxed">
+              {card.desc}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Main content: two columns ── */}
+      <div className="mt-16 grid 1000px:grid-cols-[1fr_1.6fr] gap-10 items-start">
+        {/* Left: sticky label */}
+        <div className="1000px:sticky 1000px:top-24">
+          <span className="text-xs font-semibold tracking-widest uppercase text-gray-400 dark:text-gray-500 font-Poppins">
+            Our Mission
+          </span>
+          <h2 className="mt-3 text-2xl font-semibold text-gray-900 dark:text-white font-Poppins leading-snug">
+            Making quality education{" "}
+            <span className="text-teal-500">accessible to everyone</span>
+          </h2>
+          <div className="mt-6 h-px w-12 bg-teal-500" />
+        </div>
+
+        {/* Right: paragraphs */}
+        <div className="space-y-5 text-base text-gray-600 dark:text-gray-300 font-Poppins leading-relaxed">
           <p>
-            Our mission is simple: make quality education accessible to
-            everyone. Whether you are just starting your journey or already
-            working in the tech industry, E-Learning gives you the tools,
-            guidance, and structure you need to move forward.
+            Whether you are just starting your journey or already working in the
+            tech industry, E-Learning gives you the tools, guidance, and
+            structure you need to move forward.
           </p>
-
           <p>
             Through interactive lessons, hands-on projects, quizzes, and guided
             learning paths, we focus on practical skills that matter in real
-            jobs. You don’t just learn concepts — you build, practice, and apply
+            jobs. You don't just learn concepts — you build, practice, and apply
             them.
           </p>
-
           <p>
             We also provide certifications on course completion to help you
             showcase your skills and stand out in the job market. With a
@@ -38,16 +97,41 @@ const About = () => {
             E-Learning helps turn ambition into achievement.
           </p>
         </div>
+      </div>
 
-        {/* Signature */}
-        <div className="mt-8 text-center">
-          <span className="text-lg sm:text-xl font-semibold">Azra Javed</span>
-          <h5 className="text-base sm:text-lg font-Poppins text-gray-700 dark:text-gray-300">
-            Founder & CEO, E-Learning
-          </h5>
+      {/* ── Founder signature card ── */}
+      <div
+        className="mt-16 rounded-xl border border-gray-200 dark:border-white/10
+                      bg-white dark:bg-slate-800 p-8 shadow-sm
+                      flex flex-col sm:flex-row items-center gap-6"
+      >
+        {/* Avatar placeholder */}
+        <div
+          className="w-16 h-16 rounded-full bg-teal-500/10 border-2 border-teal-500/30
+                        flex items-center justify-center shrink-0 text-xl font-bold text-teal-500 font-Poppins"
+        >
+          AJ
+        </div>
+        <div>
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-Poppins italic leading-relaxed">
+            "E-Learning was built with one belief — that where you come from
+            should never limit how far you go. Every course here is designed to
+            close that gap."
+          </p>
+          <div className="mt-4 flex items-center gap-3">
+            <div className="h-px w-8 bg-teal-500" />
+            <div>
+              <p className="font-semibold text-gray-900 dark:text-white font-Poppins text-sm">
+                Azra Javed
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-Poppins">
+                Founder & CEO, E-Learning
+              </p>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

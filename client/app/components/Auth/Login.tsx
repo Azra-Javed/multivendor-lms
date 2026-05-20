@@ -28,13 +28,15 @@ const schema = Yup.object().shape({
 
 const Login = ({ setRoute, setOpen, refetch }: Props) => {
   const [show, setShow] = useState(false);
-  const [login, { isSuccess, error, data }] = useLoginMutation();
+  const [login, { isSuccess, error }] = useLoginMutation();
 
   useEffect(() => {
     if (isSuccess) {
       toast.success("Login Successfully!");
       setOpen(false);
-      refetch();
+      if (refetch) {
+        refetch();
+      }
     }
     if (error) {
       if ("data" in error) {
@@ -42,7 +44,7 @@ const Login = ({ setRoute, setOpen, refetch }: Props) => {
         toast.error(errorData.data.message);
       }
     }
-  }, [isSuccess, error]);
+  }, [isSuccess, error, setOpen, refetch]);
 
   const formik = useFormik({
     initialValues: { email: "", password: "" },
@@ -53,6 +55,29 @@ const Login = ({ setRoute, setOpen, refetch }: Props) => {
   });
 
   const { errors, touched, values, handleChange, handleSubmit } = formik;
+
+  const handleSocialAuth = async (provider: string) => {
+    try {
+      const result = await signIn(provider, {
+        redirect: false,
+        callbackUrl: "/",
+      });
+
+      if (result?.error) {
+        toast.error(`${provider} login failed. Please try again.`);
+        console.error(`${provider} auth error:`, result.error);
+      } else if (result?.ok) {
+        toast.success(`Logged in with ${provider} successfully!`);
+        setOpen(false);
+        if (refetch) {
+          refetch();
+        }
+      }
+    } catch (error) {
+      console.error(`${provider} authentication error:`, error);
+      toast.error(`Failed to authenticate with ${provider}`);
+    }
+  };
 
   return (
     <>
@@ -93,13 +118,13 @@ const Login = ({ setRoute, setOpen, refetch }: Props) => {
             />
             {!show ? (
               <AiOutlineEyeInvisible
-                className="absolute bottom-3 right-2 z-1 cursor-pointer"
+                className="absolute bottom-3 right-2 z-1 cursor-pointer dark:text-white text-black"
                 size={20}
                 onClick={() => setShow(true)}
               />
             ) : (
               <AiOutlineEye
-                className="absolute bottom-3 right-2 z-1 cursor-pointer"
+                className="absolute bottom-3 right-2 z-1 cursor-pointer dark:text-white text-black"
                 size={20}
                 onClick={() => setShow(false)}
               />
@@ -116,22 +141,31 @@ const Login = ({ setRoute, setOpen, refetch }: Props) => {
           <h5 className="text-center pt-4 font-Poppins text-[14px] text-black dark:text-white">
             or join with
           </h5>
-          <div className="flex items-center justify-center my-3">
-            <FcGoogle
-              size={30}
-              className="cursor-pointer mr-2"
-              onClick={() => signIn("google")}
-            />
-            <AiFillGithub
-              size={30}
-              className="cursor-pointer ml-2"
-              onClick={() => signIn("github")}
-            />
+          <div className="flex items-center justify-center my-3 gap-4">
+            <button
+              type="button"
+              onClick={() => handleSocialAuth("google")}
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+              aria-label="Sign in with Google"
+            >
+              <FcGoogle size={30} className="cursor-pointer" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSocialAuth("github")}
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+              aria-label="Sign in with GitHub"
+            >
+              <AiFillGithub
+                size={30}
+                className="cursor-pointer dark:text-white text-black"
+              />
+            </button>
           </div>
-          <h5 className="text-center pt-4 font-Poppins text-[14px]">
+          <h5 className="text-center pt-4 font-Poppins text-[14px] text-black dark:text-white">
             Not have any account?{" "}
             <span
-              className="text-[#2190ff] pl-1 cursor-pointer"
+              className="text-[#2190ff] pl-1 cursor-pointer hover:underline"
               onClick={() => setRoute("Sign-Up")}
             >
               Sign up

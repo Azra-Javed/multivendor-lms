@@ -37,7 +37,7 @@ const createActivationToken = (user: IRegistration): IActivationToken => {
   const token = jwt.sign(
     { user, activationCode },
     process.env.ACTIVATION_SECRET as Secret,
-    { expiresIn: "5m" }
+    { expiresIn: "5m" },
   );
 
   return { token, activationCode };
@@ -51,7 +51,7 @@ export const registerUser = CatchAsyncError(
 
     if (!password || password.length < 6) {
       return next(
-        new ErrorHandler("Password must be at least 6 characters", 400)
+        new ErrorHandler("Password must be at least 6 characters", 400),
       );
     }
 
@@ -86,7 +86,7 @@ export const registerUser = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
-  }
+  },
 );
 
 //@desc: activate user
@@ -98,7 +98,7 @@ export const activateUser = CatchAsyncError(
     //verify token
     const payload = jwt.verify(
       activation_token,
-      process.env.ACTIVATION_SECRET as string
+      process.env.ACTIVATION_SECRET as string,
     ) as { user: IUser; activationCode: string };
 
     if (payload.activationCode !== activation_code) {
@@ -120,7 +120,7 @@ export const activateUser = CatchAsyncError(
     res.status(201).json({
       success: true,
     });
-  }
+  },
 );
 
 //@desc: login user
@@ -140,6 +140,15 @@ export const loginUser = CatchAsyncError(
       return next(new ErrorHandler("Invalid email or password", 400));
     }
 
+    if (!user.password) {
+      return next(
+        new ErrorHandler(
+          "This account uses social login. Please continue with Google/GitHub.",
+          400,
+        ),
+      );
+    }
+
     const isPasswordMatch = await user.comparePassword(password);
 
     if (!isPasswordMatch) {
@@ -147,7 +156,7 @@ export const loginUser = CatchAsyncError(
     }
 
     sendToken(user, 200, res);
-  }
+  },
 );
 
 //@desc: logout user
@@ -164,7 +173,7 @@ export const logoutUser = CatchAsyncError(
       success: true,
       message: "User logout successfully",
     });
-  }
+  },
 );
 
 //@desc: update access token
@@ -180,7 +189,7 @@ export const updateToken = CatchAsyncError(
 
       const decoded = jwt.verify(
         refresh_token,
-        process.env.REFRESH_TOKEN as string
+        process.env.REFRESH_TOKEN as string,
       ) as JwtPayload;
 
       if (!decoded || !decoded.id) {
@@ -192,8 +201,8 @@ export const updateToken = CatchAsyncError(
         return next(
           new ErrorHandler(
             "Session expired or invalid. Please Login to access this resource",
-            400
-          )
+            400,
+          ),
         );
       }
 
@@ -202,7 +211,7 @@ export const updateToken = CatchAsyncError(
       const accessToken = jwt.sign(
         { id: user._id },
         process.env.ACCESS_TOKEN as string,
-        { expiresIn: "5m" }
+        { expiresIn: "5m" },
       );
 
       const refreshToken = jwt.sign(
@@ -210,7 +219,7 @@ export const updateToken = CatchAsyncError(
         process.env.REFRESH_TOKEN as string,
         {
           expiresIn: "7d",
-        }
+        },
       );
 
       // refresh Redis session
@@ -225,7 +234,7 @@ export const updateToken = CatchAsyncError(
     } catch (error) {
       return next(new ErrorHandler("Could not refresh token", 400));
     }
-  }
+  },
 );
 
 //@desc: get user info
@@ -242,7 +251,7 @@ export const getUserInfo = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
-  }
+  },
 );
 
 //@desc: social auth
@@ -261,7 +270,7 @@ export const socialAuth = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
-  }
+  },
 );
 
 //@desc: update user info
@@ -292,7 +301,7 @@ export const udpateUserInfo = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
-  }
+  },
 );
 
 //@desc: update user password
@@ -306,7 +315,7 @@ export const updatePassword = CatchAsyncError(
 
       if (!oldPassword || !newPassword) {
         return next(
-          new ErrorHandler("Please provide both old and new passwords", 400)
+          new ErrorHandler("Please provide both old and new passwords", 400),
         );
       }
 
@@ -314,8 +323,8 @@ export const updatePassword = CatchAsyncError(
         return next(
           new ErrorHandler(
             "Password change is not allowed for social login accounts",
-            400
-          )
+            400,
+          ),
         );
       }
 
@@ -336,7 +345,7 @@ export const updatePassword = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
-  }
+  },
 );
 
 //@desc: update user profile avatar
@@ -380,7 +389,7 @@ export const updateProfilePicture = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
-  }
+  },
 );
 
 //@desc: get all users -- only for admins
@@ -392,7 +401,7 @@ export const getAllUsers = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
-  }
+  },
 );
 
 //@desc: update user role -- only for admins
@@ -414,7 +423,7 @@ export const updateUserRole = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
-  }
+  },
 );
 
 //@desc: delete user -- only for admins
@@ -442,5 +451,5 @@ export const deleteUser = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
-  }
+  },
 );

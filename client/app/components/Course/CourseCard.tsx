@@ -2,6 +2,7 @@ import Ratings from "@/app/utils/Ratings";
 import Image from "next/image";
 import Link from "next/link";
 import { AiOutlineUnorderedList } from "react-icons/ai";
+import { HiOutlineUsers } from "react-icons/hi2";
 
 type Props = {
   item: any;
@@ -9,54 +10,114 @@ type Props = {
 };
 
 const CourseCard = ({ item, isProfile }: Props) => {
-  console.log(item);
+  const isFree = item.price === 0;
+
+  // Only show a discount badge if estimatedPrice exists and is actually higher than the current price
+  const hasDiscount =
+    !isFree && item.estimatedPrice && item.estimatedPrice > item.price;
+
+  // e.g. estimatedPrice = 100, price = 70 → discountPercent = 30
+  const discountPercent = hasDiscount
+    ? Math.round(
+        ((item.estimatedPrice - item.price) / item.estimatedPrice) * 100,
+      )
+    : 0;
+
   return (
-    <>
-      <Link
-        href={!isProfile ? `/course/${item._id}` : `course-access/${item._id}`}
+    <Link
+      href={!isProfile ? `/course/${item._id}` : `/course-access/${item._id}`}
+      className="group block"
+    >
+      <div
+        className="relative flex flex-col h-full rounded-xl overflow-hidden
+                   border border-gray-200 dark:border-white/10
+                   bg-white dark:bg-slate-800
+                   shadow-sm hover:shadow-lg
+                   transition-all duration-300 hover:-translate-y-1"
       >
-        <div className="w-full min-h-[35vh] dark:bg-slate-500 dark:bg-opacity-20 backdrop-blur border dark:border-[#ffffff1d] border-[#00000015] dark:shadow-[bg-slate-700] rounded-lg p-3 shadow-sm dark:shadow-inner">
+        {/* Thumbnail */}
+        <div className="relative w-full aspect-video overflow-hidden bg-gray-100 dark:bg-slate-700">
           <Image
             src={item?.thumbnail?.url}
-            width={500}
-            height={300}
-            objectFit="contain"
-            className="rounded w-full"
-            alt=""
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            alt={item.name}
           />
-          <br />
-          <h1 className="font-Poppins text-[16px] text-black dark:text-[#fff]">
+
+          {/* Free badge */}
+          {isFree && (
+            <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md text-xs font-semibold bg-teal-500 text-white">
+              Free
+            </span>
+          )}
+
+          {/* Discount badge — e.g. "30% OFF" */}
+          {hasDiscount && (
+            <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md text-xs font-semibold bg-rose-500 text-white">
+              {discountPercent}% OFF
+            </span>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="flex flex-col flex-1 p-4">
+          {/* Course name */}
+          <h2
+            className="font-Poppins text-[15px] font-semibold leading-snug
+                       text-gray-900 dark:text-white
+                       line-clamp-2 mb-3
+                       group-hover:text-teal-500 dark:group-hover:text-teal-400
+                       transition-colors duration-200"
+          >
             {item.name}
-          </h1>
-          <div className="w-full flex items-center justify-between pt-2">
+          </h2>
+
+          {/* Ratings + students */}
+          <div className="flex items-center justify-between mb-4">
             <Ratings rating={item.ratings} />
-            <h5
-              className={`text-black dark:text-[#fff] ${
-                isProfile && "hidden 800px:inline"
-              }`}
+            <div
+              className={`flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400
+                          ${isProfile ? "hidden 800px:flex" : "flex"}`}
             >
-              {item.purchased} Students
-            </h5>
-          </div>
-          <div className="w-full flex items-center justify-between pt-3">
-            <div className="flex">
-              <h3 className="text-black dark:text-[#fff]">
-                {item.price === 0 ? "Free" : item.price + "$"}
-              </h3>
-              <h5 className="pl-3 text-[14px] mt-[-5px] line-through opacity-80 text-black dark:text-[#fff]">
-                {item.estimatedPrice}$
-              </h5>
+              <HiOutlineUsers className="w-4 h-4" />
+              <span>{item.purchased} students</span>
             </div>
-            <div className="flex items-center pb-3">
-              <AiOutlineUnorderedList size={20} fill="#fff" />
-              <h5 className="pl-2 text-black dark:text-[#fff]">
-                {item.courseData?.length} Lectures
-              </h5>
+          </div>
+
+          {/* Divider */}
+          <div className="h-px bg-gray-100 dark:bg-white/10 mb-4" />
+
+          {/* Price + lectures */}
+          <div className="flex items-center justify-between mt-auto">
+            {/* Price block */}
+            <div className="flex items-baseline gap-2">
+              <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                {isFree ? "Free" : `$${item.price}`}
+              </span>
+              {/* Crossed-out original price — only shown when there's an actual discount */}
+              {hasDiscount && (
+                <span className="text-sm text-gray-400 dark:text-gray-500 line-through">
+                  ${item.estimatedPrice}
+                </span>
+              )}
+            </div>
+
+            {/* Lectures */}
+            <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+              <AiOutlineUnorderedList className="w-4 h-4" />
+              <span>{item.courseData?.length} lectures</span>
             </div>
           </div>
         </div>
-      </Link>
-    </>
+
+        {/* Bottom teal accent bar — appears on hover */}
+        <div
+          className="h-[3px] w-0 bg-teal-500
+                     group-hover:w-full
+                     transition-all duration-300 ease-in-out"
+        />
+      </div>
+    </Link>
   );
 };
 

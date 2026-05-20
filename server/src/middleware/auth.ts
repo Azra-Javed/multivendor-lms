@@ -12,13 +12,13 @@ export const isAuthenticated = CatchAsyncError(
 
     if (!access_token) {
       return next(
-        new ErrorHandler("Please login to access this resource", 401)
+        new ErrorHandler("Please login to access this resource", 401),
       );
     }
 
     const decoded = jwt.verify(
       access_token,
-      process.env.ACCESS_TOKEN as string
+      process.env.ACCESS_TOKEN as string,
     ) as { id: string };
 
     if (!decoded) {
@@ -28,13 +28,13 @@ export const isAuthenticated = CatchAsyncError(
     const user = await redis.get(decoded.id);
     if (!user) {
       return next(
-        new ErrorHandler("Please login to access this resource", 400)
+        new ErrorHandler("Please login to access this resource", 400),
       );
     }
 
     req.user = JSON.parse(user);
     next();
-  }
+  },
 );
 
 //validate user role
@@ -44,8 +44,8 @@ export const authorizeRoles = (...roles: string[]) => {
       return next(
         new ErrorHandler(
           `Role: ${req.user?.role} is not allowed to acess this resource`,
-          403
-        )
+          403,
+        ),
       );
     }
 

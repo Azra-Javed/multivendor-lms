@@ -1,87 +1,196 @@
+"use client";
 import Image from "next/image";
-import ReviewCard from "../Review/ReviewCard";
-import { styles } from "@/app/styles/styles";
-
-type Props = {};
+import { useState, useEffect, useRef } from "react";
+import { FeaturedReviewCard, SideReviewCard } from "../Review/ReviewCard";
+import Link from "next/link";
 
 export const reviews = [
   {
     name: "Gene Bates",
     avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-    profession: "Student | Cambridge university",
+    profession: "Student | Cambridge University",
     comment:
-      "I had the pleasure of exploring E-learning, a website that provides an extensive range of courses on various tech-related topics. I was thoroughly impressed with my experience, as the website offers a comprehensive selection of courses that cater to different skill levels and interests. If you're looking to enhance your knowledge and skills in the tech industry, I highly recommend checking out E-learning!",
+      "I had the pleasure of exploring E-learning, a website that provides an extensive range of courses on various tech-related topics. The courses cater to different skill levels and interests. Highly recommend!",
+    rating: 5,
+    tag: "Courses",
   },
   {
     name: "Verna Santos",
     avatar: "https://randomuser.me/api/portraits/women/1.jpg",
-    profession: "Full stack developer | Quarter ltd.",
+    profession: "Full Stack Developer | Quarter Ltd.",
     comment:
-      "Thanks for your amazing programming tutorial channel! Your teaching style is outstanding, and the quality of your tutorials is top-notch. Your ability to break down complex topics into manageable parts, and cover diverse programming languages and topics is truly impressive. The practical applications and real-world examples you incorporate reinforce the theoretical knowledge and provide valuable insights. Your engagement with the audience fosters a supportive learning environment. Thank you for your dedication, expertise, and passion for teaching programming, and keep up the fantastic work!",
+      "Thanks for the amazing tutorials! The teaching style is outstanding, and the practical applications are extremely valuable. Highly recommend for anyone looking to enhance their programming skills.",
+    rating: 5,
+    tag: "Tutorials",
   },
   {
     name: "Jay Gibbs",
     avatar: "https://randomuser.me/api/portraits/men/2.jpg",
-    profession: "computer systems engineering student | Zimbabwe",
+    profession: "Computer Systems Engineering Student | Zimbabwe",
     comment:
-      "Thanks for your amazing programming tutorial channel! Your teaching style is outstanding, and the quality of your tutorials is top-notch. Your ability to break down complex topics into manageable parts, and cover diverse programming languages and topics is truly impressive. The practical applications and real-world examples you incorporate reinforce the theoretical knowledge and provide valuable insights. Your engagement with the audience fosters a supportive learning environment. Thank you for your dedication, expertise, and passion for teaching programming, and keep up the fantastic work!",
+      "Your tutorials are top-notch! Complex topics are explained clearly with real-world examples. It creates a supportive learning environment. Great work!",
+    rating: 5,
+    tag: "Community",
   },
   {
     name: "Mina Davidson",
     avatar: "https://randomuser.me/api/portraits/women/2.jpg",
     profession: "Junior Web Developer | Indonesia",
     comment:
-      "I had the pleasure of exploring E-learning, a website that provides an extensive range of courses on various tech-related topics. I was thoroughly impressed with my experience",
+      "I was thoroughly impressed with E-learning's course range. Highly practical and engaging content that pushed me to grow every single day.",
+    rating: 5,
+    tag: "Courses",
   },
   {
     name: "Rosemary Smith",
     avatar: "https://randomuser.me/api/portraits/women/3.jpg",
-    profession: "Full stack web developer | Algeria",
+    profession: "Full Stack Web Developer | Algeria",
     comment:
-      "Your content is very special. The thing I liked the most is that the videos are so long, which means they cover everything in details. for that any person had beginner-level can complete an integrated project when he watches the videos. Thank you very much. Im very excited for the next videos Keep doing this amazing work",
+      "Videos are detailed and cover everything. Beginners can complete integrated projects. Excited for more content!",
+    rating: 5,
+    tag: "Projects",
   },
   {
     name: "Laura Mckenzie",
     avatar: "https://randomuser.me/api/portraits/women/4.jpg",
-    profession: "Full stack web developer | Canada",
+    profession: "Full Stack Web Developer | Canada",
     comment:
-      "Join E-learning! E-learning focuses on practical applications rather than just teaching the theory behind programming languages or frameworks. I took a lesson on creating a web marketplace using React JS, and it was very helpful in teaching me the different stages involved in creating a project from start to finish. Overall, I highly recommend E-learning to anyone looking to improve their programming skills and build practical projects. E-learning is a great resource that will help you take your skills to the next level.",
+      "E-learning focuses on practical applications. Lessons are clear, and projects are comprehensive. Highly recommended!",
+    rating: 5,
+    tag: "Practical",
   },
 ];
 
-const Reviews = (props: Props) => {
+const Reviews = (props: any) => {
+  const [active, setActive] = useState(0);
+  const [fading, setFading] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const goTo = (idx: number) => {
+    if (fading || idx === active) return;
+    setFading(true);
+    setTimeout(() => {
+      setActive(idx);
+      setFading(false);
+    }, 300);
+  };
+
+  const next = () => goTo((active + 1) % reviews.length);
+  const prev = () => goTo((active - 1 + reviews.length) % reviews.length);
+
+  useEffect(() => {
+    timerRef.current = setInterval(next, 5000);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [active]);
+
+  const featured = reviews[active];
+  const sideReviews = reviews
+    .map((r, i) => ({ ...r, origIdx: i }))
+    .filter((_, i) => i !== active)
+    .slice(0, 3);
+
   return (
-    <div className="w-[90%] 800px:w-[85%] m-auto">
-      <div className="w-full 800px:flex items-center">
-        <div className="800px:w-[50%] w-full">
+    <section className="w-full max-w-6xl mx-auto px-6 py-20">
+      {/* ── Header ── */}
+      <div className="grid 1000px:grid-cols-2 gap-14 items-center mb-20">
+        {/* Left: text */}
+        <div className="text-center 1000px:text-left">
+          <h2 className="text-3xl sm:text-4xl 1000px:text-5xl font-semibold text-gray-900 dark:text-white leading-tight">
+            What Our <span className="text-teal-500">Students</span> Say About
+            Us
+          </h2>
+
+          <p className="mt-5 text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto 1000px:mx-0">
+            Thousands of students have sharpened their development skills
+            through our practical courses, real-world projects, and supportive
+            community.
+          </p>
+
+          {/* Avatar strip */}
+          <div className="mt-10 flex items-center justify-center 1000px:justify-start gap-3">
+            <div className="flex -space-x-3">
+              {reviews.slice(0, 4).map((item, index) => (
+                <img
+                  key={index}
+                  src={item.avatar}
+                  alt={item.name}
+                  className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-800 object-cover"
+                />
+              ))}
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              500K+ trusted users ·{" "}
+              <Link href={"/courses"}>
+                {" "}
+                <span className="text-teal-500 font-medium">View courses</span>
+              </Link>
+            </p>
+          </div>
+        </div>
+
+        {/* Right: image */}
+        <div className="relative flex justify-center items-center">
+          <div className="absolute w-[300px] h-[300px] rounded-full hero_animation -z-10" />
           <Image
             src={require("../../../public/assets/review.png")}
-            alt="business"
-            width={700}
-            height={700}
+            alt="students"
+            width={400}
+            height={400}
+            className="object-contain max-h-[360px] relative z-10"
           />
         </div>
-        <div className="800px:w-[50%] w-full">
-          <h3 className={`${styles.title} 800px:!text-[40px]`}>
-            Our Students Are <span className="text-gradient">Our Strength</span>{" "}
-            <br /> See What They Say About Us
-          </h3>
-          <br />
-          <p className={styles.label}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque unde
-            voluptatum dignissimos, nulla perferendis dolorem voluptate nemo
-            possimus magni deleniti natus accusamus officiis quasi nihil
-            commodi, praesentium quidem, quis doloribus?
-          </p>
+      </div>
+
+      {/* ── Divider label ── */}
+      <div className="flex items-center gap-4 mb-10">
+        <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
+        <span className="text-xs font-medium tracking-widest uppercase text-gray-400 dark:text-gray-500 whitespace-nowrap">
+          Student Testimonials
+        </span>
+        <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
+      </div>
+
+      {/* ── Masonry: featured left + side column right ── */}
+      <div className="grid 1000px:grid-cols-[1fr_360px] gap-5 items-start">
+        {/* Featured card */}
+        <FeaturedReviewCard
+          item={featured}
+          fading={fading}
+          onPrev={prev}
+          onNext={next}
+        />
+
+        {/* Side cards + dots */}
+        <div className="flex flex-col gap-4">
+          {sideReviews.map((item, idx) => (
+            <SideReviewCard
+              key={item.origIdx}
+              item={item}
+              highlighted={idx === 0}
+              onClick={() => goTo(item.origIdx)}
+            />
+          ))}
+
+          {/* Dot indicators */}
+          <div className="flex items-center justify-center gap-2 pt-2">
+            {reviews.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => goTo(i)}
+                className="rounded-full transition-all duration-300"
+                style={{
+                  width: i === active ? "20px" : "6px",
+                  height: "6px",
+                  background: i === active ? "#14b8a6" : "#d1d5db",
+                }}
+              />
+            ))}
+          </div>
         </div>
-        <br />
-        <br />
       </div>
-      <div className="grid grid-cols-1 gap-[25px] md:grid-cols-2 md:gap-[25px] lg:grid-cols-2 lg:gap-[25px] xl:grid-cols-2 xl:gap-[35px] mb-12 border-0 md:[&>*:nth-child(3)]:!mt-[-60px] md:[&>*:nth-child(6)]:!mt-[-20px]">
-        {reviews &&
-          reviews.map((i, index) => <ReviewCard item={i} key={index} />)}
-      </div>
-    </div>
+    </section>
   );
 };
 

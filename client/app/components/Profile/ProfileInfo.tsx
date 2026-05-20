@@ -34,19 +34,25 @@ const ProfileInfo = ({ avatar, user }: Props) => {
     fileReader.readAsDataURL(e.target.files[0]);
   };
 
+  const { refetch } = useLoadUserQuery(undefined);
+
   useEffect(() => {
     if (isSuccess || success) {
-      setLoadUser(true);
+      refetch();
     }
 
     if (error || updateError) {
-      console.log(error);
+      console.log(error || updateError);
     }
 
     if (success) {
       toast.success("Profile updated successfully!");
     }
-  }, [isSuccess, error, success, updateError]);
+
+    if (isSuccess) {
+      toast.success("Avatar updated successfully!");
+    }
+  }, [isSuccess, error, success, updateError, refetch]);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();

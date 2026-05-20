@@ -16,174 +16,130 @@ const EditFaq = (props: Props) => {
   const { data, isLoading, refetch } = useGetHeroDataQuery("FAQ", {
     refetchOnMountOrArgChange: true,
   });
-
   const [editLayout, { isSuccess: layoutSuccess, error }] =
     useEditLayoutMutation();
-
   const [questions, setQuestions] = useState<any[]>([]);
 
   useEffect(() => {
-    if (data) {
-      setQuestions(data.layout?.faq);
-    }
+    if (data) setQuestions(data.layout?.faq || []);
     if (layoutSuccess) {
       toast.success("FAQ updated successfully");
       refetch();
     }
-
-    if (error) {
-      if ("data" in error) {
-        const errorData = error as any;
-        toast.error(errorData?.data?.message);
-      }
-    }
-  }, [data, layoutSuccess, error]);
+    if (error && "data" in error) toast.error((error as any)?.data?.message);
+  }, [data, layoutSuccess, error, refetch]);
 
   const toggleQuestion = (id: any) => {
-    setQuestions((prevQuestions) =>
-      prevQuestions.map((q) => (q._id === id ? { ...q, active: !q.active } : q))
+    setQuestions((prev) =>
+      prev.map((q) => (q._id === id ? { ...q, active: !q.active } : q))
     );
   };
 
   const handleQuestionChange = (id: any, value: string) => {
-    setQuestions((prevQuestions) =>
-      prevQuestions.map((q) => (q._id === id ? { ...q, question: value } : q))
+    setQuestions((prev) =>
+      prev.map((q) => (q._id === id ? { ...q, question: value } : q))
     );
   };
 
   const handleAnswerChange = (id: any, value: string) => {
-    setQuestions((prevQuestions) =>
-      prevQuestions.map((q) => (q._id === id ? { ...q, answer: value } : q))
+    setQuestions((prev) =>
+      prev.map((q) => (q._id === id ? { ...q, answer: value } : q))
     );
   };
 
-  const newFaqHandler = () => {
-    setQuestions([
-      ...questions,
-      {
-        question: "",
-        answer: "",
-      },
-    ]);
-  };
-  // Function to check if the FAQ arrays are unchanged
-  const areQuestionsUnchanged = (
-    originalQuestions: any[],
-    newQuestions: any[]
-  ) => {
-    return JSON.stringify(originalQuestions) === JSON.stringify(newQuestions);
-  };
+  const newFaqHandler = () =>
+    setQuestions([...questions, { question: "", answer: "" }]);
 
-  const isAnyQuestionEmpty = (questions: any[]) => {
-    return questions.some((q) => q.question === "" || q.answer === "");
-  };
+  const areQuestionsUnchanged = (original: any[], current: any[]) =>
+    JSON.stringify(original) === JSON.stringify(current);
+
+  const isAnyQuestionEmpty = (qs: any[]) =>
+    qs.some((q) => q.question === "" || q.answer === "");
 
   const handleEdit = async () => {
     if (
       !areQuestionsUnchanged(data.layout?.faq, questions) &&
       !isAnyQuestionEmpty(questions)
     ) {
-      await editLayout({
-        type: "FAQ",
-        faq: questions,
-      });
+      await editLayout({ type: "FAQ", faq: questions });
     }
   };
 
+  if (isLoading) return <Loader />;
+
   return (
-    <>
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <div className="w-[90%] 800px:w-[80%] m-auto mt-[120px]">
-          <div className="mt-12">
-            <dl className="space-y-8">
-              {questions?.map((q: any) => (
-                <div
-                  key={q._id}
-                  className={`${
-                    q._id !== questions[0]?._id && "border-t"
-                  } border-gray-200 pt-6`}
-                >
-                  <dt className="text-lg">
-                    <button
-                      className="flex items-start dark:text-white text-black justify-between w-full text-left focus:outline-none"
-                      onClick={() => toggleQuestion(q._id)}
-                    >
-                      <input
-                        className={`${styles.input} border-none`}
-                        value={q.question}
-                        onChange={(e: any) =>
-                          handleQuestionChange(q._id, e.target.value)
-                        }
-                        placeholder={"Add your question..."}
-                      />
-
-                      <span className="ml-6 flex-shrink-0">
-                        {q.active ? (
-                          <HiMinus className="h-6 w-6" />
-                        ) : (
-                          <HiPlus className="h-6 w-6" />
-                        )}
-                      </span>
-                    </button>
-                  </dt>
-                  {q.active && (
-                    <dd className="mt-2 pr-12">
-                      <input
-                        className={`${styles.input} border-none`}
-                        value={q.answer}
-                        onChange={(e: any) =>
-                          handleAnswerChange(q._id, e.target.value)
-                        }
-                        placeholder={"Add your answer..."}
-                      />
-                      <span className="ml-6 flex-shrink-0">
-                        <AiOutlineDelete
-                          className="dark:text-white text-black text-[18px] cursor-pointer"
-                          onClick={() => {
-                            setQuestions((prevQuestions) =>
-                              prevQuestions.filter((item) => item._id !== q._id)
-                            );
-                          }}
-                        />
-                      </span>
-                    </dd>
-                  )}
-                </div>
-              ))}
-            </dl>
-            <br />
-            <br />
-            <IoMdAddCircleOutline
-              className="dark:text-white text-black text-[25px] cursor-pointer"
-              onClick={newFaqHandler}
-            />
-          </div>
-
+    <div className="w-[90%] 800px:w-[80%] m-auto mt-[80px]">
+      <div className="space-y-4">
+        {questions.map((q) => (
           <div
-            className={`${
-              styles.button
-            } !w-[100px] !min-h-[40px] !h-[40px] dark:text-white text-black bg-[#cccccc34] 
-              ${
-                areQuestionsUnchanged(data.layout?.faq, questions) ||
-                isAnyQuestionEmpty(questions)
-                  ? "!cursor-not-allowed"
-                  : "!cursor-pointer !bg-[#42d383]"
-              }
-              !rounded fixed bottom-12 right-12`}
-            onClick={
-              areQuestionsUnchanged(data.layout?.faq, questions) ||
-              isAnyQuestionEmpty(questions)
-                ? () => null
-                : handleEdit
-            }
+            key={q._id}
+            className="bg-gray-50 dark:bg-[#111c43] p-4 rounded-lg shadow-sm"
           >
-            Save
+            <div className="flex items-center justify-between space-x-3">
+              <input
+                className={`${styles.input} flex-1 border rounded px-3 py-2`}
+                value={q.question}
+                onChange={(e) => handleQuestionChange(q._id, e.target.value)}
+                placeholder="Add your question..."
+              />
+              <button onClick={() => toggleQuestion(q._id)}>
+                {q.active ? (
+                  <HiMinus className="h-5 w-5 text-gray-600 dark:text-white" />
+                ) : (
+                  <HiPlus className="h-5 w-5 text-gray-600 dark:text-white" />
+                )}
+              </button>
+            </div>
+            {q.active && (
+              <div className="flex items-center mt-3 space-x-3">
+                <input
+                  className={`${styles.input} flex-1 border rounded px-3 py-2`}
+                  value={q.answer}
+                  onChange={(e) => handleAnswerChange(q._id, e.target.value)}
+                  placeholder="Add your answer..."
+                />
+                <AiOutlineDelete
+                  className="text-red-500 hover:text-red-700 cursor-pointer text-xl"
+                  onClick={() =>
+                    setQuestions((prev) =>
+                      prev.filter((item) => item._id !== q._id)
+                    )
+                  }
+                />
+              </div>
+            )}
           </div>
+        ))}
+
+        <div className="flex items-center space-x-2 mt-2">
+          <IoMdAddCircleOutline
+            className="text-green-500 hover:text-green-600 cursor-pointer text-2xl"
+            onClick={newFaqHandler}
+          />
+          <span className="text-gray-600 dark:text-gray-300">Add New FAQ</span>
         </div>
-      )}
-    </>
+      </div>
+
+      {/* Save button  */}
+      <div className="mt-6 flex justify-end">
+        <button
+          className={`${styles.button} !w-[120px] !h-[40px] ${
+            areQuestionsUnchanged(data.layout?.faq, questions) ||
+            isAnyQuestionEmpty(questions)
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-green-500 hover:bg-green-600 cursor-pointer"
+          } rounded text-white`}
+          onClick={
+            areQuestionsUnchanged(data.layout?.faq, questions) ||
+            isAnyQuestionEmpty(questions)
+              ? () => null
+              : handleEdit
+          }
+        >
+          Save
+        </button>
+      </div>
+    </div>
   );
 };
 

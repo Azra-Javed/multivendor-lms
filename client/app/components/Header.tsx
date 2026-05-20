@@ -4,12 +4,11 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import NavItems from "../utils/NavItems";
 import ThemeSwitcher from "../utils/ThemeSwitcher";
-import { HiOutlineMenuAlt3, HiOutlineUserCircle } from "react-icons/hi";
+import { HiOutlineMenuAlt3, HiOutlineUserCircle, HiX } from "react-icons/hi";
 import CustomModel from "../utils/CustomModel";
 import Login from "../components/Auth/Login";
 import SignUp from "../components/Auth/SignUp";
 import Verification from "../components/Auth/Verification";
-import { useSelector } from "react-redux";
 import Image from "next/image";
 import avatar from "../../public/assets/avatar.png";
 import { useSession } from "next-auth/react";
@@ -17,7 +16,6 @@ import {
   useLogOutQuery,
   useSocialAuthMutation,
 } from "@/redux/features/auth/authApi";
-import toast from "react-hot-toast";
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
 
 interface Props {
@@ -31,159 +29,212 @@ interface Props {
 const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
   const [active, setActive] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(false);
+
   const {
     data: userData,
     isLoading,
     refetch,
   } = useLoadUserQuery(undefined, {});
+  const [socialAuth, { isSuccess }] = useSocialAuthMutation();
+  const [logoutTrigger, setLogoutTrigger] = useState(false);
 
-  const [socialAuth, { isSuccess, error }] = useSocialAuthMutation();
-  const [logout, setLogout] = useState(false);
-  const {} = useLogOutQuery(undefined, {
-    skip: !logout,
-  });
+  useLogOutQuery(undefined, { skip: !logoutTrigger });
 
   const { data } = useSession();
 
   useEffect(() => {
-    if (!isLoading) {
-      if (!userData && data) {
-        socialAuth({
-          email: data.user?.email,
-          name: data.user?.name,
-          avatar: data.user?.image,
-        });
-        refetch();
+    const syncUser = async () => {
+      if (data?.user && !userData) {
+        try {
+          await socialAuth({
+            email: data.user.email,
+            name: data.user.name,
+            avatar: data.user.image,
+          }).unwrap();
+          await refetch();
+        } catch (err) {
+          console.log(err);
+        }
       }
-    }
-
-    if (data === null && isSuccess) {
-      toast.success("Login successfully");
-    }
-
-    // User logged OUT from NextAuth
-    if (data === null && !isLoading && !userData) {
-      setLogout(true);
-    }
-  }, [data, userData]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setActive(window.scrollY > 80);
     };
+    syncUser();
+  }, [data]);
 
-    window.addEventListener("scroll", handleScroll);
-
-    return () => window.removeEventListener("scroll", handleScroll);
+  // sticky on scroll
+  useEffect(() => {
+    const onScroll = () => setActive(window.scrollY > 80);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const handleClose = (e: any) => {
-    if (e.target.id === "screen") {
-      {
-        setOpenSidebar(false);
-      }
-    }
+    if (e.target.id === "screen") setOpenSidebar(false);
   };
 
   return (
-    <div className="w-full relative">
+    <header className="w-full relative">
+      {/* ── Main nav bar ── */}
       <div
-        className={`${
-          active
-            ? "dark:bg-opacity-50 bg-white dark:bg-gradient-to-b dark:from-gray-900 dark:to-black fixed top-0 left-0 w-full h-[80px] z-[80] border-b dark:border-[#ffffff1c] shadow-xl transition duration-500"
-            : "w-full border-b dark:border-[#ffffff1c] h-[80px] z-[80] dark:shadow"
-        }`}
+        className={`h-[64px] w-full transition-all duration-300
+          ${
+            active
+              ? "fixed top-0 left-0 z-[80] bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-gray-200 dark:border-white/10 shadow-sm"
+              : "border-b border-gray-200 dark:border-white/10 bg-white dark:bg-transparent"
+          }`}
       >
-        <div className="w-[95%] 800px:w-[92%] m-auto py-2 h-full">
-          <div className="w-full h-20 flex items-center justify-between p-3">
-            <div>
-              <Link
-                href={"/"}
-                className={`text-[25px] font-Poppins font-medium text-black dark:text-white`}
-              >
-                Azra Javed
-              </Link>
-            </div>
-            <div className="flex items-center">
+        <div className="max-w-6xl mx-auto h-full px-4 sm:px-6">
+          <div className="h-full flex items-center justify-between gap-6">
+            {/* Logo */}
+            <Link
+              href="/"
+              className="text-base font-semibold text-gray-900 dark:text-white font-Poppins shrink-0 hover:text-teal-500 dark:hover:text-teal-400 transition-colors duration-200"
+            >
+              Azra <span className="text-teal-500">Javed</span>
+            </Link>
+
+            {/* Center: desktop nav */}
+            <div className="hidden 800px:flex flex-1 justify-center">
               <NavItems activeItem={activeItem} isMobile={false} />
+            </div>
+
+            {/* Right: actions */}
+            <div className="flex items-center gap-3 shrink-0">
               <ThemeSwitcher />
 
-              {/* mobile */}
-              <div className="800px:hidden">
-                <HiOutlineMenuAlt3
-                  size={25}
-                  className="cursor-pointer  dark:text-white text-black"
-                  onClick={() => setOpenSidebar(true)}
-                />
-              </div>
+              {/* User avatar or login icon — desktop */}
               {userData ? (
-                <>
-                  <Link href={"/profile"}>
-                    <Image
-                      src={userData.avatar ? userData.avatar.url : avatar}
-                      width={30}
-                      height={30}
-                      alt=""
-                      className="h-[30px] w-[30px] rounded-full cursor-pointer"
-                      style={{
-                        border: activeItem === 5 ? "2px solid #37a39a" : "none",
-                      }}
-                    />
-                  </Link>
-                </>
+                <Link href="/profile" className="hidden 800px:block">
+                  <Image
+                    src={userData?.user?.avatar?.url || avatar}
+                    width={36}
+                    height={36}
+                    alt="Profile"
+                    className={`w-9 h-9 min-w-[36px] min-h-[36px] rounded-full object-cover
+                                border-2 transition-all duration-200
+                                ${
+                                  activeItem === 5
+                                    ? "border-teal-500"
+                                    : "border-gray-200 dark:border-white/20 hover:border-teal-500"
+                                }`}
+                  />
+                </Link>
               ) : (
-                <HiOutlineUserCircle
-                  size={25}
-                  className="hidden 800px:block cursor-pointer text-black dark:text-white "
+                <button
                   onClick={() => setOpen(true)}
-                />
+                  className="hidden 800px:flex items-center gap-2 px-4 py-1.5 rounded-lg
+                             border border-gray-200 dark:border-white/10
+                             bg-white dark:bg-slate-800
+                             text-sm font-medium text-gray-700 dark:text-gray-200
+                             hover:border-teal-500 hover:text-teal-500
+                             dark:hover:border-teal-500 dark:hover:text-teal-400
+                             transition-all duration-200 font-Poppins"
+                >
+                  <HiOutlineUserCircle size={18} />
+                  Login
+                </button>
               )}
+
+              {/* Mobile hamburger */}
+              <button
+                className="800px:hidden p-1.5 rounded-lg
+                           border border-gray-200 dark:border-white/10
+                           bg-white dark:bg-slate-800
+                           text-gray-700 dark:text-gray-200
+                           hover:border-teal-500 hover:text-teal-500
+                           transition-all duration-200"
+                onClick={() => setOpenSidebar(true)}
+                aria-label="Open menu"
+              >
+                <HiOutlineMenuAlt3 size={20} />
+              </button>
             </div>
           </div>
         </div>
-
-        {/* moblile side-bar */}
-        {openSidebar && (
-          <div
-            className="fixed w-full h-screen top-0 left-0 z-99999 dark:bg-[unset] bg-[#00000024]"
-            onClick={handleClose}
-            id="screen"
-          >
-            <div className="w-[70%] fixed z-9999999 h-screen bg-white dark:bg-slate-900 dark:bg-opacity-90 top-0 right-0">
-              <NavItems activeItem={activeItem} isMobile={true} />
-              {userData ? (
-                <>
-                  <Link href={"/profile"}>
-                    <Image
-                      src={userData.avatar ? userData.avatar.url : avatar}
-                      width={30}
-                      height={30}
-                      alt=""
-                      className="h-[30px] w-[30px] rounded-full cursor-pointer"
-                      style={{
-                        border: activeItem === 5 ? "2px solid #37a39a" : "none",
-                      }}
-                    />
-                  </Link>
-                </>
-              ) : (
-                <HiOutlineUserCircle
-                  size={25}
-                  className="hidden 800px:block cursor-pointer text-black dark:text-white "
-                  onClick={() => setOpen(true)}
-                />
-              )}
-              <br />
-              <br />
-              <p className="text-center px-2 pl-5 text-sm text-gray-500 dark:text-gray-400">
-                © 2025 Azra Javed. All rights reserved.
-              </p>
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* popup */}
+      {/* ── Mobile sidebar ── */}
+      {openSidebar && (
+        <div
+          id="screen"
+          onClick={handleClose}
+          className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-sm"
+        >
+          <aside
+            className="absolute right-0 top-0 h-full w-[72%] max-w-[300px]
+                       bg-white dark:bg-slate-900
+                       border-l border-gray-200 dark:border-white/10
+                       shadow-xl flex flex-col"
+          >
+            {/* Sidebar header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-white/10">
+              <span className="text-sm font-semibold text-gray-900 dark:text-white font-Poppins">
+                Azra <span className="text-teal-500">Javed</span>
+              </span>
+              <button
+                onClick={() => setOpenSidebar(false)}
+                className="p-1.5 rounded-lg border border-gray-200 dark:border-white/10
+                           text-gray-500 dark:text-gray-400
+                           hover:border-teal-500 hover:text-teal-500
+                           transition-all duration-200"
+                aria-label="Close menu"
+              >
+                <HiX size={16} />
+              </button>
+            </div>
+
+            {/* Nav links */}
+            <div className="flex-1 overflow-y-auto px-4 py-4">
+              <NavItems activeItem={activeItem} isMobile={true} />
+            </div>
+
+            {/* Sidebar footer: user */}
+            <div className="px-5 py-4 border-t border-gray-100 dark:border-white/10">
+              {userData ? (
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-3"
+                  onClick={() => setOpenSidebar(false)}
+                >
+                  <Image
+                    src={userData?.user?.avatar?.url || avatar}
+                    width={40}
+                    height={40}
+                    alt="Profile"
+                    className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full object-cover border-2 border-teal-500"
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white font-Poppins">
+                      {userData?.user?.name}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 font-Poppins">
+                      View profile
+                    </p>
+                  </div>
+                </Link>
+              ) : (
+                <button
+                  onClick={() => {
+                    setOpen(true);
+                    setOpenSidebar(false);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg
+                             bg-teal-500 text-white text-sm font-medium font-Poppins
+                             hover:bg-teal-600 transition-colors duration-200"
+                >
+                  <HiOutlineUserCircle size={18} />
+                  Login / Sign Up
+                </button>
+              )}
+
+              <p className="mt-4 text-xs text-gray-400 dark:text-gray-500 font-Poppins text-center">
+                © 2026 Azra Javed
+              </p>
+            </div>
+          </aside>
+        </div>
+      )}
+
+      {/* ── Modals ── */}
       {route === "Login" && open && (
         <CustomModel
           refetch={refetch}
@@ -204,6 +255,7 @@ const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
           Component={SignUp}
         />
       )}
+
       {route === "Verification" && open && (
         <CustomModel
           open={open}
@@ -213,7 +265,7 @@ const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
           Component={Verification}
         />
       )}
-    </div>
+    </header>
   );
 };
 

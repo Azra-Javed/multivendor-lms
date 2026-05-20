@@ -12,84 +12,87 @@ const Hero = () => {
   const router = useRouter();
 
   const handleSearch = () => {
-    if (search === "") return;
-    else {
-      router.push(`/courses?title=${search}`);
-    }
+    if (!search.trim()) return;
+    router.push(`/courses?title=${search}`);
   };
 
-  if (isLoading) {
-    return <Loader />;
-  }
+  if (isLoading) return <Loader />;
 
   return (
-    <div className="w-full 1000px:flex items-center">
-      <div className="absolute top-[100px] 1000px:top-[unset] 1500px:h-[700px] 1500px:w-[700px] 1100px:h-[600px] 1100px:w-[600px] h-[40vh] left-5 w-[40vh] hero_animation rounded-[50%] 1100px:left-8 1500px:left-14"></div>
-      <div>
+    <section className="w-full min-h-[92vh] 1000px:min-h-[calc(100vh-64px)] flex flex-col 1000px:flex-row items-center max-w-6xl mx-auto px-6 pt-12 1000px:py-0 gap-14">
+      {/* Image */}
+      <div className="relative w-full 1000px:w-[40%] flex justify-center items-center">
+        {/* Decorative background */}
+        <div className="absolute -z-10 w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] 1000px:w-[520px] 1000px:h-[520px] 1500px:w-[620px] 1500px:h-[620px] rounded-full hero_animation "></div>
         <Image
           src={data?.layout?.banner?.image?.url}
           alt="banner"
           width={400}
           height={400}
-          className="object-contain 1100px:max-w-[90%] w-[90%] 1500px:max-w-[85%] h-[auto] z-[10]"
+          className="object-contain max-h-[360px] 1000px:max-h-[480px] relative z-10"
         />
       </div>
-      <div className="1000px:w-[60%] flex flex-col items-center 1000px:mt-[0px] text-center 1000px:text-left mt-[150px]">
-        <h2 className="dark:text-white text-[#000000c7] text-[30px] px-3 w-full 1000px:text-[50px] font-[600] font-Josefin py-2 1000px:leading-[75px] 1500px:w-[60%] 1100px:w-[78%]">
+
+      {/* Content */}
+      <div className="w-full 1000px:w-[60%] text-center 1000px:text-left flex flex-col justify-center">
+        <h1 className="text-3xl sm:text-4xl 1000px:text-5xl font-semibold text-gray-900 dark:text-white leading-tight">
           {data?.layout?.banner?.title}
-        </h2>
-        <br />
-        <p className="dark:text-[#edfff4] text-[#000000ac] font-Josefin font-[600] text-[18px] 1500px:!w-[55%] 1100px:!w-[78%]">
+        </h1>
+
+        <p className="mt-5 text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto 1000px:mx-0">
           {data?.layout?.banner?.subTitle}
         </p>
-        <br />
-        <br />
-        <div className="1500px:w-[55%] 1100px:w-[78%] w-[90%] h-[50px] bg-transparent relative">
+
+        {/* Search */}
+        <div className="mt-8 w-full max-w-lg relative mx-auto 1000px:mx-0">
           <input
             type="text"
-            placeholder="Search Courses..."
+            placeholder="Search courses"
+            value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent border dark:border-none dark:bg-[#575757] dark:placeholder:text-[#ffffffdd] rounded-[5px] p-2 w-full h-full outline-none text-[#0000004e] dark:text-[#ffffffe6] text-[20px] font-[500] font-Josefin"
+            className="w-full h-[44px] rounded-md border px-4 pr-12 text-sm outline-none dark:bg-slate-800 dark:border-white/10 dark:text-white"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch();
+              }
+            }}
           />
-          <div
-            className="absolute flex items-center justify-center w-[50px] cursor-pointer h-[50px] right-0 top-0 bg-[#39c1f3] rounded-r-[5px]"
-            onClick={() => handleSearch()}
+          <button
+            onClick={handleSearch}
+            className="absolute right-1 top-1 h-[36px] w-[36px] rounded-md bg-teal-500 flex items-center justify-center"
           >
-            <BiSearch className="text-white" size={30} />
-          </div>
+            <BiSearch className="text-white" size={18} />
+          </button>
         </div>
-        <br />
-        <br />
 
-        <div className="1500px:w-[55%] 1100px:w-[78%] w-[90%] flex items-center">
-          <Image
-            src={require("../../public/assets/client-1.png")}
-            alt="client-1"
-            className="rounded-full ml-[-20px]"
-          />
-          <Image
-            src={require("../../public/assets/client-2.png")}
-            alt="client-2"
-            className="rounded-full ml-[-20px]"
-          />
-          <Image
-            src={require("../../public/assets/client-3.png")}
-            alt="client-3"
-            className="rounded-full ml-[-20px]"
-          />
-          <p className="font-Josefin dark:text-[#edfff4] text-[#000000b3] 1000px:pl-3 text-[18px] font-semibold ">
-            500K+ people already trusted us.{" "}
-            <Link
-              href={"/courses"}
-              className="dark:text-[#46e256] text-[crimson]"
-            >
-              View Courses
+        {/* Trust */}
+        <div className="mt-10 flex items-center justify-center 1000px:justify-start gap-3">
+          <div className="flex -space-x-3">
+            <Image
+              src={require("../../public/assets/client-1.png")}
+              alt="c1"
+              className="rounded-full"
+            />
+            <Image
+              src={require("../../public/assets/client-2.png")}
+              alt="c2"
+              className="rounded-full"
+            />
+            <Image
+              src={require("../../public/assets/client-3.png")}
+              alt="c3"
+              className="rounded-full"
+            />
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            500K+ trusted users ·{" "}
+            <Link href="/courses" className="text-teal-500 font-medium">
+              View courses
             </Link>
           </p>
         </div>
-        <br />
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -3,9 +3,8 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import Header from "../components/Header";
 import Profile from "../components/Profile/Profile";
-import Heading from "../utils/Heading";
 import Protected from "../hooks/userProtected";
-import Footer from "../components/footer";
+import Heading from "../utils/Heading";
 
 type Props = {};
 
@@ -30,7 +29,6 @@ const ProfilePage = ({}: Props) => {
         setRoute={setRoute}
       />
       <Profile user={user} />
-      <Footer />
     </Protected>
   );
 };

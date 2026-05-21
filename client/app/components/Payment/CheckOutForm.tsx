@@ -1,4 +1,5 @@
-import { styles } from "@/app/styles/styles";
+"use client";
+
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
 import { useCreateOrderMutation } from "@/redux/features/orders/ordersApi";
 import {
@@ -7,10 +8,11 @@ import {
   useElements,
   useStripe,
 } from "@stripe/react-stripe-js";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import socketIO from "socket.io-client";
+
 const ENDPOINT = process.env.NEXT_PUBLIC_SOCKET_SERVER_URI || "";
 const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
@@ -23,76 +25,146 @@ type Props = {
 const CheckOutForm = ({ data, setOpen, user }: Props) => {
   const stripe = useStripe();
   const elements = useElements();
-  const [message, setMessage] = useState<any>("");
-  const [createOrder, { data: orderData, error }] = useCreateOrderMutation();
+  const router = useRouter();
+
+  const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [loadUser, setLoadUser] = useState(false);
-  const {} = useLoadUserQuery({ skip: loadUser ? false : true });
+
+  // refetches user from server when loadUser becomes true
+  const { refetch } = useLoadUserQuery(undefined, {
+    skip: !loadUser,
+  });
+
+  const [createOrder, { data: orderData, error }] = useCreateOrderMutation();
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    if (!stripe || !elements) {
-      return;
-    }
+
+    if (!stripe || !elements) return;
+
     setIsLoading(true);
+
     const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
       redirect: "if_required",
     });
+
     if (error) {
-      setMessage(error.message);
+      setMessage(error.message || "Payment failed");
       setIsLoading(false);
-    } else if (paymentIntent && paymentIntent.status === "succeeded") {
-      setIsLoading(false);
-      createOrder({ courseId: data._id, payment_info: paymentIntent });
+      return;
     }
+
+    if (paymentIntent?.status === "succeeded") {
+      createOrder({
+        courseId: data._id,
+        payment_info: paymentIntent,
+      });
+    }
+
+    setIsLoading(false);
   };
 
   useEffect(() => {
     if (orderData) {
-      setLoadUser(true);
+      setSuccess(true);
+
       socketId.emit("notification", {
         title: "New Order",
-        message: `You have a new order from ${data.name},
-        `,
+        message: `New purchase for ${data.name}`,
         userId: user._id,
       });
-      redirect(`/course-access/${data._id}`);
+
+      toast.success("Payment successful!");
+
+      // refetch user so Redux updates user.courses immediately
+      setLoadUser(true);
+      refetch();
+
+      setOpen(false);
+
+      // redirect to course details page so isPurchased check
+      // runs fresh and shows "Go to Course" button correctly
+      router.push(`/course/${data._id}`);
     }
 
-    if (error) {
-      if ("data" in error) {
-        const errorMessage = error as any;
-        toast.error(errorMessage.data.message);
-      }
+    if (error && "data" in error) {
+      const err = error as any;
+      toast.error(err.data.message);
     }
   }, [orderData, error]);
+
   return (
-    <div className="h-screen flex flex-col">
-      <div className="h-[95%] overflow-y-scroll">
-        <form id="payment-form" onSubmit={handleSubmit}>
-          <LinkAuthenticationElement id="link-authentication-element" />
-          <PaymentElement id="payment-element" />
-          <button
-            disabled={isLoading || !stripe || !elements}
-            id="submit"
-            className="mt-2"
-          >
-            <span className={`${styles.button} !h-[35px]`}>
-              {isLoading ? "Paying..." : "Pay now"}
-            </span>
-          </button>
-          {message && (
-            <div
-              id="payment-message"
-              className="text-red-500 font-Poppins pt-2"
-            >
-              {message}
-            </div>
-          )}
-        </form>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Email field */}
+      <div>
+        <label
+          className="block text-xs font-semibold uppercase tracking-wider
+                          text-gray-500 dark:text-gray-400 font-Poppins mb-2"
+        >
+          Email Address
+        </label>
+        <div className="rounded-lg border border-gray-200 dark:border-white/10 p-3">
+          <LinkAuthenticationElement />
+        </div>
       </div>
-    </div>
+
+      {/* Payment details */}
+      <div>
+        <label
+          className="block text-xs font-semibold uppercase tracking-wider
+                          text-gray-500 dark:text-gray-400 font-Poppins mb-2"
+        >
+          Payment Details
+        </label>
+        <div className="rounded-lg border border-gray-200 dark:border-white/10 p-3">
+          <PaymentElement />
+        </div>
+      </div>
+
+      {/* Error message */}
+      {message && (
+        <p className="text-sm text-red-500 font-Poppins">{message}</p>
+      )}
+
+      {/* Divider */}
+      <div className="h-px bg-gray-100 dark:bg-white/10" />
+
+      {/* Buttons */}
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="flex-1 py-2.5 rounded-lg text-sm font-medium font-Poppins
+                     border border-gray-200 dark:border-white/10
+                     text-gray-700 dark:text-gray-300
+                     hover:border-teal-500 hover:text-teal-500
+                     dark:hover:border-teal-500 dark:hover:text-teal-400
+                     transition-all duration-200"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={!stripe || !elements || isLoading}
+          className="flex-1 py-2.5 rounded-lg text-sm font-semibold font-Poppins
+                     bg-teal-500 hover:bg-teal-600 text-white
+                     disabled:opacity-50 disabled:cursor-not-allowed
+                     transition-colors duration-200"
+        >
+          {isLoading ? "Processing..." : `Pay $${data?.price}`}
+        </button>
+      </div>
+
+      {/* Success state */}
+      {success && (
+        <p className="text-sm text-teal-500 text-center font-Poppins">
+          Payment completed — redirecting...
+        </p>
+      )}
+    </form>
   );
 };
 

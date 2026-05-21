@@ -1,12 +1,10 @@
 "use client";
-import { styles } from "@/app/styles/styles";
 import {
   useDeleteCourseMutation,
   useGetAllCoursesQuery,
 } from "@/redux/features/courses/coursesApi";
 import { Box, Button, Modal } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -14,17 +12,17 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { FiEdit2 } from "react-icons/fi";
 import { format } from "timeago.js";
 import Loader from "../../Loader/Loader";
+import StyledDataGridContainer from "../Analytics/StyledDataGridContainer";
 
 type Props = {};
 
 const AllCourses = (props: Props) => {
-  const { theme } = useTheme();
   const [open, setOpen] = useState(false);
   const [courseId, setCourseId] = useState("");
 
   const { isLoading, data, refetch } = useGetAllCoursesQuery(
     {},
-    { refetchOnMountOrArgChange: true }
+    { refetchOnMountOrArgChange: true },
   );
 
   const [deleteCourse, { isSuccess, error }] = useDeleteCourseMutation({});
@@ -35,7 +33,6 @@ const AllCourses = (props: Props) => {
     { field: "ratings", headerName: "Ratings", flex: 0.5 },
     { field: "purchased", headerName: "Purchased", flex: 0.5 },
     { field: "created_at", headerName: "Created At", flex: 0.5 },
-
     {
       field: "edit",
       headerName: "Edit",
@@ -46,7 +43,6 @@ const AllCourses = (props: Props) => {
         </Link>
       ),
     },
-
     {
       field: "delete",
       headerName: "Delete",
@@ -93,126 +89,85 @@ const AllCourses = (props: Props) => {
   };
 
   return (
-    <div className="mt-[70px]">
+    <div className="mt-[70px] px-6">
       {isLoading ? (
         <Loader />
       ) : (
-        <Box m="20px">
-          <Box
-            m="40px 0 0 0"
-            height="85vh"
-            sx={{
-              "& .MuiDataGrid-root": {
-                border: "none",
-                outline: "none",
-              },
-
-              "& .css-pqjvzy-MuiSvgIcon-root-MuiSelect-icon": {
-                color: theme === "dark" ? "#fff" : "#000",
-              },
-
-              "& .MuiDataGrid-sortIcon": {
-                color: theme === "dark" ? "#fff" : "#000",
-              },
-
-              "& .MuiDataGrid-row": {
-                color: theme === "dark" ? "#fff" : "#000",
-                borderBottom:
-                  theme === "dark"
-                    ? "1px solid #ffffff30 !important"
-                    : "1px solid #ccc !important",
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  backgroundColor:
-                    theme === "dark"
-                      ? "#334155 !important"
-                      : "#f1f5f9 !important",
-                  cursor: "pointer",
-                },
-              },
-
-              "& .MuiTablePagination-root": {
-                color: theme === "dark" ? "#fff" : "#000",
-              },
-
-              "& .MuiDataGrid-cell": {
-                borderBottom: "none !important",
-              },
-
-              "& .MuiDataGrid-columnHeaders": {
-                color: theme === "dark" ? "#fff !important" : "#000 !important",
-                borderBottom: "none",
-                backgroundColor:
-                  theme === "dark"
-                    ? "#2563eb !important"
-                    : "#a5b4fc !important",
-                minHeight: "56px !important",
-                maxHeight: "56px !important",
-              },
-
-              "& .MuiDataGrid-columnHeader": {
-                backgroundColor:
-                  theme === "dark"
-                    ? "#3e4396 !important"
-                    : "#A4A9FC !important",
-                "&:focus": { outline: "none" },
-                "&:focus-within": { outline: "none" },
-              },
-
-              "& .MuiDataGrid-columnHeaderTitle": {
-                fontWeight: 600,
-                fontSize: "14px",
-              },
-
-              "& .MuiDataGrid-virtualScroller": {
-                backgroundColor: theme === "dark" ? "#1e293b" : "#f8fafc",
-              },
-
-              "& .MuiDataGrid-footerContainer": {
-                color: theme === "dark" ? "#fff" : "#000",
-                borderTop: "none",
-                backgroundColor:
-                  theme === "dark"
-                    ? "#3e4396 !important"
-                    : "#A4A9FC !important",
-                minHeight: "52px",
-              },
-
-              "& .MuiCheckbox-root": {
-                color:
-                  theme === "dark"
-                    ? "#60a5fa !important"
-                    : "#3b82f6 !important",
-              },
-            }}
-          >
+        <Box>
+          {/* Data grid */}
+          <StyledDataGridContainer>
             <DataGrid
               checkboxSelection
               rows={rows}
               columns={columns}
               slots={{ toolbar: GridToolbar }}
             />
-          </Box>
+          </StyledDataGridContainer>
 
-          {/* Delete Modal */}
+          {/* Delete modal */}
           {open && (
             <Modal open={open} onClose={() => setOpen(false)}>
-              <Box className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[450px] bg-white dark:bg-slate-900 rounded-[8px] shadow p-4">
-                <h1 className={`${styles.title}`}>
-                  Are you sure you want to delete this course?
-                </h1>
-                <div className="flex w-full items-center justify-between mt-6 mb-4">
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "calc(50% + 120px)",
+                  transform: "translate(-50%, -50%)",
+                  width: "90%",
+                  maxWidth: "420px",
+                  outline: "none",
+                }}
+                className="bg-white dark:bg-slate-800 rounded-2xl
+                           border border-gray-200 dark:border-white/10
+                           shadow-2xl overflow-hidden"
+              >
+                <div className="p-7 text-center">
+                  {/* Icon */}
                   <div
-                    className={`${styles.button} !w-[120px] h-[30px] bg-[#47d097]`}
-                    onClick={() => setOpen(false)}
+                    className="w-14 h-14 rounded-full bg-gray-100 dark:bg-white/10
+                                  flex items-center justify-center mx-auto mb-4"
                   >
-                    Cancel
+                    <AiOutlineDelete className="w-6 h-6 text-gray-500 dark:text-gray-400" />
                   </div>
-                  <div
-                    className={`${styles.button} !w-[120px] h-[30px] bg-[#d63f3f]`}
-                    onClick={handleDelete}
-                  >
-                    Delete
+
+                  {/* Title */}
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white font-Poppins mb-2">
+                    Delete Course
+                  </h2>
+
+                  {/* Message */}
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-Poppins leading-relaxed">
+                    Are you sure you want to delete this course? This action
+                    cannot be undone.
+                  </p>
+
+                  {/* Divider */}
+                  <div className="h-px bg-gray-100 dark:bg-white/10 my-6" />
+
+                  {/* Buttons */}
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setOpen(false)}
+                      className="flex-1 py-2.5 rounded-lg text-sm font-medium font-Poppins
+                                 border border-gray-200 dark:border-white/10
+                                 text-gray-700 dark:text-gray-300
+                                 hover:border-teal-500 hover:text-teal-500
+                                 dark:hover:border-teal-500 dark:hover:text-teal-400
+                                 transition-all duration-200"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      className="flex-1 py-2.5 rounded-lg text-sm font-medium font-Poppins
+                                 border border-gray-200 dark:border-white/10
+                                 text-gray-700 dark:text-gray-300
+                                 hover:border-red-400 hover:text-red-400
+                                 dark:hover:border-red-400 dark:hover:text-red-400
+                                 transition-all duration-200"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               </Box>

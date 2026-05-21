@@ -1,7 +1,7 @@
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
 import CoursePlayer from "../../../utils/CoursePlayer";
-import { styles } from "@/app/styles/styles";
 import Ratings from "../../../utils/Ratings";
+
 type Props = {
   active: number;
   setActive: (active: number) => void;
@@ -17,135 +17,192 @@ const CoursePreview = ({
   active,
   isEdit,
 }: Props) => {
-  const dicountPercentenge =
+  const discountPercentage =
     ((courseData?.estimatedPrice - courseData?.price) /
       courseData?.estimatedPrice) *
     100;
+  const discountPercentagePrice = discountPercentage.toFixed(0);
 
-  const discountPercentengePrice = dicountPercentenge.toFixed(0);
-
-  const prevButton = () => {
-    setActive(active - 1);
-  };
-
-  const createCourse = () => {
-    handleCourseCreate();
-  };
+  const prevButton = () => setActive(active - 1);
+  const createCourse = () => handleCourseCreate();
 
   return (
-    <div className="w-[90%] m-auto py-5 mb-5">
-      <div className="w-full relative">
-        <div className="w-full mt-10">
-          <CoursePlayer
-            videoUrl={courseData?.demoUrl}
-            title={courseData?.title}
-          />
-        </div>
-        <div className="flex items-center">
-          <h1 className="pt-5 text-[25px]">
-            {courseData?.price === 0 ? "Free" : courseData?.price + "$"}
-          </h1>
-          <h5 className="pl-3 text-[20px] mt-2 line-through opacity-80">
-            {courseData?.estimatedPrice}$
-          </h5>
-
-          <h4 className="pl-5 pt-4 text-[22px]">
-            {discountPercentengePrice}% Off
-          </h4>
-        </div>
-
-        <div className="flex items-center">
-          <div
-            className={`${styles.button} !w-[180px] my-3 font-Poppins !bg-[crimson] cursor-not-allowed`}
-          >
-            Buy Now {courseData?.price}$
-          </div>
-        </div>
-
-        <div className="flex items-center">
-          <input
-            type="text"
-            name=""
-            id=""
-            placeholder="Discount code..."
-            className={`${styles.input} 1500px:!w-[50%] 1100px:w-[60%] ml-3 !mt-0`}
-          />
-          <div
-            className={`${styles.button} !w-[120px] my-3 ml-4 font-Poppins cursor-pointer`}
-          >
-            Apply
-          </div>
-        </div>
-        <p className="pb-1">• Source code included</p>
-        <p className="pb-1">• Full lifetime access</p>
-        <p className="pb-1">• Certificate of completion</p>
-        <p className="pb-3 800px:pb-1">• Premium Support</p>
+    <div className="space-y-8 pb-10">
+      {/* Video player */}
+      <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 shadow-sm">
+        <CoursePlayer
+          videoUrl={courseData?.demoUrl}
+          title={courseData?.title}
+        />
       </div>
-      <div className="w-full">
-        <div className="w-full 800px:pr-5">
-          <h1 className="text-[25px] font-Poppins font-[600]">
-            {courseData?.name}
-          </h1>
-          <div className="flex items-center justify-between pt-3">
-            <div className="flex items-center">
-              <Ratings rating={0} />
-              <h5>0 Reviews</h5>
-            </div>
-            <h5>0 Students</h5>
+
+      {/* Price + CTA */}
+      <div
+        className="rounded-xl border border-gray-200 dark:border-white/10
+                      bg-white dark:bg-slate-800 overflow-hidden shadow-sm"
+      >
+        <div className="h-1 w-full bg-teal-500" />
+        <div className="p-5">
+          {/* Price row */}
+          <div className="flex items-baseline gap-3 mb-4">
+            <span className="text-2xl font-bold text-gray-900 dark:text-white font-Poppins">
+              {courseData?.price === 0 ? "Free" : `$${courseData?.price}`}
+            </span>
+            {courseData?.estimatedPrice && (
+              <span className="text-base text-gray-400 dark:text-gray-500 line-through font-Poppins">
+                ${courseData?.estimatedPrice}
+              </span>
+            )}
+            {discountPercentagePrice && Number(discountPercentagePrice) > 0 && (
+              <span className="text-sm font-semibold text-teal-500 font-Poppins">
+                {discountPercentagePrice}% off
+              </span>
+            )}
           </div>
-          <br />
-          <h1 className="text-[25px] font-Poppins font-[600]">
-            What you will learn from this course?
-          </h1>
-        </div>
-        {courseData?.benefits?.map((item: any, index: number) => (
-          <div className="w-full flex 800px:items-center py-2" key={index}>
-            <div className="w-[15px] mr-1">
-              <IoCheckmarkDoneOutline size={20} />
-            </div>
-            <p className="pl-2">{item.title}</p>
+
+          {/* Buy button — disabled in preview */}
+          <button
+            disabled
+            className="w-full py-2.5 rounded-lg text-sm font-semibold font-Poppins
+                       bg-gray-200 dark:bg-white/10 text-gray-400 dark:text-gray-500
+                       cursor-not-allowed mb-4"
+          >
+            Buy Now ${courseData?.price} (Preview)
+          </button>
+
+          {/* Discount code */}
+          <div className="flex items-center gap-3 mb-5">
+            <input
+              type="text"
+              placeholder="Discount code..."
+              className="flex-1 px-4 py-2.5 rounded-lg text-sm font-Poppins
+                         border border-gray-200 dark:border-white/10
+                         bg-gray-50 dark:bg-slate-700
+                         text-gray-900 dark:text-white
+                         placeholder-gray-400 dark:placeholder-gray-500
+                         outline-none focus:border-teal-500
+                         transition-colors duration-200"
+            />
+            <button
+              className="px-4 py-2.5 rounded-lg text-sm font-medium font-Poppins
+                         border border-gray-200 dark:border-white/10
+                         text-gray-700 dark:text-gray-300
+                         hover:border-teal-500 hover:text-teal-500
+                         transition-all duration-200"
+            >
+              Apply
+            </button>
           </div>
-        ))}
-        <br />
-        <br />
-        <h1 className="text-[25px] font-Poppins font-[600]">
-          What are the prerequisites for starting this course?
-        </h1>
-        {courseData?.prerequisites?.map((item: any, index: number) => (
-          <div className="w-full flex 800px:items-center py-2" key={index}>
-            <div className="w-[15px] mr-1">
-              <IoCheckmarkDoneOutline size={20} />
-            </div>
-            <p className="pl-2">{item.title}</p>
-          </div>
-        ))}
-        <br />
-        <br />
-        {/* course description */}
-        <div className="w-full">
-          <h1 className="text-[25px] font-Poppins font-[600]">
-            Course Details
-          </h1>
-          <p className="text-[18px] mt-[20px] whitespace-pre-line w-full overflow-hidden">
-            {courseData?.description}
+
+          {/* Includes */}
+          <div className="h-px bg-gray-100 dark:bg-white/10 mb-4" />
+          <p
+            className="text-xs font-semibold uppercase tracking-wider
+                        text-gray-400 dark:text-gray-500 font-Poppins mb-3"
+          >
+            This course includes
           </p>
+          <ul className="space-y-2">
+            {[
+              "Source code included",
+              "Full lifetime access",
+              "Certificate of completion",
+              "Premium Support",
+            ].map((item) => (
+              <li
+                key={item}
+                className="flex items-center gap-2 text-sm
+                                        text-gray-600 dark:text-gray-300 font-Poppins"
+              >
+                <IoCheckmarkDoneOutline className="w-4 h-4 text-teal-500 shrink-0" />
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
-        <br />
-        <br />
       </div>
-      <div className="w-full flex items-center justify-between">
-        <div
-          className="w-full 800px:w-[180px] flex items-center justify-center h-[40px] bg-[#37a39a] text-center text-[#fff] rounded mt-8 cursor-pointer"
-          onClick={() => prevButton()}
+
+      {/* Course info */}
+      <div>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white font-Poppins mb-2">
+          {courseData?.name}
+        </h2>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <Ratings rating={0} />
+            <span className="text-sm text-gray-500 dark:text-gray-400 font-Poppins">
+              0 Reviews
+            </span>
+          </div>
+          <span className="text-sm text-gray-500 dark:text-gray-400 font-Poppins">
+            0 Students
+          </span>
+        </div>
+
+        {/* Benefits */}
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white font-Poppins mb-3">
+          What you will learn
+        </h3>
+        <div className="space-y-2 mb-6">
+          {courseData?.benefits?.map((item: any, index: number) => (
+            <div key={index} className="flex items-start gap-2">
+              <IoCheckmarkDoneOutline className="w-4 h-4 text-teal-500 shrink-0 mt-0.5" />
+              <p className="text-sm text-gray-600 dark:text-gray-300 font-Poppins">
+                {item.title}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Prerequisites */}
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white font-Poppins mb-3">
+          Prerequisites
+        </h3>
+        <div className="space-y-2 mb-6">
+          {courseData?.prerequisites?.map((item: any, index: number) => (
+            <div key={index} className="flex items-start gap-2">
+              <IoCheckmarkDoneOutline className="w-4 h-4 text-teal-500 shrink-0 mt-0.5" />
+              <p className="text-sm text-gray-600 dark:text-gray-300 font-Poppins">
+                {item.title}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Description */}
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white font-Poppins mb-3">
+          Course Details
+        </h3>
+        <p
+          className="text-sm text-gray-600 dark:text-gray-300 font-Poppins
+                      leading-relaxed whitespace-pre-line"
+        >
+          {courseData?.description}
+        </p>
+      </div>
+
+      {/* Nav buttons */}
+      <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-white/10">
+        <button
+          type="button"
+          onClick={prevButton}
+          className="px-8 py-2.5 rounded-lg text-sm font-semibold font-Poppins
+                     border border-gray-200 dark:border-white/10
+                     text-gray-700 dark:text-gray-300
+                     hover:border-teal-500 hover:text-teal-500
+                     transition-all duration-200"
         >
           Prev
-        </div>
-        <div
-          className="w-full 800px:w-[180px] flex items-center justify-center h-[40px] bg-[#37a39a] text-center text-[#fff] rounded mt-8 cursor-pointer"
-          onClick={() => createCourse()}
+        </button>
+        <button
+          type="button"
+          onClick={createCourse}
+          className="px-8 py-2.5 rounded-lg text-sm font-semibold font-Poppins
+                     bg-teal-500 hover:bg-teal-600 text-white
+                     transition-colors duration-200"
         >
           {isEdit ? "Update" : "Create"}
-        </div>
+        </button>
       </div>
     </div>
   );

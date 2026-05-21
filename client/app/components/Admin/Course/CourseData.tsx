@@ -1,7 +1,5 @@
-import { styles } from "@/app/styles/styles";
 import toast from "react-hot-toast";
 import { AiOutlinePlusCircle } from "react-icons/ai";
-import { RxValue } from "react-icons/rx";
 
 type Props = {
   benefits: { title: string }[];
@@ -12,6 +10,14 @@ type Props = {
   setActive: (active: number) => void;
 };
 
+const inputClass = `w-full px-4 py-2.5 rounded-lg text-sm font-Poppins
+  border border-gray-200 dark:border-white/10
+  bg-white dark:bg-slate-800
+  text-gray-900 dark:text-white
+  placeholder-gray-400 dark:placeholder-gray-500
+  outline-none focus:border-teal-500 dark:focus:border-teal-500
+  transition-colors duration-200`;
+
 const CourseData = ({
   benefits,
   setBenefits,
@@ -20,9 +26,8 @@ const CourseData = ({
   active,
   setActive,
 }: Props) => {
-  const prevButton = () => {
-    setActive(active - 1);
-  };
+  const prevButton = () => setActive(active - 1);
+
   const handleOptions = () => {
     if (
       benefits[benefits.length - 1]?.title !== "" &&
@@ -33,86 +38,121 @@ const CourseData = ({
       toast.error("Please fill the fields for go to next!");
     }
   };
+
   const handleBenefitChange = (index: number, value: any) => {
     const updatedBenefits = [...benefits];
-
     updatedBenefits[index].title = value;
     setBenefits(updatedBenefits);
   };
-  const handleAddBenefit = () => {
-    setBenefits([...benefits, { title: "" }]);
-  };
+
+  const handleAddBenefit = () => setBenefits([...benefits, { title: "" }]);
+
   const handlePrerequisitesChange = (index: number, value: any) => {
     const updatedPrerequisites = [...prerequisites];
-
     updatedPrerequisites[index].title = value;
     setPrerequisites(updatedPrerequisites);
   };
 
-  const handleAddPrerequisites = () => {
+  const handleAddPrerequisites = () =>
     setPrerequisites([...prerequisites, { title: "" }]);
-  };
 
   return (
-    <div className="w-[80%] m-auto mt-24 block">
+    <div className="space-y-10">
+      {/* Benefits */}
       <div>
-        <label className={`${styles.label} text-[20px]`} htmlFor="email">
-          What are the benefits for students in this course?
-        </label>
-        <br />
-        {benefits.map((benefit: any, index: number) => (
-          <input
-            type="text"
-            key={index}
-            name="Benefit"
-            placeholder="You will be able to build a full stack LMS Platform..."
-            required
-            className={`${styles.input} my-2`}
-            value={benefit.title}
-            onChange={(e) => handleBenefitChange(index, e.target.value)}
-          />
-        ))}
-        <AiOutlinePlusCircle
-          style={{ margin: "10px 0px", cursor: "pointer", width: "30px" }}
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white font-Poppins mb-1">
+          What are the benefits for students?
+        </h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 font-Poppins mb-4">
+          List what students will gain from this course.
+        </p>
+
+        <div className="space-y-3">
+          {benefits.map((benefit: any, index: number) => (
+            <input
+              key={index}
+              type="text"
+              name="Benefit"
+              placeholder="e.g. Build a full stack LMS platform..."
+              required
+              className={inputClass}
+              value={benefit.title}
+              onChange={(e) => handleBenefitChange(index, e.target.value)}
+            />
+          ))}
+        </div>
+
+        <button
+          type="button"
           onClick={handleAddBenefit}
-        />
+          className="mt-3 flex items-center gap-2 text-sm font-medium font-Poppins
+                     text-teal-500 hover:text-teal-600 transition-colors duration-200"
+        >
+          <AiOutlinePlusCircle className="w-4 h-4" />
+          Add Benefit
+        </button>
       </div>
 
+      {/* Divider */}
+      <div className="h-px bg-gray-200 dark:bg-white/10" />
+
+      {/* Prerequisites */}
       <div>
-        <label className={`${styles.label} text-[20px]`} htmlFor="email">
-          What are the prerequisites for starting this course?
-        </label>
-        <br />
-        {prerequisites.map((prerequisites: any, index: number) => (
-          <input
-            type="text"
-            key={index}
-            name="prerequisites"
-            placeholder="You need basic knowledge of MERN stack"
-            required
-            className={`${styles.input} my-2`}
-            value={prerequisites.title}
-            onChange={(e) => handlePrerequisitesChange(index, e.target.value)}
-          />
-        ))}
-        <AiOutlinePlusCircle
-          style={{ margin: "10px 0px", cursor: "pointer", width: "30px" }}
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white font-Poppins mb-1">
+          What are the prerequisites?
+        </h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 font-Poppins mb-4">
+          List the skills or knowledge students need before starting.
+        </p>
+
+        <div className="space-y-3">
+          {prerequisites.map((prerequisite: any, index: number) => (
+            <input
+              key={index}
+              type="text"
+              name="prerequisites"
+              placeholder="e.g. Basic knowledge of MERN stack"
+              required
+              className={inputClass}
+              value={prerequisite.title}
+              onChange={(e) => handlePrerequisitesChange(index, e.target.value)}
+            />
+          ))}
+        </div>
+
+        <button
+          type="button"
           onClick={handleAddPrerequisites}
-        />
+          className="mt-3 flex items-center gap-2 text-sm font-medium font-Poppins
+                     text-teal-500 hover:text-teal-600 transition-colors duration-200"
+        >
+          <AiOutlinePlusCircle className="w-4 h-4" />
+          Add Prerequisite
+        </button>
       </div>
-      <div className="w-full flex items-center justify-between">
-        <div
-          className="w-full 800px:w-[180px] flex items-center justify-center h-[40px] bg-[#37a39a] text-center text-[#fff] rounded mt-8 cursor-pointer"
-          onClick={() => prevButton()}
+
+      {/* Nav buttons */}
+      <div className="flex items-center justify-between pt-4">
+        <button
+          type="button"
+          onClick={prevButton}
+          className="px-8 py-2.5 rounded-lg text-sm font-semibold font-Poppins
+                     border border-gray-200 dark:border-white/10
+                     text-gray-700 dark:text-gray-300
+                     hover:border-teal-500 hover:text-teal-500
+                     transition-all duration-200"
         >
           Prev
-        </div>
-        <div
-          className="w-full 800px:w-[180px] flex items-center justify-center h-[40px] bg-[#37a39a] text-center text-[#fff] rounded mt-8 cursor-pointer"
-          onClick={() => handleOptions()}
+        </button>
+        <button
+          type="button"
+          onClick={handleOptions}
+          className="px-8 py-2.5 rounded-lg text-sm font-semibold font-Poppins
+                     bg-teal-500 hover:bg-teal-600 text-white
+                     transition-colors duration-200"
         >
           Next
-        </div>
+        </button>
       </div>
     </div>
   );

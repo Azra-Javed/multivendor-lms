@@ -17,25 +17,23 @@ const CommentReply = ({
   answerCreationLoading,
 }: any) => {
   return (
-    <>
-      <div className="w-full my-3">
-        {data[activeVideo].questions.map((item: any, index: any) => (
-          <CommentItem
-            key={index}
-            data={data}
-            activeVideo={activeVideo}
-            item={item}
-            index={index}
-            answer={answer}
-            setAnswer={setAnswer}
-            questionId={questionId}
-            setQuestionId={setQuestionId}
-            handleAnswerSubmit={handleAnswerSubmit}
-            answerCreationLoading={answerCreationLoading}
-          />
-        ))}
-      </div>
-    </>
+    <div className="w-full space-y-1">
+      {data[activeVideo].questions.map((item: any, index: any) => (
+        <CommentItem
+          key={index}
+          data={data}
+          activeVideo={activeVideo}
+          item={item}
+          index={index}
+          answer={answer}
+          setAnswer={setAnswer}
+          questionId={questionId}
+          setQuestionId={setQuestionId}
+          handleAnswerSubmit={handleAnswerSubmit}
+          answerCreationLoading={answerCreationLoading}
+        />
+      ))}
+    </div>
   );
 };
 
@@ -48,117 +46,121 @@ const CommentItem = ({
   handleAnswerSubmit,
   answerCreationLoading,
 }: any) => {
-  console.log(item);
   const [replyActive, setreplyActive] = useState(false);
+
   return (
-    <>
-      <div className="my-4">
-        <div className="flex mb-2">
-          <div>
-            <Image
-              src={
-                item.user.avatar
-                  ? item.user.avatar.url
-                  : "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
-              }
-              width={50}
-              height={50}
-              alt=""
-              className="w-[50px] h-[50px] rounded-full object-cover"
-            />
-          </div>
-          <div className="pl-3 dark:text-white text-black">
-            <h5 className="text-[20px]">{item?.user.name}</h5>
-            <p>{item?.question}</p>
-            <small className="text-[#000000b8] dark:text-[#ffffff83]">
-              {!item.createdAt ? "" : format(item?.createdAt)} •
-            </small>
-          </div>
-        </div>
-        <div className="w-full flex">
-          <span
-            className="800px:pl-16 text-[#000000b8] dark:text-[#ffffff83] cursor-pointer mr-2"
+    <div className="py-4 border-b border-gray-100 dark:border-white/10 last:border-0">
+      {/* Question row */}
+      <div className="flex gap-3">
+        <Image
+          src={
+            item.user.avatar
+              ? item.user.avatar.url
+              : "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
+          }
+          width={40}
+          height={40}
+          alt=""
+          className="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-white/10 shrink-0"
+        />
+        <div className="flex-1 min-w-0">
+          <span className="text-sm font-semibold text-gray-900 dark:text-white font-Poppins">
+            {item?.user.name}
+          </span>
+          <p className="text-sm text-gray-600 dark:text-gray-300 font-Poppins leading-relaxed mt-0.5">
+            {item?.question}
+          </p>
+          <span className="text-xs text-gray-400 dark:text-gray-500 font-Poppins mt-1 block">
+            {!item.createdAt ? "" : format(item?.createdAt)}
+          </span>
+
+          {/* Reply toggle */}
+          <button
             onClick={() => {
               setreplyActive(!replyActive);
               setQuestionId(item._id);
             }}
+            className="mt-2 flex items-center gap-1.5 text-xs font-medium font-Poppins
+                       text-gray-500 dark:text-gray-400
+                       hover:text-teal-500 dark:hover:text-teal-400
+                       transition-colors duration-200"
           >
+            <BiMessage className="w-3.5 h-3.5" />
             {!replyActive
               ? item.questionReplies.length !== 0
-                ? "All Replies"
-                : "Add Reply"
+                ? `${item.questionReplies.length} Replies`
+                : "Reply"
               : "Hide Replies"}
-          </span>
-          <BiMessage
-            size={20}
-            className="dark:text-[#ffffff83] cursor-pointer text-[#000000b8]"
-          />
-          <span className="pl-1 mt-[-4px] cursor-pointer text-[#000000b8] dark:text-[#ffffff83]">
-            {item.questionReplies.length}
-          </span>
+          </button>
         </div>
-
-        {replyActive && questionId === item._id && (
-          <>
-            {item.questionReplies.map((item: any) => (
-              <div
-                className="w-full flex 800px:ml-16 my-5 text-black dark:text-white"
-                key={item._id}
-              >
-                <div>
-                  <Image
-                    src={
-                      item.user.avatar
-                        ? item.user.avatar.url
-                        : "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
-                    }
-                    width={50}
-                    height={50}
-                    alt=""
-                    className="w-[50px] h-[50px] rounded-full object-cover"
-                  />
-                </div>
-                <div className="pl-3">
-                  <div className="flex items-center">
-                    <h5 className="text-[20px]">{item.user.name}</h5>{" "}
-                    {item.user.role === "admin" && (
-                      <VscVerifiedFilled className="text-[#0095F6] ml-2 text-[20px]" />
-                    )}
-                  </div>
-                  <p>{item.answer}</p>
-                  <small className="text-[#ffffff83]">
-                    {format(item.createdAt)} •
-                  </small>
-                </div>
-              </div>
-            ))}
-            <>
-              <div className="w-full flex relative dark:text-white text-black">
-                <input
-                  type="text"
-                  placeholder="Enter your answer..."
-                  value={answer}
-                  onChange={(e: any) => setAnswer(e.target.value)}
-                  className={`block 800px:ml-12 mt-2 outline-none bg-transparent border-b border-[#00000027] dark:text-white text-black dark:border-[#fff] p-[5px] w-[95%] ${
-                    answer === "" ||
-                    (answerCreationLoading && "cursor-not-allowed")
-                  }`}
-                />
-                <button
-                  type="submit"
-                  className="absolute right-0 bottom-1"
-                  onClick={handleAnswerSubmit}
-                  disabled={answer === "" || answerCreationLoading}
-                >
-                  Submit
-                </button>
-              </div>
-              <br />
-            </>
-          </>
-        )}
       </div>
-    </>
+
+      {/* Replies */}
+      {replyActive && questionId === item._id && (
+        <div className="mt-4 ml-12 space-y-4">
+          {/* Existing replies */}
+          {item.questionReplies.map((reply: any) => (
+            <div key={reply._id} className="flex gap-3">
+              <Image
+                src={
+                  reply.user.avatar
+                    ? reply.user.avatar.url
+                    : "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
+                }
+                width={36}
+                height={36}
+                alt=""
+                className="w-9 h-9 rounded-full object-cover border border-gray-200 dark:border-white/10 shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span className="text-sm font-semibold text-gray-900 dark:text-white font-Poppins">
+                    {reply.user.name}
+                  </span>
+                  {reply.user.role === "admin" && (
+                    <VscVerifiedFilled className="text-teal-500 text-sm" />
+                  )}
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-300 font-Poppins leading-relaxed">
+                  {reply.answer}
+                </p>
+                <span className="text-xs text-gray-400 dark:text-gray-500 font-Poppins mt-0.5 block">
+                  {format(reply.createdAt)}
+                </span>
+              </div>
+            </div>
+          ))}
+
+          {/* Answer input */}
+          <div className="flex gap-3 items-center pt-2">
+            <input
+              type="text"
+              placeholder="Write a reply..."
+              value={answer}
+              onChange={(e: any) => setAnswer(e.target.value)}
+              className="flex-1 px-3 py-2 text-sm rounded-lg
+                         border border-gray-200 dark:border-white/10
+                         bg-white dark:bg-slate-800
+                         text-gray-900 dark:text-white
+                         placeholder-gray-400 dark:placeholder-gray-500
+                         font-Poppins outline-none
+                         focus:border-teal-500 dark:focus:border-teal-500
+                         transition-colors duration-200"
+            />
+            <button
+              onClick={handleAnswerSubmit}
+              disabled={answer === "" || answerCreationLoading}
+              className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white
+                         text-sm font-medium font-Poppins rounded-lg
+                         transition-colors duration-200
+                         disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {answerCreationLoading ? "Posting..." : "Reply"}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

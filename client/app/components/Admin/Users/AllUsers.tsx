@@ -1,18 +1,19 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { DataGrid } from "@mui/x-data-grid";
-import { Box, Button, Modal } from "@mui/material";
-import { AiOutlineDelete, AiOutlineMail } from "react-icons/ai";
-import { useTheme } from "next-themes";
-import Loader from "../../Loader/Loader";
-import { format } from "timeago.js";
+
 import {
   useDeleteUserMutation,
   useGetAllUsersQuery,
   useUpdateUserRoleMutation,
 } from "@/redux/features/user/userApi";
+import { Box, Button, Modal } from "@mui/material";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import { styles } from "@/app/styles/styles";
+import { AiOutlineDelete, AiOutlineMail } from "react-icons/ai";
+import { format } from "timeago.js";
+import Loader from "../../Loader/Loader";
+import StyledDataGridContainer from "../Analytics/StyledDataGridContainer";
 
 type Props = {
   isTeam?: boolean;
@@ -20,6 +21,7 @@ type Props = {
 
 const AllUsers = ({ isTeam }: Props) => {
   const { theme } = useTheme();
+
   const [active, setActive] = useState(false);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("admin");
@@ -28,7 +30,9 @@ const AllUsers = ({ isTeam }: Props) => {
 
   const [updateUserRole, { error: updateError, isSuccess }] =
     useUpdateUserRoleMutation();
+
   const { isLoading, data, refetch } = useGetAllUsersQuery({});
+
   const [deleteUser, { isSuccess: deleteSuccess, error: deleteError }] =
     useDeleteUserMutation({});
 
@@ -36,19 +40,16 @@ const AllUsers = ({ isTeam }: Props) => {
     if (updateError && "data" in updateError) {
       toast.error((updateError as any).data.message);
     }
-
     if (isSuccess) {
       toast.success("User role updated successfully");
       refetch();
       setActive(false);
     }
-
     if (deleteSuccess) {
       toast.success("User deleted successfully!");
       refetch();
       setOpen(false);
     }
-
     if (deleteError && "data" in deleteError) {
       toast.error((deleteError as any).data.message);
     }
@@ -67,23 +68,27 @@ const AllUsers = ({ isTeam }: Props) => {
       flex: 0.2,
       renderCell: (params: any) => (
         <Button
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             setUserId(params.row.id);
             setOpen(true);
           }}
         >
-          <AiOutlineDelete className="dark:text-white text-black" size={20} />
+          <AiOutlineDelete className="text-black dark:text-white" size={20} />
         </Button>
       ),
     },
     {
       field: "mail",
-      headerName: "Email",
+      headerName: "Send Mail",
       flex: 0.2,
       renderCell: (params: any) => (
         <a
           href={`mailto:${params.row.email}`}
-          className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br mt-2 from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 dark:from-blue-600 dark:to-indigo-700 dark:hover:from-blue-700 dark:hover:to-indigo-800 transition-all duration-200 hover:scale-110 shadow-sm hover:shadow-md"
+          className="inline-flex items-center justify-center w-9 h-9 rounded-lg
+                     bg-gradient-to-br from-blue-500 to-indigo-600
+                     hover:from-blue-600 hover:to-indigo-700
+                     transition-all duration-200 hover:scale-110 shadow-sm mt-2"
         >
           <AiOutlineMail className="text-white" size={18} />
         </a>
@@ -91,188 +96,208 @@ const AllUsers = ({ isTeam }: Props) => {
     },
   ];
 
-  const rows: any[] = [];
   const filteredUsers = isTeam
     ? data?.users?.filter((u: any) => u.role === "admin")
     : data?.users;
 
-  filteredUsers?.forEach((item: any) => {
-    rows.push({
+  const rows =
+    filteredUsers?.map((item: any) => ({
       id: item._id,
       name: item.name,
       email: item.email,
       role: item.role,
-      courses: item.courses.length,
+      courses: item.courses?.length || 0,
       created_at: format(item.createdAt),
-    });
-  });
+    })) || [];
+
+  // shared modal box styles — centers in content area accounting for sidebar
+  const modalBoxSx = {
+    position: "absolute",
+    top: "50%",
+    left: "calc(50% + 120px)",
+    transform: "translate(-50%, -50%)",
+    width: "90%",
+    maxWidth: "420px",
+    outline: "none",
+  };
 
   return (
-    <div className="mt-[70px]">
+    <div className="mt-[80px] px-6">
       {isLoading ? (
         <Loader />
       ) : (
-        <Box m="40px">
+        <Box>
+          {/* Add member button */}
           {isTeam && (
-            <div className="flex justify-end mb-4">
-              <div
-                className={`${styles.button} !w-[200px] !h-[40px] !rounded-lg dark:bg-[#57c7a3]`}
+            <div className="flex justify-end mb-3">
+              <button
                 onClick={() => setActive(true)}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg
+                           bg-teal-500 hover:bg-teal-600
+                           text-white text-sm font-semibold font-Poppins
+                           transition-colors duration-200"
               >
                 Add New Member
-              </div>
+              </button>
             </div>
           )}
 
-          <Box
-            className="bg-gradient-to-br from-white to-gray-50 dark:from-slate-900 dark:to-slate-950 rounded-2xl shadow-lg dark:shadow-2xl border border-gray-200/50 dark:border-slate-700/50 backdrop-blur-sm"
-            height="85vh"
-            overflow="hidden"
-            sx={{
-              "& .MuiDataGrid-root": {
-                border: "none",
-                outline: "none",
-              },
-              "& .css-pqjvzy-MuiSvgIcon-root-MuiSelect-icon": {
-                color: theme === "dark" ? "#fff" : "#000",
-              },
-              "& .MuiDataGrid-sortIcon": {
-                color: theme === "dark" ? "#fff" : "#000",
-              },
-              "& .MuiDataGrid-row": {
-                color: theme === "dark" ? "#fff" : "#000",
-                borderBottom:
-                  theme === "dark"
-                    ? "1px solid #ffffff30 !important"
-                    : "1px solid #ccc !important",
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  backgroundColor:
-                    theme === "dark"
-                      ? "#334155 !important"
-                      : "#f1f5f9 !important",
-                  cursor: "pointer",
-                },
-              },
-              "& .MuiTablePagination-root": {
-                color: theme === "dark" ? "#fff" : "#000",
-              },
-              "& .MuiDataGrid-cell": {
-                borderBottom: "none !important",
-              },
-              "& .name-column--cell": {
-                color: theme === "dark" ? "#fff" : "#000",
-              },
-              "& .MuiDataGrid-columnHeaders": {
-                color: theme === "dark" ? "#fff !important" : "#000 !important",
-                borderBottom: "none",
-                backgroundColor:
-                  theme === "dark"
-                    ? "#2563eb !important"
-                    : "#a5b4fc !important",
-                minHeight: "56px !important",
-                maxHeight: "56px !important",
-              },
-              "& .MuiDataGrid-columnHeader": {
-                backgroundColor:
-                  theme === "dark"
-                    ? "#3e4396 !important"
-                    : "#A4A9FC !important",
-                "&:focus": {
-                  outline: "none",
-                },
-                "&:focus-within": {
-                  outline: "none",
-                },
-              },
-              "& .MuiDataGrid-columnHeaderTitle": {
-                fontWeight: 600,
-                fontSize: "14px",
-              },
-              "& .MuiDataGrid-virtualScroller": {
-                backgroundColor: theme === "dark" ? "#1e293b" : "#f8fafc",
-              },
-              "& .MuiDataGrid-footerContainer": {
-                color: theme === "dark" ? "#fff" : "#000",
-                borderTop: "none",
-                backgroundColor:
-                  theme === "dark"
-                    ? "#3e4396 !important"
-                    : "#A4A9FC !important",
-                minHeight: "52px",
-              },
-              "& .MuiCheckbox-root": {
-                color:
-                  theme === "dark"
-                    ? "#60a5fa !important"
-                    : "#3b82f6 !important",
-              },
-              "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-                color:
-                  theme === "dark"
-                    ? "#e2e8f0 !important"
-                    : "#1e293b !important",
-              },
-              "& .MuiDataGrid-columnSeparator": {
-                visibility: "visible",
-                color:
-                  theme === "dark"
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
-              },
-            }}
-          >
-            <DataGrid checkboxSelection rows={rows} columns={columns} />
-          </Box>
+          {/* Data grid */}
+          <StyledDataGridContainer>
+            <DataGrid
+              checkboxSelection
+              rows={rows}
+              columns={columns}
+              slots={{ toolbar: GridToolbar }}
+            />
+          </StyledDataGridContainer>
 
-          {/* ADD MEMBER MODAL */}
+          {/* ── Add Member Modal ── */}
           {active && (
             <Modal open={active} onClose={() => setActive(false)}>
-              <Box className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] bg-white dark:bg-slate-900 text-black dark:text-white rounded-lg p-5">
-                <h2 className={styles.title}>Add New Member</h2>
-                <input
-                  className={`${styles.input} mt-4`}
-                  type="email"
-                  placeholder="Enter email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                <select
-                  className={`${styles.input} mt-4`}
-                  onChange={(e) => setRole(e.target.value)}
-                >
-                  <option value="admin">Admin</option>
-                  <option value="user">User</option>
-                </select>
-                <div
-                  className={`${styles.button} mt-6`}
-                  onClick={() => updateUserRole({ email, role })}
-                >
-                  Submit
+              <Box
+                sx={modalBoxSx}
+                className="bg-white dark:bg-slate-800 rounded-2xl
+                           border border-gray-200 dark:border-white/10
+                           shadow-2xl overflow-hidden"
+              >
+                {/* Teal top bar */}
+                <div className="h-1 w-full bg-teal-500" />
+
+                <div className="p-6">
+                  {/* Header */}
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white font-Poppins mb-1">
+                    Add New Member
+                  </h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-Poppins mb-6">
+                    Assign an existing user a new role.
+                  </p>
+
+                  {/* Email input */}
+                  <div className="mb-4">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-Poppins mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="Enter user email..."
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-lg text-sm font-Poppins
+                                 border border-gray-200 dark:border-white/10
+                                 bg-gray-50 dark:bg-slate-700
+                                 text-gray-900 dark:text-white
+                                 placeholder-gray-400 dark:placeholder-gray-500
+                                 outline-none focus:border-teal-500
+                                 transition-colors duration-200"
+                    />
+                  </div>
+
+                  {/* Role select */}
+                  <div className="mb-6">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-Poppins mb-2">
+                      Role
+                    </label>
+                    <select
+                      onChange={(e) => setRole(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-lg text-sm font-Poppins
+                                 border border-gray-200 dark:border-white/10
+                                 bg-gray-50 dark:bg-slate-700
+                                 text-gray-900 dark:text-white
+                                 outline-none focus:border-teal-500
+                                 transition-colors duration-200"
+                    >
+                      <option value="admin">Admin</option>
+                      <option value="user">User</option>
+                    </select>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="h-px bg-gray-100 dark:bg-white/10 mb-5" />
+
+                  {/* Buttons */}
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setActive(false)}
+                      className="flex-1 py-2.5 rounded-lg text-sm font-medium font-Poppins
+                                 border border-gray-200 dark:border-white/10
+                                 text-gray-700 dark:text-gray-300
+                                 hover:border-teal-500 hover:text-teal-500
+                                 dark:hover:border-teal-500 dark:hover:text-teal-400
+                                 transition-all duration-200"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => updateUserRole({ email, role })}
+                      className="flex-1 py-2.5 rounded-lg text-sm font-medium font-Poppins
+                                 bg-teal-500 hover:bg-teal-600
+                                 text-white transition-all duration-200"
+                    >
+                      Submit
+                    </button>
+                  </div>
                 </div>
               </Box>
             </Modal>
           )}
 
-          {/* DELETE MODAL */}
+          {/* ── Delete Modal ── */}
           {open && (
             <Modal open={open} onClose={() => setOpen(false)}>
-              <Box className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] bg-white dark:bg-slate-900 text-black dark:text-white rounded-lg p-5">
-                <h2 className={styles.title}>
-                  Are you sure you want to delete this user?
-                </h2>
-                <div className="flex justify-between mt-6">
+              <Box
+                sx={modalBoxSx}
+                className="bg-white dark:bg-slate-800 rounded-2xl
+                           border border-gray-200 dark:border-white/10
+                           shadow-2xl overflow-hidden"
+              >
+                <div className="p-7 text-center">
+                  {/* Icon */}
                   <div
-                    className={`${styles.button} !w-[120px]`}
-                    onClick={() => setOpen(false)}
+                    className="w-14 h-14 rounded-full bg-gray-100 dark:bg-white/10
+                                  flex items-center justify-center mx-auto mb-4"
                   >
-                    Cancel
+                    <AiOutlineDelete className="w-6 h-6 text-gray-500 dark:text-gray-400" />
                   </div>
-                  <div
-                    className={`${styles.button} !w-[120px] bg-red-500`}
-                    onClick={() => deleteUser(userId)}
-                  >
-                    Delete
+
+                  {/* Title */}
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white font-Poppins mb-2">
+                    Delete User
+                  </h2>
+
+                  {/* Message */}
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-Poppins leading-relaxed">
+                    Are you sure you want to delete this user? This action
+                    cannot be undone.
+                  </p>
+
+                  {/* Divider */}
+                  <div className="h-px bg-gray-100 dark:bg-white/10 my-6" />
+
+                  {/* Buttons */}
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setOpen(false)}
+                      className="flex-1 py-2.5 rounded-lg text-sm font-medium font-Poppins
+                                 border border-gray-200 dark:border-white/10
+                                 text-gray-700 dark:text-gray-300
+                                 hover:border-teal-500 hover:text-teal-500
+                                 dark:hover:border-teal-500 dark:hover:text-teal-400
+                                 transition-all duration-200"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => deleteUser(userId)}
+                      className="flex-1 py-2.5 rounded-lg text-sm font-medium font-Poppins
+                                 border border-gray-200 dark:border-white/10
+                                 text-gray-700 dark:text-gray-300
+                                 hover:border-red-400 hover:text-red-400
+                                 dark:hover:border-red-400 dark:hover:text-red-400
+                                 transition-all duration-200"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               </Box>

@@ -20,11 +20,8 @@ const EditCourse = ({ id }: Props) => {
   const [editCourse, { isSuccess, error }] = useEditCourseMutation();
   const { data, refetch } = useGetAllCoursesQuery(
     {},
-    { refetchOnMountOrArgChange: true }
+    { refetchOnMountOrArgChange: true },
   );
-  console.log("id", id);
-
-  console.log(data);
 
   const editCourseData = data && data?.courses?.find((i: any) => i._id === id);
 
@@ -81,29 +78,19 @@ const EditCourse = ({ id }: Props) => {
       title: "",
       description: "",
       videoSection: "Untitled Section",
-      links: [
-        {
-          title: "",
-          url: "",
-        },
-      ],
+      links: [{ title: "", url: "" }],
       suggestion: "",
     },
   ]);
-
   const [courseData, setCourseData] = useState({});
 
   const handleSubmit = async () => {
-    // Format benefits array
     const formattedBenefits = benefits.map((benefit) => ({
       title: benefit.title,
     }));
-    // Format prerequisites array
     const formattedPrerequisites = prerequisites.map((prerequisite) => ({
       title: prerequisite.title,
     }));
-
-    // Format course content array
     const formattedCourseContentData = courseContentData.map(
       (courseContent) => ({
         videoUrl: courseContent.videoUrl,
@@ -115,10 +102,9 @@ const EditCourse = ({ id }: Props) => {
           url: link.url,
         })),
         suggestion: courseContent.suggestion,
-      })
+      }),
     );
 
-    //   prepare our data object
     const data = {
       name: courseInfo.name,
       description: courseInfo.description,
@@ -145,48 +131,70 @@ const EditCourse = ({ id }: Props) => {
 
   return (
     <div className="w-full flex min-h-screen">
-      <div className="w-[80%]">
-        {active === 0 && (
-          <CourseInformation
-            courseInfo={courseInfo}
-            setCourseInfo={setCourseInfo}
-            active={active}
-            setActive={setActive}
-          />
-        )}
+      {/* Main content — reserves 200px for the right sidebar */}
+      <div className="w-full 800px:w-[calc(100%-200px)] mt-[64px]">
+        {/* Page header */}
+        <div className="px-8 py-5 border-b border-gray-200 dark:border-white/10">
+          <span
+            className="inline-flex items-center gap-2 text-[11px] font-semibold
+                           tracking-[0.18em] uppercase text-teal-500"
+          >
+            <span className="w-5 h-px bg-teal-500 inline-block" />
+            Admin
+          </span>
+          <h1 className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white font-Poppins">
+            Edit Course
+          </h1>
+        </div>
 
-        {active === 1 && (
-          <CourseData
-            benefits={benefits}
-            setBenefits={setBenefits}
-            prerequisites={prerequisites}
-            setPrerequisites={setPrerequisites}
-            active={active}
-            setActive={setActive}
-          />
-        )}
-
-        {active === 2 && (
-          <CourseContent
-            active={active}
-            setActive={setActive}
-            courseContentData={courseContentData}
-            setCourseContentData={setCourseContentData}
-            handleSubmit={handleSubmit}
-          />
-        )}
-
-        {active === 3 && (
-          <CoursePreview
-            active={active}
-            setActive={setActive}
-            courseData={courseData}
-            handleCourseCreate={handleCourseCreate}
-            isEdit={true}
-          />
-        )}
+        {/* Step content */}
+        <div className="px-8 py-6">
+          {active === 0 && (
+            <CourseInformation
+              courseInfo={courseInfo}
+              setCourseInfo={setCourseInfo}
+              active={active}
+              setActive={setActive}
+            />
+          )}
+          {active === 1 && (
+            <CourseData
+              benefits={benefits}
+              setBenefits={setBenefits}
+              prerequisites={prerequisites}
+              setPrerequisites={setPrerequisites}
+              active={active}
+              setActive={setActive}
+            />
+          )}
+          {active === 2 && (
+            <CourseContent
+              active={active}
+              setActive={setActive}
+              courseContentData={courseContentData}
+              setCourseContentData={setCourseContentData}
+              handleSubmit={handleSubmit}
+            />
+          )}
+          {active === 3 && (
+            <CoursePreview
+              active={active}
+              setActive={setActive}
+              courseData={courseData}
+              handleCourseCreate={handleCourseCreate}
+              isEdit={true}
+            />
+          )}
+        </div>
       </div>
-      <div className="w-[20%] mt-[100px] h-screen fixed z-[-1] top-18 right-0">
+
+      {/* Right sidebar — fixed 200px wide */}
+      <div
+        className="hidden 800px:block w-[200px] fixed right-0 top-[64px]
+                      h-[calc(100vh-64px)]
+                      border-l border-gray-200 dark:border-white/10
+                      bg-white dark:bg-slate-900 overflow-y-auto"
+      >
         <CourseOptions active={active} setActive={setActive} />
       </div>
     </div>

@@ -48,13 +48,13 @@ const CourseDetails = ({
     user && user?.courses?.find((item: any) => item._id === data._id);
 
   const handleOrder = () => {
-    // ✅ Already purchased → go to course
+    //Already purchased → go to course
     if (isPurchased) {
       router.push(`/course-access/${data._id}`);
       return;
     }
 
-    // ✅ Logged in → open payment
+    // Logged in → open payment
     if (user) {
       setOpen(true);
     } else {
@@ -167,17 +167,18 @@ const CourseDetails = ({
                     className="p-3 rounded-lg bg-white/40 dark:bg-white/5"
                   >
                     <div className="flex gap-3">
-                      <Image
-                        src={
-                          item.user.avatar?.url ||
-                          "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
-                        }
-                        width={44}
-                        height={44}
-                        alt=""
-                        className="rounded-full"
-                      />
-
+                      <div className="w-[44px] h-[44px] rounded-full overflow-hidden">
+                        <Image
+                          src={
+                            item.user.avatar?.url ||
+                            "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
+                          }
+                          width={44}
+                          height={44}
+                          alt=""
+                          className="rounded-full"
+                        />
+                      </div>
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-semibold">

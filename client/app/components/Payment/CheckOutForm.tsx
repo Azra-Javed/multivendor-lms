@@ -30,12 +30,8 @@ const CheckOutForm = ({ data, setOpen, user }: Props) => {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [loadUser, setLoadUser] = useState(false);
 
-  // refetches user from server when loadUser becomes true
-  const { refetch } = useLoadUserQuery(undefined, {
-    skip: !loadUser,
-  });
+  const { refetch } = useLoadUserQuery(undefined);
 
   const [createOrder, { data: orderData, error }] = useCreateOrderMutation();
 
@@ -79,14 +75,10 @@ const CheckOutForm = ({ data, setOpen, user }: Props) => {
 
       toast.success("Payment successful!");
 
-      // refetch user so Redux updates user.courses immediately
-      setLoadUser(true);
       refetch();
 
       setOpen(false);
 
-      // redirect to course details page so isPurchased check
-      // runs fresh and shows "Go to Course" button correctly
       router.push(`/course/${data._id}`);
     }
 
@@ -94,16 +86,13 @@ const CheckOutForm = ({ data, setOpen, user }: Props) => {
       const err = error as any;
       toast.error(err.data.message);
     }
-  }, [orderData, error]);
+  }, [orderData, error, refetch, data, router, setOpen, user]);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Email field */}
+      {/* Email */}
       <div>
-        <label
-          className="block text-xs font-semibold uppercase tracking-wider
-                          text-gray-500 dark:text-gray-400 font-Poppins mb-2"
-        >
+        <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-Poppins mb-2">
           Email Address
         </label>
         <div className="rounded-lg border border-gray-200 dark:border-white/10 p-3">
@@ -111,12 +100,9 @@ const CheckOutForm = ({ data, setOpen, user }: Props) => {
         </div>
       </div>
 
-      {/* Payment details */}
+      {/* Payment */}
       <div>
-        <label
-          className="block text-xs font-semibold uppercase tracking-wider
-                          text-gray-500 dark:text-gray-400 font-Poppins mb-2"
-        >
+        <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-Poppins mb-2">
           Payment Details
         </label>
         <div className="rounded-lg border border-gray-200 dark:border-white/10 p-3">
@@ -124,12 +110,11 @@ const CheckOutForm = ({ data, setOpen, user }: Props) => {
         </div>
       </div>
 
-      {/* Error message */}
+      {/* Error */}
       {message && (
         <p className="text-sm text-red-500 font-Poppins">{message}</p>
       )}
 
-      {/* Divider */}
       <div className="h-px bg-gray-100 dark:bg-white/10" />
 
       {/* Buttons */}
@@ -137,28 +122,20 @@ const CheckOutForm = ({ data, setOpen, user }: Props) => {
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="flex-1 py-2.5 rounded-lg text-sm font-medium font-Poppins
-                     border border-gray-200 dark:border-white/10
-                     text-gray-700 dark:text-gray-300
-                     hover:border-teal-500 hover:text-teal-500
-                     dark:hover:border-teal-500 dark:hover:text-teal-400
-                     transition-all duration-200"
+          className="flex-1 py-2.5 rounded-lg text-sm font-medium font-Poppins border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:border-teal-500 hover:text-teal-500 transition"
         >
           Cancel
         </button>
+
         <button
           type="submit"
           disabled={!stripe || !elements || isLoading}
-          className="flex-1 py-2.5 rounded-lg text-sm font-semibold font-Poppins
-                     bg-teal-500 hover:bg-teal-600 text-white
-                     disabled:opacity-50 disabled:cursor-not-allowed
-                     transition-colors duration-200"
+          className="flex-1 py-2.5 rounded-lg text-sm font-semibold font-Poppins bg-teal-500 hover:bg-teal-600 text-white disabled:opacity-50 disabled:cursor-not-allowed transition"
         >
           {isLoading ? "Processing..." : `Pay $${data?.price}`}
         </button>
       </div>
 
-      {/* Success state */}
       {success && (
         <p className="text-sm text-teal-500 text-center font-Poppins">
           Payment completed — redirecting...

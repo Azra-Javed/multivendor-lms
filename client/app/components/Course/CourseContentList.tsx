@@ -16,10 +16,9 @@ const CourseContentList = ({
   setActiveVideo,
 }: Props) => {
   const [visibleSections, setVisibleSections] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
-  // find unique video sections
   const sections: string[] = [
     ...new Set<string>(data?.map((item: any) => item.videoSection)),
   ];
@@ -28,30 +27,28 @@ const CourseContentList = ({
 
   const toggleSection = (section: string) => {
     const copiedSet = new Set(visibleSections);
-
     copiedSet.has(section) ? copiedSet.delete(section) : copiedSet.add(section);
-
     setVisibleSections(copiedSet);
   };
 
   return (
     <div
-      className={`mt-[15px] w-full ${
-        !isDemo && "ml-[-30px] min-h-screen sticky top-24 left-0 z-30"
+      className={`mt-4 w-full ${
+        !isDemo && "ml-[-24px] min-h-screen sticky top-24 left-0 z-30 pr-2"
       }`}
     >
-      {sections.map((section: string, sectionIndex: number) => {
+      {sections.map((section: string) => {
         const isVisible = visibleSections.has(section);
 
         const sectionVideos = data.filter(
-          (item: any) => item.videoSection === section
+          (item: any) => item.videoSection === section,
         );
 
         const countVideos = sectionVideos.length;
 
         const totalVideoLength = sectionVideos.reduce(
           (sum: number, item: any) => sum + item.videoLength,
-          0
+          0,
         );
 
         const startIndex = totalCount;
@@ -61,70 +58,79 @@ const CourseContentList = ({
 
         return (
           <div
-            className={`${
-              !isDemo &&
-              "border-b border-[#0000001c] dark:border-[#ffffff8e] pb-2"
-            }`}
             key={section}
+            className={`mb-3 rounded-lg overflow-hidden border transition
+              ${
+                !isDemo
+                  ? "border-gray-200 dark:border-white/10"
+                  : "border-transparent"
+              }`}
           >
-            <div className="w-full flex justify-between items-center">
-              <h2 className="text-[22px] text-black dark:text-white">
-                {section}
-              </h2>
+            {/* SECTION HEADER */}
+            <div
+              className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-slate-900 cursor-pointer"
+              onClick={() => toggleSection(section)}
+            >
+              <div>
+                <h2 className="text-base font-semibold text-gray-900 dark:text-white">
+                  {section}
+                </h2>
 
-              <button
-                className="mr-4 cursor-pointer text-black dark:text-white"
-                onClick={() => toggleSection(section)}
-              >
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  {countVideos} lessons ·{" "}
+                  {totalVideoLength < 60
+                    ? `${totalVideoLength} min`
+                    : `${hours.toFixed(1)} hr`}
+                </p>
+              </div>
+
+              <div className="text-gray-600 dark:text-gray-300">
                 {isVisible ? (
-                  <BsChevronUp size={20} />
+                  <BsChevronUp size={18} />
                 ) : (
-                  <BsChevronDown size={20} />
+                  <BsChevronDown size={18} />
                 )}
-              </button>
+              </div>
             </div>
 
-            <h5 className="text-black dark:text-white">
-              {countVideos} Lessons ·{" "}
-              {totalVideoLength < 60 ? totalVideoLength : hours.toFixed(2)}{" "}
-              {totalVideoLength > 60 ? "hours" : "minutes"}
-            </h5>
-
-            <br />
-
+            {/* VIDEOS */}
             {isVisible && (
-              <div className="w-full">
+              <div className="bg-white dark:bg-slate-950">
                 {sectionVideos.map((item: any, index: number) => {
                   const videoIndex = startIndex + index;
                   const lengthHours = item.videoLength / 60;
 
+                  const isActive = videoIndex === activeVideo;
+
                   return (
                     <div
-                      className={`w-full ${
-                        videoIndex === activeVideo ? "bg-slate-800" : ""
-                      } cursor-pointer transition-all p-2`}
                       key={item._id}
                       onClick={() =>
                         isDemo ? null : setActiveVideo(videoIndex)
                       }
+                      className={`flex gap-3 px-4 py-3 cursor-pointer transition-all
+                        ${
+                          isActive
+                            ? "bg-teal-50 dark:bg-white/5 border-l-2 border-teal-500"
+                            : "hover:bg-gray-100 dark:hover:bg-white/5"
+                        }`}
                     >
-                      <div className="flex items-start">
-                        <MdOutlineOndemandVideo
-                          size={25}
-                          className="mr-2"
-                          color="#1cdada"
-                        />
-                        <h1 className="text-[18px] break-words text-black dark:text-white">
+                      <MdOutlineOndemandVideo
+                        size={20}
+                        className="text-teal-500 mt-0.5 shrink-0"
+                      />
+
+                      <div className="flex-1 min-w-0">
+                        <h1 className="text-sm font-medium text-gray-900 dark:text-white truncate">
                           {item.title}
                         </h1>
-                      </div>
 
-                      <h5 className="pl-8 text-black dark:text-white">
-                        {item.videoLength > 60
-                          ? lengthHours.toFixed(2)
-                          : item.videoLength}{" "}
-                        {item.videoLength > 60 ? "hours" : "minutes"}
-                      </h5>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          {item.videoLength > 60
+                            ? `${lengthHours.toFixed(1)} hr`
+                            : `${item.videoLength} min`}
+                        </p>
+                      </div>
                     </div>
                   );
                 })}

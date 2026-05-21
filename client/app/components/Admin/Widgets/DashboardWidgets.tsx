@@ -79,92 +79,112 @@ const DashboardWidgets: FC<Props> = ({ open }) => {
     }
   }, [isLoading, ordersLoading, data, ordersData]);
 
-  return (
-    <div className="mt-20 min-h-screen px-4 space-y-6">
-      {/* TOP GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* USER ANALYTICS */}
-        <div className="lg:col-span-2 flex flex-col">
-          <div className="flex-1 rounded-xl shadow-sm">
-            <UserAnalytics isDashboard={true} />
+  const StatCard = ({
+    icon,
+    label,
+    value,
+    percentChange,
+  }: {
+    icon: React.ReactNode;
+    label: string;
+    value: number;
+    percentChange: number;
+  }) => {
+    const isPositive = percentChange > 0;
+
+    return (
+      <div
+        className="flex-1 rounded-xl border border-gray-200 dark:border-white/10
+                 bg-white dark:bg-slate-800 shadow-sm p-4"
+      >
+        {/* top row */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="w-9 h-9 rounded-lg bg-teal-500/10 flex items-center justify-center">
+            {icon}
           </div>
+
+          <CircularProgressWithLabel value={isPositive ? 100 : 0} open={open} />
         </div>
 
-        {/* SALES & USERS CARDS */}
-        <div className="space-y-4 flex flex-col">
-          {/* SALES CARD */}
-          <div className="flex-1 rounded-xl bg-white dark:bg-[#111C43] shadow-sm px-6 py-3 flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <div>
-                <BiBorderLeft className="text-3xl text-teal-500" />
-                <h5 className="mt-2 text-2xl font-semibold text-black dark:text-white">
-                  {ordersComparePercentage?.currentMonth}
-                </h5>
-                <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
-                  Sales Obtained
-                </p>
-              </div>
+        {/* value */}
+        <h5 className="text-xl font-semibold text-gray-900 dark:text-white font-Poppins">
+          {value ?? "—"}
+        </h5>
 
-              <div className="text-center">
-                <CircularProgressWithLabel
-                  value={ordersComparePercentage?.percentChange > 0 ? 100 : 0}
-                  open={open}
-                />
-                <p className="pt-3 text-sm font-medium text-black dark:text-white">
-                  {ordersComparePercentage?.percentChange > 0
-                    ? "+" + ordersComparePercentage?.percentChange.toFixed(2)
-                    : ordersComparePercentage?.percentChange.toFixed(2)}{" "}
-                  %
-                </p>
-              </div>
-            </div>
-          </div>
+        {/* label */}
+        <p className="text-xs text-gray-500 dark:text-gray-400 font-Poppins mt-0.5">
+          {label}
+        </p>
 
-          {/* USERS CARD */}
-          <div className="flex-1 rounded-xl bg-white dark:bg-[#111C43] shadow-sm p-6 flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <div>
-                <PiUsersFourLight className="text-3xl text-teal-500" />
-                <h5 className="mt-2 text-2xl font-semibold text-black dark:text-white">
-                  {userComparePercentage?.currentMonth}
-                </h5>
-                <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
-                  New Users
-                </p>
-              </div>
+        {/* bottom row */}
+        <div className="flex items-center justify-between mt-3">
+          <span
+            className={`text-sm font-semibold font-Poppins ${
+              isPositive ? "text-teal-500" : "text-rose-500"
+            }`}
+          >
+            {isPositive ? "+" : ""}
+            {percentChange?.toFixed(1)}%
+          </span>
 
-              <div className="text-center">
-                <CircularProgressWithLabel
-                  value={userComparePercentage?.percentChange > 0 ? 100 : 0}
-                  open={open}
-                />
-                <p className="pt-3 text-sm font-medium text-black dark:text-white">
-                  {userComparePercentage?.percentChange > 0
-                    ? "+" + userComparePercentage?.percentChange.toFixed(2)
-                    : userComparePercentage?.percentChange.toFixed(2)}{" "}
-                  %
-                </p>
-              </div>
-            </div>
-          </div>
+          <span className="text-[10px] text-gray-400 dark:text-gray-500">
+            vs last month
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="mt-20 min-h-screen px-4 pb-10 space-y-5">
+      {/* Top row: analytics chart + two stat cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* User analytics chart */}
+        <div
+          className="lg:col-span-2 rounded-xl border border-gray-200 dark:border-white/10
+                        bg-white dark:bg-slate-800 shadow-sm overflow-hidden"
+        >
+          <UserAnalytics isDashboard={true} />
+        </div>
+
+        {/* Stat cards */}
+        <div className="flex flex-col gap-5">
+          <StatCard
+            icon={<BiBorderLeft className="w-5 h-5 text-teal-500" />}
+            label="Sales this month"
+            value={ordersComparePercentage?.currentMonth}
+            percentChange={ordersComparePercentage?.percentChange}
+          />
+          <StatCard
+            icon={<PiUsersFourLight className="w-5 h-5 text-teal-500" />}
+            label="New users this month"
+            value={userComparePercentage?.currentMonth}
+            percentChange={userComparePercentage?.percentChange}
+          />
         </div>
       </div>
 
-      {/* BOTTOM GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* ORDERS ANALYTICS */}
-        <div className="lg:col-span-2 flex flex-col">
-          <div className="flex-1 bg-white dark:bg-[#111c43] rounded-xl shadow-sm p-5 pb-[50px]">
-            <OrdersAnalytics isDashboard={true} />
-          </div>
+      {/* Bottom row: orders chart + recent transactions */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Orders analytics chart */}
+        <div
+          className="lg:col-span-2 rounded-xl border border-gray-200 dark:border-white/10
+                        bg-white dark:bg-slate-800 shadow-sm overflow-hidden pb-[50px]"
+        >
+          <OrdersAnalytics isDashboard={true} />
         </div>
 
-        {/* RECENT TRANSACTIONS */}
-        <div className="flex flex-col">
-          <div className="flex-1 bg-white dark:bg-[#0f172a] rounded-xl shadow-sm p-5 ">
-            <h5 className="text-lg font-medium text-black dark:text-white pb-4">
+        {/* Recent transactions */}
+        <div
+          className="rounded-xl border border-gray-200 dark:border-white/10
+                        bg-white dark:bg-slate-800 shadow-sm overflow-hidden"
+        >
+          <div className="px-5 py-4 border-b border-gray-100 dark:border-white/10">
+            <h5 className="text-sm font-semibold text-gray-900 dark:text-white font-Poppins">
               Recent Transactions
             </h5>
+          </div>
+          <div className="p-5">
             <AllInvoices isDashboard={true} />
           </div>
         </div>

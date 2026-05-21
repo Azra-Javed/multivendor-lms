@@ -8,17 +8,17 @@ import { format } from "timeago.js";
 import { useGetAllUsersQuery } from "@/redux/features/user/userApi";
 import { AiOutlineMail } from "react-icons/ai";
 import { useGetAllOrdersQuery } from "@/redux/features/orders/ordersApi";
+import StyledDataGridContainer from "../Analytics/StyledDataGridContainer";
 
 type Props = {
   isDashboard?: boolean;
 };
 
 const AllInvoices = ({ isDashboard }: Props) => {
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   const { isLoading, data } = useGetAllOrdersQuery({});
   const { data: usersData } = useGetAllUsersQuery({});
   const { data: coursesData } = useGetAllCoursesQuery({});
-
   const [orderData, setOrderData] = useState<any>([]);
 
   useEffect(() => {
@@ -26,18 +26,16 @@ const AllInvoices = ({ isDashboard }: Props) => {
       const temp = data?.orders?.map((item: any) => {
         const user = usersData?.users?.find((u: any) => u._id === item.userId);
         const course = coursesData?.courses?.find(
-          (c: any) => c._id === item.courseId
+          (c: any) => c._id === item.courseId,
         );
-
         return {
           ...item,
-          userName: user?.name,
-          userEmail: user?.email,
-          title: course?.name,
-          price: "$" + course?.price,
+          userName: user?.name || "Unknown",
+          userEmail: user?.email || "—",
+          title: course?.name || "—",
+          price: "$" + (course?.price ?? "—"),
         };
       });
-
       setOrderData(temp);
     }
   }, [data, usersData, coursesData]);
@@ -59,22 +57,19 @@ const AllInvoices = ({ isDashboard }: Props) => {
             field: " ",
             headerName: "Email",
             flex: 0.2,
-            renderCell: (params: any) => {
-              return (
-                <a href={`mailto:${params.row.userEmail}`}>
-                  <AiOutlineMail
-                    className="dark:text-white text-black mt-4"
-                    size={20}
-                  />
-                </a>
-              );
-            },
+            renderCell: (params: any) => (
+              <a href={`mailto:${params.row.userEmail}`}>
+                <AiOutlineMail
+                  className="dark:text-white text-black mt-4"
+                  size={20}
+                />
+              </a>
+            ),
           },
         ]),
   ];
 
   const rows: any = [];
-
   orderData &&
     orderData.forEach((item: any) => {
       rows.push({
@@ -87,119 +82,75 @@ const AllInvoices = ({ isDashboard }: Props) => {
       });
     });
 
+  const isDark = theme === "dark";
+
+  if (isLoading) return <Loader />;
+
+  // ── Dashboard mode: clean custom table ──
+  if (isDashboard) {
+    return (
+      <div className="w-full overflow-auto">
+        <table className="w-full text-sm font-Poppins">
+          <thead>
+            <tr className="border-b border-white/10">
+              <th className="text-left py-2.5 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                Name
+              </th>
+              <th className="text-left py-2.5 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                Price
+              </th>
+              <th className="text-left py-2.5 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                When
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row: any, index: number) => (
+              <tr
+                key={index}
+                className="border-b border-white/[0.06]
+                           hover:bg-white/[0.03]
+                           transition-colors duration-150 last:border-0"
+              >
+                <td className="py-3 px-3 text-sm text-white font-medium truncate max-w-[100px]">
+                  {row.userName}
+                </td>
+                <td className="py-3 px-3 text-sm text-teal-400 font-semibold whitespace-nowrap">
+                  {row.price}
+                </td>
+                <td className="py-3 px-3 text-xs text-gray-500 whitespace-nowrap">
+                  {row.created_at}
+                </td>
+              </tr>
+            ))}
+
+            {rows.length === 0 && (
+              <tr>
+                <td
+                  colSpan={3}
+                  className="py-8 text-center text-sm text-gray-500 font-Poppins"
+                >
+                  No transactions yet
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  // ── Full page mode: MUI DataGrid ──
   return (
-    <div className={!isDashboard ? "mt-[70px]" : "mt-[0px]"}>
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <Box m={isDashboard ? "0" : "40px"}>
-          <Box
-            m={isDashboard ? "0" : "40px 0 0 0"}
-            height={isDashboard ? "35vh" : "85vh"}
-            overflow={"hidden"}
-            sx={{
-              "& .MuiDataGrid-root": {
-                border: "none",
-                outline: "none",
-              },
-              "& .css-pqjvzy-MuiSvgIcon-root-MuiSelect-icon": {
-                color: theme === "dark" ? "#fff" : "#000",
-              },
-              "& .MuiDataGrid-sortIcon": {
-                color: theme === "dark" ? "#fff" : "#000",
-              },
-              "& .MuiDataGrid-row": {
-                color: theme === "dark" ? "#fff" : "#000",
-                borderBottom:
-                  theme === "dark"
-                    ? "1px solid #ffffff30 !important"
-                    : "1px solid #ccc !important",
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  backgroundColor:
-                    theme === "dark"
-                      ? "#334155 !important"
-                      : "#f1f5f9 !important",
-                  cursor: "pointer",
-                },
-              },
-              "& .MuiTablePagination-root": {
-                color: theme === "dark" ? "#fff" : "#000",
-              },
-              "& .MuiDataGrid-cell": {
-                borderBottom: "none !important",
-              },
-              "& .name-column--cell": {
-                color: theme === "dark" ? "#fff" : "#000",
-              },
-              "& .MuiDataGrid-columnHeaders": {
-                color: theme === "dark" ? "#fff !important" : "#000 !important",
-                borderBottom: "none",
-                backgroundColor:
-                  theme === "dark"
-                    ? "#2563eb !important"
-                    : "#a5b4fc !important",
-                minHeight: "56px !important",
-                maxHeight: "56px !important",
-              },
-              "& .MuiDataGrid-columnHeader": {
-                backgroundColor:
-                  theme === "dark"
-                    ? "#3e4396 !important"
-                    : "#A4A9FC !important",
-                "&:focus": {
-                  outline: "none",
-                },
-                "&:focus-within": {
-                  outline: "none",
-                },
-              },
-              "& .MuiDataGrid-columnHeaderTitle": {
-                fontWeight: 600,
-                fontSize: "14px",
-              },
-              "& .MuiDataGrid-virtualScroller": {
-                backgroundColor: theme === "dark" ? "#1e293b" : "#f8fafc",
-              },
-              "& .MuiDataGrid-footerContainer": {
-                color: theme === "dark" ? "#fff" : "#000",
-                borderTop: "none",
-                backgroundColor:
-                  theme === "dark"
-                    ? "#3e4396 !important"
-                    : "#A4A9FC !important",
-                minHeight: "52px",
-              },
-              "& .MuiCheckbox-root": {
-                color:
-                  theme === "dark"
-                    ? "#60a5fa !important"
-                    : "#3b82f6 !important",
-              },
-              "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-                color:
-                  theme === "dark"
-                    ? "#e2e8f0 !important"
-                    : "#1e293b !important",
-              },
-              "& .MuiDataGrid-columnSeparator": {
-                visibility: "visible",
-                color:
-                  theme === "dark"
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
-              },
-            }}
-          >
-            <DataGrid
-              checkboxSelection={!isDashboard}
-              rows={rows}
-              columns={columns}
-              slots={isDashboard ? {} : { toolbar: GridToolbar }}
-            />
-          </Box>
-        </Box>
-      )}
+    <div className="mt-[70px]">
+      <StyledDataGridContainer>
+        <DataGrid
+          checkboxSelection
+          rows={rows}
+          columns={columns}
+          slots={{ toolbar: GridToolbar }}
+        />
+      </StyledDataGridContainer>
     </div>
   );
 };

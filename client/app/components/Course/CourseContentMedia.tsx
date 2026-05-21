@@ -9,10 +9,8 @@ import {
   AiOutlineArrowRight,
   AiOutlineStar,
 } from "react-icons/ai";
-import { BiMessage } from "react-icons/bi";
 import { VscVerifiedFilled } from "react-icons/vsc";
 import Ratings from "@/app/utils/Ratings";
-import { styles } from "@/app/styles/styles";
 import {
   useAddAnswerInQuestionMutation,
   useAddNewQeustionMutation,
@@ -22,6 +20,7 @@ import {
 } from "@/redux/features/courses/coursesApi";
 import CommentReply from "./CommentReply";
 import socketIO from "socket.io-client";
+
 const ENDPOINT = process.env.NEXT_PUBLIC_SOCKET_SERVER_URI || "";
 const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
@@ -52,141 +51,74 @@ const CourseContentMedia = ({
   const [reviewId, setReviewId] = useState("");
   const [isReviewReply, setIsReviewReply] = useState(false);
 
-  const { data: courseData, refetch: courseRefetch } = useGetCourseDetailsQuery(
-    id,
-    { refetchOnMountOrArgChange: true }
-  );
+  const { data: courseData, refetch: courseRefetch } =
+    useGetCourseDetailsQuery(id);
 
   const [
     addNewQuestion,
-    { isSuccess, error, isLoading: questionCreationLoading },
+    { isLoading: questionCreationLoading, isSuccess, error },
   ] = useAddNewQeustionMutation();
 
   const [
     addAnswerInQuestion,
-    {
-      isSuccess: answerSuccess,
-      error: answerError,
-      isLoading: answerCreationLoading,
-    },
+    { isSuccess: answerSuccess, error: answerError },
   ] = useAddAnswerInQuestionMutation();
 
-  const [
-    addReviewInCourse,
-    {
-      isSuccess: reviewSuccess,
-      error: reviewError,
-      isLoading: reviewCreationLoading,
-    },
-  ] = useAddReviewInCourseMutation();
+  const [addReviewInCourse, { isSuccess: reviewSuccess, error: reviewError }] =
+    useAddReviewInCourseMutation();
+
+  const [addReplyInReview, { isSuccess: replySuccess, error: replyError }] =
+    useAddReplyInReviewMutation();
+
   const course = courseData?.course;
-  const [
-    addReplyInReview,
-    {
-      isSuccess: replySuccess,
-      error: replyError,
-      isLoading: replyCreationLoading,
-    },
-  ] = useAddReplyInReviewMutation();
 
   const isReviewExists = course?.reviews?.find(
-    (item: any) => item.user._id === user._id
+    (item: any) => item.user._id === user._id,
   );
 
   useEffect(() => {
-    // Question added
     if (isSuccess) {
       setQuestion("");
       refetch();
-      toast.success("Your question has been posted successfully!");
-
+      toast.success("Question posted");
       socketId.emit("notification", {
         title: "New Question",
-        message: `A new question was posted in "${data[activeVideo]?.title}"`,
+        message: `New question in "${data[activeVideo]?.title}"`,
         userId: user._id,
       });
     }
-
-    // Answer added
     if (answerSuccess) {
       setAnswer("");
       refetch();
-      toast.success("Your answer has been submitted successfully!");
-
-      if (user.role !== "admin") {
-        socketId.emit("notification", {
-          title: "New Answer",
-          message: `A new answer was added in "${data[activeVideo]?.title}"`,
-          userId: user._id,
-        });
-      }
+      toast.success("Answer submitted");
     }
-
-    // Question error
-    if (error && "data" in error) {
-      const errorMessage = error as any;
-      toast.error(errorMessage.data.message || "Failed to post the question");
-    }
-
-    // Answer error
-    if (answerError && "data" in answerError) {
-      const errorMessage = error as any;
-      toast.error(errorMessage.data.message || "Failed to submit the answer");
-    }
-
-    // Review added
     if (reviewSuccess) {
       setReview("");
       setRating(1);
       courseRefetch();
-      toast.success("Thank you! Your review has been added.");
-
-      socketId.emit("notification", {
-        title: "New Review",
-        message: `A new review was added for "${data[activeVideo]?.title}"`,
-        userId: user._id,
-      });
+      toast.success("Review added");
     }
-
-    // Review error
-    if (reviewError && "data" in reviewError) {
-      const errorMessage = error as any;
-      toast.error(errorMessage.data.message || "Failed to add the review");
-    }
-
-    // Reply added
     if (replySuccess) {
       setReply("");
       courseRefetch();
-      toast.success("Reply posted successfully!");
+      toast.success("Reply added");
     }
-
-    // Reply error
-    if (replyError && "data" in replyError) {
-      const errorMessage = error as any;
-      toast.error(errorMessage.data.message || "Failed to post the reply");
-    }
-  }, [
-    isSuccess,
-    error,
-    answerSuccess,
-    answerError,
-    reviewSuccess,
-    reviewError,
-    replySuccess,
-    replyError,
-  ]);
+    if (error && "data" in error) toast.error((error as any).data.message);
+    if (answerError && "data" in answerError)
+      toast.error((answerError as any).data.message);
+    if (reviewError && "data" in reviewError)
+      toast.error((reviewError as any).data.message);
+    if (replyError && "data" in replyError)
+      toast.error((replyError as any).data.message);
+  }, [isSuccess, answerSuccess, reviewSuccess, replySuccess]);
 
   const handleQuestion = () => {
-    if (question.length === 0) {
-      toast.error("Queston can't be empty");
-    } else {
-      addNewQuestion({
-        question,
-        courseId: id,
-        contentId: data?.[activeVideo]?._id,
-      });
-    }
+    if (!question.trim()) return toast.error("Question can't be empty");
+    addNewQuestion({
+      question,
+      courseId: id,
+      contentId: data?.[activeVideo]?._id,
+    });
   };
 
   const handleAnswerSubmit = () => {
@@ -194,151 +126,179 @@ const CourseContentMedia = ({
       answer,
       courseId: id,
       contentId: data[activeVideo]._id,
-      questionId: questionId,
+      questionId,
     });
   };
 
-  const handleReviewSubmit = async () => {
-    if (review.length === 0) {
-      toast.error("Review can't be empty");
-    } else {
-      addReviewInCourse({ review, rating, courseId: id });
-    }
+  const handleReviewSubmit = () => {
+    if (!review.trim()) return toast.error("Review can't be empty");
+    addReviewInCourse({ review, rating, courseId: id });
   };
 
   const handleReviewReplySubmit = () => {
-    if (!replyCreationLoading) {
-      if (reply === "") {
-        toast.error("Reply can't be empty");
-      } else {
-        addReplyInReview({ comment: reply, courseId: id, reviewId });
-      }
-    }
+    if (!reply.trim()) return toast.error("Reply can't be empty");
+    addReplyInReview({ comment: reply, courseId: id, reviewId });
   };
 
+  const tabs = ["Overview", "Resources", "Q&A", "Reviews"];
+
   return (
-    <div className="w-[95%] 800px:w-[86%] py-4 m-auto">
-      <CoursePlayer
-        title={data[activeVideo]?.title}
-        videoUrl={data[activeVideo]?.videoUrl}
-      />
-      <div className="w-full flex items-center justify-between my-3">
-        <div
-          className={`${
-            styles.button
-          } text-white  !w-[unset] !min-h-[40px] !py-[unset] ${
-            activeVideo === 0 && "!cursor-no-drop opacity-[.8]"
-          }`}
-          onClick={() =>
-            setActiveVideo(activeVideo === 0 ? 0 : activeVideo - 1)
-          }
+    <div className="w-[95%] 800px:w-[88%] mx-auto py-6">
+      {/* Video player */}
+      <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 shadow-sm">
+        <CoursePlayer
+          title={data[activeVideo]?.title}
+          videoUrl={data[activeVideo]?.videoUrl}
+        />
+      </div>
+
+      {/* Prev / Next nav */}
+      <div className="flex items-center justify-between mt-5">
+        <button
+          disabled={activeVideo === 0}
+          onClick={() => setActiveVideo(activeVideo - 1)}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium font-Poppins
+                      transition-all duration-200
+                      ${
+                        activeVideo === 0
+                          ? "opacity-40 cursor-not-allowed bg-gray-100 dark:bg-white/5 text-gray-400"
+                          : "bg-teal-500 hover:bg-teal-600 text-white"
+                      }`}
         >
-          <AiOutlineArrowLeft className="mr-2" />
-          Prev Lesson
-        </div>
-        <div
-          className={`${
-            styles.button
-          } !w-[unset] text-white  !min-h-[40px] !py-[unset] ${
-            data.length - 1 === activeVideo && "!cursor-no-drop opacity-[.8]"
-          }`}
+          <AiOutlineArrowLeft className="w-4 h-4" />
+          Previous
+        </button>
+
+        <span className="text-xs text-gray-400 dark:text-gray-500 font-Poppins">
+          {activeVideo + 1} / {data.length}
+        </span>
+
+        <button
+          disabled={data.length - 1 === activeVideo}
           onClick={() =>
             setActiveVideo(
-              data && data.length - 1 === activeVideo
-                ? activeVideo
-                : activeVideo + 1
+              data.length - 1 === activeVideo ? activeVideo : activeVideo + 1,
             )
           }
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium font-Poppins
+                      transition-all duration-200
+                      ${
+                        data.length - 1 === activeVideo
+                          ? "opacity-40 cursor-not-allowed bg-gray-100 dark:bg-white/5 text-gray-400"
+                          : "bg-teal-500 hover:bg-teal-600 text-white"
+                      }`}
         >
-          Next Lesson
-          <AiOutlineArrowRight className="ml-2" />
-        </div>
+          Next
+          <AiOutlineArrowRight className="w-4 h-4" />
+        </button>
       </div>
-      <h1 className="pt-2 text-[25px] font-[600] dark:text-white text-black ">
+
+      {/* Video title */}
+      <h1 className="mt-5 text-xl font-semibold text-gray-900 dark:text-white font-Poppins leading-snug">
         {data[activeVideo].title}
       </h1>
-      <br />
-      <div className="w-full p-4 flex items-center justify-between bg-slate-500 bg-opacity-20 backdrop-blur shadow-[bg-slate-700] rounded shadow-inner">
-        {["Overview", "Resources", "Q&A", "Reviews"].map((text, index) => (
-          <h5
+
+      {/* Tabs */}
+      <div className="mt-5 flex gap-1 border-b border-gray-200 dark:border-white/10">
+        {tabs.map((text, index) => (
+          <button
             key={index}
-            className={`800px:text-[20px] cursor-pointer ${
-              activeBar === index
-                ? "text-red-500"
-                : "dark:text-white text-black"
-            }`}
             onClick={() => setactiveBar(index)}
+            className={`px-4 py-2.5 text-sm font-medium font-Poppins transition-all duration-200
+                        ${
+                          activeBar === index
+                            ? "text-teal-500 border-b-2 border-teal-500"
+                            : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                        }`}
           >
             {text}
-          </h5>
+          </button>
         ))}
       </div>
-      <br />
-      {activeBar === 0 && (
-        <p className="text-[18px] whitespace-pre-line mb-3 dark:text-white text-black">
-          {data[activeVideo]?.description}
-        </p>
-      )}
 
-      {activeBar === 1 && (
-        <div>
-          {data[activeVideo]?.links.map((item: any, index: number) => (
-            <div className="mb-5" key={index}>
-              <h2 className="800px:text-[20px] 800px:inline-block dark:text-white text-black">
-                {item.title && item.title + " :"}
-              </h2>
-              <a
-                className="inline-block text-[#4395c4] 800px:text-[20px] 800px:pl-2"
-                href={item.url}
+      {/* Tab content */}
+      <div className="mt-6">
+        {/* Overview */}
+        {activeBar === 0 && (
+          <p className="text-sm text-gray-600 dark:text-gray-300 font-Poppins leading-relaxed whitespace-pre-line">
+            {data[activeVideo]?.description}
+          </p>
+        )}
+
+        {/* Resources */}
+        {activeBar === 1 && (
+          <div className="space-y-4">
+            {data[activeVideo]?.links.map((item: any, index: number) => (
+              <div
+                key={index}
+                className="flex flex-col gap-1 p-4 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-800"
               >
-                {item.url}
-              </a>
-            </div>
-          ))}
-        </div>
-      )}
+                <span className="text-sm font-semibold text-gray-900 dark:text-white font-Poppins">
+                  {item.title}
+                </span>
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm text-teal-500 hover:underline font-Poppins break-all"
+                >
+                  {item.url}
+                </a>
+              </div>
+            ))}
+          </div>
+        )}
 
-      {activeBar === 2 && (
-        <>
-          <div className="flex w-full">
-            <Image
-              src={
-                user.avatar
-                  ? user.avatar.url
-                  : "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
-              }
-              width={50}
-              height={50}
-              alt=""
-              className="w-[50px] h-[50px] rounded-full object-cover"
-            />
-            <textarea
-              name=""
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              id=""
-              cols={40}
-              rows={5}
-              placeholder="Write your question..."
-              className="outline-none bg-transparent ml-3 border dark:text-white text-black border-[#0000001d] dark:border-[#ffffff57] 800px:w-full p-2 rounded w-[90%] 800px:text-[18px] font-Poppins"
-            ></textarea>
-          </div>
-          <div className="w-full flex justify-end">
-            <div
-              className={`${
-                styles.button
-              } !w-[120px] !h-[40px] text-[18px] mt-5 ${
-                questionCreationLoading && "cursor-not-allowed"
-              }`}
-              onClick={questionCreationLoading ? () => {} : handleQuestion}
-            >
-              Submit
-            </div>
-          </div>
-          <br />
-          <br />
-          <div className="w-full h-[1px] bg-[#ffffff3b]"></div>
+        {/* Q&A */}
+        {activeBar === 2 && (
           <div>
+            {/* Ask a question */}
+            <div className="flex gap-3 items-start">
+              <Image
+                src={
+                  user.avatar?.url ||
+                  "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
+                }
+                width={40}
+                height={40}
+                alt="avatar"
+                className="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-white/10 shrink-0"
+              />
+              <div className="flex-1">
+                <textarea
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  rows={3}
+                  placeholder="Ask a question about this lesson..."
+                  className="w-full p-3 text-sm rounded-lg border border-gray-200 dark:border-white/10
+                             bg-white dark:bg-slate-800
+                             text-gray-900 dark:text-white
+                             placeholder-gray-400 dark:placeholder-gray-500
+                             font-Poppins outline-none
+                             focus:border-teal-500 dark:focus:border-teal-500
+                             transition-colors duration-200 resize-none"
+                />
+                <button
+                  onClick={handleQuestion}
+                  disabled={questionCreationLoading}
+                  className="mt-2 px-5 py-2 bg-teal-500 hover:bg-teal-600 text-white
+                             text-sm font-medium font-Poppins rounded-lg
+                             transition-colors duration-200 disabled:opacity-50"
+                >
+                  {questionCreationLoading ? "Posting..." : "Post Question"}
+                </button>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-4 my-6">
+              <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
+              <span className="text-xs font-medium tracking-widest uppercase text-gray-400 dark:text-gray-500 font-Poppins whitespace-nowrap">
+                All Questions
+              </span>
+              <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
+            </div>
+
             <CommentReply
               data={data}
               activeVideo={activeVideo}
@@ -348,182 +308,115 @@ const CourseContentMedia = ({
               user={user}
               questionId={questionId}
               setQuestionId={setQuestionId}
-              answerCreationLoading={answerCreationLoading}
             />
           </div>
-        </>
-      )}
+        )}
 
-      {activeBar === 3 && (
-        <div className="w-full">
-          <>
+        {/* Reviews */}
+        {activeBar === 3 && (
+          <div>
+            {/* Write a review */}
             {!isReviewExists && (
-              <>
-                <div className="flex w-full">
-                  <Image
-                    src={
-                      user.avatar
-                        ? user.avatar.url
-                        : "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
-                    }
-                    width={50}
-                    height={50}
-                    alt=""
-                    className="w-[50px] h-[50px] rounded-full object-cover"
-                  />
-                  <div className="w-full">
-                    <h5 className="pl-3 text-[20px] font-[500] dark:text-white text-black ">
-                      Give a Rating <span className="text-red-500">*</span>
-                    </h5>
-                    <div className="flex w-full ml-2 pb-3">
-                      {[1, 2, 3, 4, 5].map((i) =>
-                        rating >= i ? (
-                          <AiFillStar
-                            key={i}
-                            className="mr-1 cursor-pointer"
-                            color="rgb(246,186,0)"
-                            size={25}
-                            onClick={() => setRating(i)}
-                          />
-                        ) : (
-                          <AiOutlineStar
-                            key={i}
-                            className="mr-1 cursor-pointer"
-                            color="rgb(246,186,0)"
-                            size={25}
-                            onClick={() => setRating(i)}
-                          />
-                        )
-                      )}
-                    </div>
-                    <textarea
-                      name=""
-                      value={review}
-                      onChange={(e) => setReview(e.target.value)}
-                      id=""
-                      cols={40}
-                      rows={5}
-                      placeholder="Write your comment..."
-                      className="outline-none bg-transparent 800px:ml-3 dark:text-white text-black border border-[#00000027] dark:border-[#ffffff57] w-[95%] 800px:w-full p-2 rounded text-[18px] font-Poppins"
-                    ></textarea>
-                  </div>
+              <div className="mb-8 p-5 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-800">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white font-Poppins mb-4">
+                  Write a Review
+                </h3>
+
+                {/* Star rating */}
+                <div className="flex items-center gap-1 mb-4">
+                  {[1, 2, 3, 4, 5].map((i) =>
+                    rating >= i ? (
+                      <AiFillStar
+                        key={i}
+                        onClick={() => setRating(i)}
+                        className="w-6 h-6 text-amber-400 cursor-pointer"
+                      />
+                    ) : (
+                      <AiOutlineStar
+                        key={i}
+                        onClick={() => setRating(i)}
+                        className="w-6 h-6 text-gray-300 dark:text-gray-600 cursor-pointer hover:text-amber-400 transition-colors"
+                      />
+                    ),
+                  )}
+                  <span className="ml-2 text-sm text-gray-500 dark:text-gray-400 font-Poppins">
+                    {rating} / 5
+                  </span>
                 </div>
-                <div className="w-full flex justify-end">
-                  <div
-                    className={`${
-                      styles.button
-                    } !w-[120px] !h-[40px] text-[18px] mt-5 800px:mr-0 mr-2 ${
-                      reviewCreationLoading && "cursor-no-drop"
-                    }`}
-                    onClick={
-                      reviewCreationLoading ? () => {} : handleReviewSubmit
-                    }
-                  >
-                    Submit
-                  </div>
-                </div>
-              </>
+
+                <textarea
+                  value={review}
+                  onChange={(e) => setReview(e.target.value)}
+                  rows={4}
+                  placeholder="Share your experience with this course..."
+                  className="w-full p-3 text-sm rounded-lg border border-gray-200 dark:border-white/10
+                             bg-gray-50 dark:bg-slate-700
+                             text-gray-900 dark:text-white
+                             placeholder-gray-400 dark:placeholder-gray-500
+                             font-Poppins outline-none
+                             focus:border-teal-500 dark:focus:border-teal-500
+                             transition-colors duration-200 resize-none"
+                />
+
+                <button
+                  onClick={handleReviewSubmit}
+                  className="mt-3 px-5 py-2 bg-teal-500 hover:bg-teal-600 text-white
+                             text-sm font-medium font-Poppins rounded-lg
+                             transition-colors duration-200"
+                >
+                  Submit Review
+                </button>
+              </div>
             )}
-            <br />
-            <div className="w-full h-[1px] bg-[#ffffff3b]"></div>
-            <div className="w-full">
-              {(course?.reviews && [...course.reviews].reverse())?.map(
-                (item: any, index: number) => {
-                  return (
-                    <div
-                      className="w-full my-5 dark:text-white text-black"
-                      key={index}
-                    >
-                      <div className="w-full flex">
-                        <div>
-                          <Image
-                            src={
-                              item.user.avatar
-                                ? item.user.avatar.url
-                                : "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
-                            }
-                            width={50}
-                            height={50}
-                            alt=""
-                            className="w-[50px] h-[50px] rounded-full object-cover"
-                          />
-                        </div>
-                        <div className="ml-2">
-                          <h1 className="text-[18px]">{item?.user.name}</h1>
-                          <Ratings rating={item.rating} />
-                          <p>{item.comment}</p>
-                          <small className="text-[#0000009e] dark:text-[#ffffff83]">
-                            {format(item.createdAt)} •
-                          </small>
-                        </div>
-                      </div>
-                      {user.role === "admin" &&
-                        item.commentReplies.length === 0 && (
-                          <span
-                            className={`${styles.label} !ml-10 cursor-pointer`}
-                            onClick={() => {
-                              setIsReviewReply(true);
-                              setReviewId(item._id);
-                            }}
-                          >
-                            Add Reply
-                          </span>
-                        )}
 
-                      {isReviewReply && reviewId === item._id && (
-                        <div className="w-full flex relative">
-                          <input
-                            type="text"
-                            placeholder="Enter your reply..."
-                            value={reply}
-                            onChange={(e: any) => setReply(e.target.value)}
-                            className="block 800px:ml-12 mt-2 outline-none bg-transparent border-b border-[#000] dark:border-[#fff] p-[5px] w-[95%]"
-                          />
-                          <button
-                            type="submit"
-                            className="absolute right-0 bottom-1"
-                            onClick={handleReviewReplySubmit}
-                          >
-                            Submit
-                          </button>
-                        </div>
-                      )}
-
-                      {item.commentReplies.map((i: any, index: number) => (
-                        <div className="w-full flex ml-16 my-5" key={index}>
-                          <div className="w-[50px] h-[50px]">
-                            <Image
-                              src={
-                                i.user.avatar
-                                  ? i.user.avatar.url
-                                  : "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
-                              }
-                              width={50}
-                              height={50}
-                              alt=""
-                              className="w-[50px] h-[50px] rounded-full object-cover"
-                            />
-                          </div>
-                          <div className="pl-2">
-                            <div className="flex items-center">
-                              <h5 className="text-[20px]">{i.user.name}</h5>{" "}
-                              <VscVerifiedFilled className="text-[#0095F6] ml-2 text-[20px]" />
-                            </div>
-                            <p>{i.comment}</p>
-                            <small className="text-[#0000009e] dark:text-[#ffffff83]">
-                              {format(item.createdAt)} •
-                            </small>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                }
-              )}
+            {/* Divider */}
+            <div className="flex items-center gap-4 mb-6">
+              <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
+              <span className="text-xs font-medium tracking-widest uppercase text-gray-400 dark:text-gray-500 font-Poppins whitespace-nowrap">
+                {course?.reviews?.length || 0} reviews
+              </span>
+              <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
             </div>
-          </>
-        </div>
-      )}
+
+            {/* Review list */}
+            <div className="space-y-4">
+              {(course?.reviews || []).map((item: any, index: number) => (
+                <div
+                  key={index}
+                  className="p-4 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-800"
+                >
+                  <div className="flex gap-3">
+                    <Image
+                      src={
+                        item.user.avatar?.url ||
+                        "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
+                      }
+                      width={40}
+                      height={40}
+                      className="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-white/10 shrink-0"
+                      alt=""
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-semibold text-gray-900 dark:text-white font-Poppins">
+                          {item.user.name}
+                        </span>
+                        <Ratings rating={item.rating} />
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 font-Poppins leading-relaxed">
+                        {item.comment}
+                      </p>
+                      <span className="text-xs text-gray-400 dark:text-gray-500 font-Poppins mt-1 block">
+                        {format(item.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

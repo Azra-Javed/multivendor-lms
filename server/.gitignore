@@ -3,6 +3,7 @@
 
 # environment variables
 .env
+.env.local
 
 # build output (if you compile TypeScript)
 dist
@@ -14,3 +15,6 @@ yarn-error.log*
 
 # editor settings
 .vscode
+
+# production
+/build

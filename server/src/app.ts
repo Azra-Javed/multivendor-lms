@@ -5,6 +5,7 @@ import express, {
 } from "express";
 export const app = express();
 import cors from "cors";
+import { rateLimit } from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import errorMiddleware from "./middleware/error.js";
@@ -27,10 +28,17 @@ app.use(cookieParser());
 //cors => cross origin resource sharing
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.ORIGIN,
     credentials: true,
-  })
+  }),
 );
+
+//api request limit
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  legacyHeaders: false,
+  ipv6Subnet: 56,
+});
 
 //routes
 app.use(
@@ -40,7 +48,7 @@ app.use(
   orderRouter,
   NotificationRouter,
   analyticsRouter,
-  layoutRouter
+  layoutRouter,
 );
 
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {
@@ -58,6 +66,9 @@ app.all(/.*/, (req: Request, res: Response, next: NextFunction) => {
   error.statusCode = 404;
   next(error);
 });
+
+// Apply the rate limiting middleware to all requests.
+app.use(limiter);
 
 //global error middleware
 app.use(errorMiddleware);

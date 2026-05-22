@@ -100,7 +100,6 @@ const SidebarComponent = () => {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
 
-  // ✅ fix hydration flicker
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -119,7 +118,7 @@ const SidebarComponent = () => {
     }
   };
 
-  if (!mounted) return null; // ✅ prevents white flash completely
+  if (!mounted) return null;
 
   return (
     <Sidebar

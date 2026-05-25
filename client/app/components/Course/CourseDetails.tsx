@@ -46,8 +46,15 @@ const CourseDetails = ({
 
   const isPurchased =
     user && user?.courses?.find((item: any) => item._id === data._id);
+  const isCourseOwner = user?._id === data?.createdBy?._id;
 
   const handleOrder = () => {
+    // Admin/instructor cannot buy own course
+    if (isCourseOwner) {
+      router.push(`/course-access/${data._id}`);
+      return;
+    }
+
     //Already purchased → go to course
     if (isPurchased) {
       router.push(`/course-access/${data._id}`);
@@ -225,13 +232,20 @@ const CourseDetails = ({
 
                   <button
                     onClick={handleOrder}
-                    className="w-full mt-4 py-3 rounded-lg bg-teal-500 text-white font-semibold"
+                    disabled={isCourseOwner}
+                    className={`w-full mt-4 py-3 rounded-lg text-white font-semibold ${
+                      isCourseOwner
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-teal-500"
+                    }`}
                   >
-                    {isPurchased
-                      ? "Go to Course"
-                      : data.price === 0
-                        ? "Enroll for Free"
-                        : "Buy Now"}
+                    {isCourseOwner
+                      ? "Your Course"
+                      : isPurchased
+                        ? "Go to Course"
+                        : data.price === 0
+                          ? "Enroll for Free"
+                          : "Buy Now"}
                   </button>
 
                   <div className="mt-4 space-y-2">

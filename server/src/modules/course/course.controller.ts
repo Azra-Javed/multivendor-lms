@@ -1,23 +1,21 @@
-import { Request, Response, NextFunction } from "express";
+import cloudinary from "cloudinary";
+import { NextFunction, Request, Response } from "express";
+import mongoose from "mongoose";
 import { CatchAsyncError } from "../../middleware/catchAsyncErrors.js";
 import ErrorHandler from "../../utils/ErrorHandler.js";
-import cloudinary from "cloudinary";
-import { createCourse, getAllCoursesService } from "./course.services.js";
-import CourseModel from "./course.model.js";
 import { redis } from "../../utils/redis.js";
+import CourseModel from "./course.model.js";
+import { createCourse, getAllCoursesService } from "./course.services.js";
 import {
   IAddAnswerData,
   IAddAnswerToReviewData,
   IAddQuestionData,
   IAddReviewData,
 } from "./course.types.js";
-import mongoose from "mongoose";
-import path from "path";
-import ejs from "ejs";
-import sendMail from "../../utils/sendMail.js";
-import { fileURLToPath } from "url";
-import NotificationModel from "../notification/notification.model.js";
+
 import axios from "axios";
+import sendMail from "../../utils/sendMail.js";
+import NotificationModel from "../notification/notification.model.js";
 
 //@desc: upload course
 //@route: POST /api/v1/course/create-course
@@ -42,7 +40,7 @@ export const uploadCourse = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
-  }
+  },
 );
 
 //@desc: edit course
@@ -81,7 +79,7 @@ export const editCourse = CatchAsyncError(
         {
           $set: data,
         },
-        { new: true }
+        { new: true },
       );
       // update course in redis
       await redis.set(courseId?.toString(), JSON.stringify(course));
@@ -93,7 +91,7 @@ export const editCourse = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
-  }
+  },
 );
 
 //@desc: get single course withour purchasing
@@ -112,7 +110,7 @@ export const getCourse = CatchAsyncError(
         });
       } else {
         const course = await CourseModel.findById(req.params.id).select(
-          "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links"
+          "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links",
         );
 
         await redis.set(courseId, JSON.stringify(course), "EX", 604800);
@@ -125,7 +123,7 @@ export const getCourse = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
-  }
+  },
 );
 
 //@desc: get all courses withour purchasing
@@ -134,7 +132,7 @@ export const getCourses = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const courses = await CourseModel.find().select(
-        "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links"
+        "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links",
       );
       await redis.set("allCourses", JSON.stringify(courses));
       res.status(200).json({
@@ -144,7 +142,7 @@ export const getCourses = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
-  }
+  },
 );
 
 //@desc: get course content -- only for valid user
@@ -156,11 +154,11 @@ export const getCourseByUser = CatchAsyncError(
       const courseId = req.params.id;
 
       const courseExists = userCourseList?.find(
-        (course: any) => course._id.toString() === courseId
+        (course: any) => course._id.toString() === courseId,
       );
       if (!courseExists) {
         return next(
-          new ErrorHandler("You are not eligible to access this course!", 404)
+          new ErrorHandler("You are not eligible to access this course!", 404),
         );
       }
 
@@ -174,7 +172,7 @@ export const getCourseByUser = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
-  }
+  },
 );
 
 //@desc: add question in course
@@ -197,7 +195,7 @@ export const addQuestion = CatchAsyncError(
 
       //  Find course content
       const courseContent = course.courseData.find((item: any) =>
-        item._id.equals(contentId)
+        item._id.equals(contentId),
       );
       if (!courseContent) {
         return next(new ErrorHandler("Content not found", 404));
@@ -229,7 +227,7 @@ export const addQuestion = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
-  }
+  },
 );
 
 //@desc: add answer in course
@@ -256,7 +254,7 @@ export const addAnswer = CatchAsyncError(
 
       // Find course content
       const courseContent = course.courseData.find((item: any) =>
-        item._id.equals(contentId)
+        item._id.equals(contentId),
       );
       if (!courseContent) {
         return next(new ErrorHandler("Content not found", 404));
@@ -264,7 +262,7 @@ export const addAnswer = CatchAsyncError(
 
       //  Find question
       const question = courseContent.questions.find((item: any) =>
-        item._id.equals(questionId)
+        item._id.equals(questionId),
       );
       if (!question) {
         return next(new ErrorHandler("Question not found", 404));
@@ -296,14 +294,6 @@ export const addAnswer = CatchAsyncError(
           title: courseContent.title,
         };
 
-        // create __dirname in ES module
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = path.dirname(__filename);
-        const html = await ejs.renderFile(
-          path.join(__dirname, "../../mails/question-reply.ejs"),
-          data
-        );
-
         try {
           await sendMail({
             email: question.user.email,
@@ -324,7 +314,7 @@ export const addAnswer = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
-  }
+  },
 );
 
 //@desc: add review in course
@@ -337,12 +327,12 @@ export const addReview = CatchAsyncError(
 
       //check courseId alrady exists in userCourseList based on _id
       const courseExists = userCourseList?.some(
-        (course: any) => course._id.toString() === courseId?.toString()
+        (course: any) => course._id.toString() === courseId?.toString(),
       );
 
       if (!courseExists) {
         return next(
-          new ErrorHandler("You are not eligible to access this course", 400)
+          new ErrorHandler("You are not eligible to access this course", 400),
         );
       }
 
@@ -362,7 +352,7 @@ export const addReview = CatchAsyncError(
       //calculate average rating
       const total = course.reviews.reduce(
         (sum: number, rev: any) => sum + rev.rating,
-        0
+        0,
       );
       course.ratings = total / course.reviews.length;
 
@@ -390,7 +380,7 @@ export const addReview = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
-  }
+  },
 );
 
 //@desc: add reply to review in course
@@ -407,7 +397,7 @@ export const addReplyToReview = CatchAsyncError(
       }
 
       const review = course?.reviews?.find(
-        (rev: any) => rev._id.toString() === reviewId
+        (rev: any) => rev._id.toString() === reviewId,
       );
       if (!review) {
         return next(new ErrorHandler("Review not found", 404));
@@ -431,7 +421,7 @@ export const addReplyToReview = CatchAsyncError(
         courseId.toString(),
         JSON.stringify(course),
         "EX",
-        604800
+        604800,
       );
 
       res.status(200).json({
@@ -441,7 +431,7 @@ export const addReplyToReview = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
-  }
+  },
 );
 
 //@desc: get all courses -- only for admins
@@ -453,7 +443,7 @@ export const getAllCourses = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
-  }
+  },
 );
 
 //@desc: delete course -- only for admins
@@ -481,7 +471,7 @@ export const deleteCourse = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
-  }
+  },
 );
 
 //@desc: generate video url
@@ -499,11 +489,11 @@ export const generateVideoUrl = CatchAsyncError(
             "Content-Type": "application/json",
             Authorization: `Apisecret ${process.env.VDOCIPHER_API_SECRET}`,
           },
-        }
+        },
       );
       res.json(response.data);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
-  }
+  },
 );

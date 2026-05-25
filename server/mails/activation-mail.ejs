@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Activate Your Account - SkillBridge LMS</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f3f4f6;
+        font-family: Arial, sans-serif;
+      }
+
+      .wrapper {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      }
+
+      .header {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: #fff;
+        padding: 25px;
+        text-align: center;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 22px;
+      }
+
+      .content {
+        padding: 30px;
+        color: #333;
+      }
+
+      .code-box {
+        margin: 20px 0;
+        padding: 15px;
+        background: #eff6ff;
+        border: 1px dashed #2563eb;
+        text-align: center;
+        font-size: 26px;
+        font-weight: bold;
+        letter-spacing: 6px;
+        color: #1d4ed8;
+        border-radius: 10px;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 15px;
+        font-size: 12px;
+        color: #6b7280;
+        background: #f9fafb;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <div class="header">
+        <h1>SkillBridge LMS</h1>
+      </div>
+
+      <div class="content">
+        <h2>Welcome, <%= user.name %> 👋</h2>
+
+        <p>To activate your account, use the verification code below:</p>
+
+        <div class="code-box"><%= activationCode %></div>
+
+        <p>This code will expire in <strong>5 minutes</strong>.</p>
+        <p>If you didn’t request this, you can ignore this email.</p>
+      </div>
+
+      <div class="footer">
+        © <%= new Date().getFullYear() %> SkillBridge LMS
+      </div>
+    </div>
+  </body>
+</html>

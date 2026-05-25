@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Reply - SkillBridge LMS</title>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f3f4f6;
+        font-family: Arial, sans-serif;
+      }
+
+      .wrapper {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      }
+
+      .header {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        text-align: center;
+        padding: 25px;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 20px;
+      }
+
+      .content {
+        padding: 30px;
+        color: #333;
+        line-height: 1.6;
+      }
+
+      .highlight {
+        background: #fffbeb;
+        padding: 10px;
+        border-left: 4px solid #f59e0b;
+        border-radius: 6px;
+        margin-top: 10px;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 15px;
+        font-size: 12px;
+        color: #6b7280;
+        background: #f9fafb;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <div class="header">
+        <h1>💬 New Reply on Your Question</h1>
+      </div>
+
+      <div class="content">
+        <p>Hi <strong><%= name %></strong>,</p>
+
+        <p>Someone replied to your question in the course:</p>
+
+        <div class="highlight">
+          <strong><%= title %></strong>
+        </div>
+
+        <p>
+          Visit your dashboard to continue the discussion and view the full
+          reply.
+        </p>
+      </div>
+
+      <div class="footer">
+        © <%= new Date().getFullYear() %> SkillBridge LMS
+      </div>
+    </div>
+  </body>
+</html>

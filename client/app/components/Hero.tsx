@@ -19,7 +19,7 @@ const Hero = () => {
   if (isLoading) return <Loader />;
 
   return (
-    <section className="w-full min-h-[92vh]  1000px:min-h-[calc(100vh-64px)] flex flex-col 1000px:flex-row items-center justify-center max-w-6xl mx-auto px-6 sm:px-6 md:px-8 1000px:px-10 py-10 1000px:py-0 gap-8 lg:gap-14 overflow-hidden">
+    <section className="w-full min-h-[92vh]  1000px:min-h-[calc(100vh-64px)] flex flex-col 1000px:flex-row items-center justify-center max-w-6xl mx-auto px-6 sm:px-6 md:px-8 1000px:px-10 py-10 1000px:py-0 gap-8 lg:gap-18 overflow-hidden">
       {/* IMAGE SECTION */}
       <div className="relative w-full 1000px:w-[40%] flex justify-center items-center">
         {/* Animated Background */}

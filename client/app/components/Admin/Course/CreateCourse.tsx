@@ -8,9 +8,11 @@ import { useCreateCourseMutation } from "@/redux/features/courses/coursesApi";
 import toast from "react-hot-toast";
 import { redirect } from "next/navigation";
 
-type Props = {};
+type Props = {
+  isCollapsed?: boolean;
+};
 
-const CreateCourse = (props: Props) => {
+const CreateCourse = ({ isCollapsed }: Props) => {
   const [createCourse, { isSuccess, isLoading, error }] =
     useCreateCourseMutation();
   const [active, setActive] = useState(0);
@@ -101,12 +103,20 @@ const CreateCourse = (props: Props) => {
     }
   }, [isSuccess, error]);
 
+  // right sidebar width mirrors the freed space when left sidebar collapses
+  const rightSidebarWidth = isCollapsed ? "lg:w-[240px]" : "lg:w-[200px]";
+  const mainContentWidth = isCollapsed
+    ? "800px:w-[calc(100%-200px)] lg:w-[calc(100%-240px)]"
+    : "800px:w-[calc(100%-200px)]";
+
   return (
     <div className="w-full flex min-h-screen">
-      {/* Main content — reserves 200px for the right sidebar */}
-      <div className="w-full 800px:w-[calc(100%-200px)] mt-[64px]">
+      {/* Main content */}
+      <div
+        className={`w-full ${mainContentWidth} mt-[64px] transition-all duration-300`}
+      >
         {/* Page header */}
-        <div className="px-8 py-5 border-b border-gray-200 dark:border-white/10">
+        <div className="px-6 py-5 border-b border-gray-200 dark:border-white/10">
           <span
             className="inline-flex items-center gap-2 text-[11px] font-semibold
                            tracking-[0.18em] uppercase text-teal-500"
@@ -120,7 +130,7 @@ const CreateCourse = (props: Props) => {
         </div>
 
         {/* Step content */}
-        <div className="px-8 py-6">
+        <div className="px-6 py-6">
           {active === 0 && (
             <CourseInformation
               courseInfo={courseInfo}
@@ -159,12 +169,14 @@ const CreateCourse = (props: Props) => {
         </div>
       </div>
 
-      {/* Right sidebar — fixed 200px wide */}
+      {/* Right sidebar */}
       <div
-        className="hidden 800px:block w-[200px] fixed right-0 top-[64px]
-                      h-[calc(100vh-64px)]
-                      border-l border-gray-200 dark:border-white/10
-                      bg-white dark:bg-slate-900 overflow-y-auto"
+        className={`hidden 800px:block fixed right-0 top-[64px]
+                    h-[calc(100vh-64px)]
+                    border-l border-gray-200 dark:border-white/10
+                    bg-white dark:bg-slate-900 overflow-y-auto
+                    transition-all duration-300
+                    w-[200px] ${rightSidebarWidth}`}
       >
         <CourseOptions active={active} setActive={setActive} />
       </div>

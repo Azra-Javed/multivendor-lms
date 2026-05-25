@@ -1,32 +1,40 @@
 "use client";
+
+import EditHero from "@/app/components/Admin/Customization/EditHero";
 import DashboardHeader from "@/app/components/Admin/DashboardHeader";
+import AdminSidebar from "@/app/components/Admin/Sidebar/AdminSidebar";
 import AdminProtected from "@/app/hooks/adminProtected";
 import Heading from "@/app/utils/Heading";
-import EditHero from "../../components/Admin/Customization/EditHero";
-import AdminSidebar from "../../components/Admin/Sidebar/AdminSidebar";
+import { useState } from "react";
 
 type Props = {};
 
 const page = (props: Props) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
-    <div>
-      <AdminProtected>
+    <AdminProtected>
+      <div>
         <Heading
-          title="Elearning - Admin"
+          title="Elearning- Admin"
           description="ELearning is a platform for students to learn and get help from teachers"
           keywords="Programming,MERN,Redux,Machine Learning"
         />
-        <div className="flex h-screen">
-          <div className="1500px:w-[16%] w-1/5">
-            <AdminSidebar />
-          </div>
-          <div className="w-[85%]">
+
+        <div className="flex w-full">
+          <AdminSidebar onCollapsedChange={setIsCollapsed} />
+
+          <div
+            className={`flex-1 transition-all duration-300 min-w-0 ${
+              isCollapsed ? "ml-[52px] lg:ml-[72px]" : "ml-[52px] lg:ml-[255px]"
+            }`}
+          >
             <DashboardHeader />
             <EditHero />
           </div>
         </div>
-      </AdminProtected>
-    </div>
+      </div>
+    </AdminProtected>
   );
 };
 

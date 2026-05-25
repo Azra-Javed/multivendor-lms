@@ -1,14 +1,14 @@
 import { useGetOrdersAnalyticsQuery } from "@/redux/features/analytics/analyticsApi";
+
 import {
-  LineChart,
-  Line,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
+  Area,
+  AreaChart,
 } from "recharts";
+
 import Loader from "../../Loader/Loader";
 
 type Props = {
@@ -22,21 +22,25 @@ const OrdersAnalytics = ({ isDashboard }: Props) => {
 
   data &&
     data.orders.last12Months.forEach((item: any) => {
-      analyticsData.push({ name: item.month, Count: item.count });
+      analyticsData.push({
+        name: item.month,
+        count: item.count,
+      });
     });
 
   if (isLoading) return <Loader />;
 
   return (
-    <div className={`${isDashboard ? "h-[35vh]" : "mt-22"}`}>
+    <div className={`${isDashboard ? "pb-5" : "mt-18 md:mt-22 px-3"}`}>
       {/* Header */}
-      <div className="px-6 pt-5 pb-2">
+      <div className="px-3 sm:px-6 pt-5 pb-2">
         <h2
           className={`font-semibold font-Poppins text-gray-900 dark:text-white
-                        ${isDashboard ? "text-base" : "text-2xl"}`}
+          ${isDashboard ? "text-base" : "text-2xl"}`}
         >
           Orders Analytics
         </h2>
+
         {!isDashboard && (
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 font-Poppins mb-10">
             Last 12 months analytics data
@@ -47,28 +51,26 @@ const OrdersAnalytics = ({ isDashboard }: Props) => {
       {/* Chart */}
       <div
         className={`w-full flex items-center justify-center
-                       ${isDashboard ? "h-[40vh]" : "h-[58vh]"}`}
+        ${isDashboard ? "h-[40vh]" : "h-[55vh]"}`}
       >
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart
+          <AreaChart
             data={analyticsData}
-            margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
+            margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
           >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="rgba(148,163,184,0.15)"
-            />
             <XAxis
               dataKey="name"
               tick={{ fontSize: 12, fill: "#94a3b8" }}
               axisLine={false}
               tickLine={false}
             />
+
             <YAxis
               tick={{ fontSize: 12, fill: "#94a3b8" }}
               axisLine={false}
               tickLine={false}
             />
+
             <Tooltip
               contentStyle={{
                 background: "#1e293b",
@@ -78,18 +80,16 @@ const OrdersAnalytics = ({ isDashboard }: Props) => {
                 fontSize: "13px",
               }}
             />
-            {!isDashboard && (
-              <Legend wrapperStyle={{ fontSize: "13px", color: "#94a3b8" }} />
-            )}
-            <Line
+
+            <Area
               type="monotone"
-              dataKey="Count"
+              dataKey="count"
               stroke="#14b8a6"
+              fill="#14b8a6"
+              fillOpacity={0.15}
               strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 5, fill: "#14b8a6" }}
             />
-          </LineChart>
+          </AreaChart>
         </ResponsiveContainer>
       </div>
     </div>

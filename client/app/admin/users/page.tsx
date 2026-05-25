@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import AdminProtected from "@/app/hooks/adminProtected";
 import Heading from "@/app/utils/Heading";
 import AdminSidebar from "@/app/components/Admin/Sidebar/AdminSidebar";
@@ -7,6 +10,8 @@ import DashboardHeader from "@/app/components/Admin/DashboardHeader";
 type Props = {};
 
 const page = (props: Props) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
     <AdminProtected>
       <div>
@@ -16,13 +21,16 @@ const page = (props: Props) => {
           keywords="Programming,MERN,Redux,Machine Learning"
         />
 
-        <div className="flex h-screen">
-          <div className="1500px:w-[16%] w-1/5">
-            <AdminSidebar />
-          </div>
-          <div className="w-[85%]">
+        <div className="flex w-full">
+          <AdminSidebar onCollapsedChange={setIsCollapsed} />
+
+          <div
+            className={`flex-1 transition-all duration-300 min-w-0 ${
+              isCollapsed ? "ml-[52px] lg:ml-[72px]" : "ml-[52px] lg:ml-[255px]"
+            }`}
+          >
             <DashboardHeader />
-            <AllUsers />
+            <AllUsers isCollapsed={isCollapsed} />
           </div>
         </div>
       </div>

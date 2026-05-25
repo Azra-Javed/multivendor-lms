@@ -26,9 +26,9 @@ const UserAnalytics = ({ isDashboard }: Props) => {
   if (isLoading) return <Loader />;
 
   return (
-    <div className={`${isDashboard ? "pb-5" : "mt-22"}`}>
+    <div className={`${isDashboard ? "pb-5" : "mt-18 md:mt-22 px-3"}`}>
       {/* Header */}
-      <div className="px-6 pt-5 pb-2">
+      <div className="px-3 sm:px-6 pt-5 pb-2">
         <h2
           className={`font-semibold font-Poppins text-gray-900 dark:text-white
                         ${isDashboard ? "text-base" : "text-2xl"}`}

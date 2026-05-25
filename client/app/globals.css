@@ -30,7 +30,14 @@ html.dark {
   --font-Poppins: var(--font-Poppins);
   --font-Josefin: var(--font-Josefin);
 
-  /* Breakpoints */
+  /* Default Tailwind breakpoints */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  /* Your custom breakpoints */
   --breakpoint-400px: 400px;
   --breakpoint-800px: 800px;
   --breakpoint-1000px: 1000px;

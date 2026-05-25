@@ -170,7 +170,7 @@ const EditHero = (props: Props) => {
     data?.layout?.banner?.image?.url !== image;
 
   return (
-    <div className="w-full min-h-screen p-8 mt-15">
+    <div className="w-full min-h-screen p-6 sm:p-8  mt-15">
       {/* Page header */}
       <div className="mb-8">
         <span className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.18em] uppercase text-teal-500">

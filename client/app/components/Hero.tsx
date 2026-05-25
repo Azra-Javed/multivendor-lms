@@ -19,75 +19,197 @@ const Hero = () => {
   if (isLoading) return <Loader />;
 
   return (
-    <section className="w-full min-h-[92vh] 1000px:min-h-[calc(100vh-64px)] flex flex-col 1000px:flex-row items-center max-w-6xl mx-auto px-6 pt-12 1000px:py-0 gap-14">
-      {/* Image */}
+    <section className="w-full min-h-[92vh]  1000px:min-h-[calc(100vh-64px)] flex flex-col 1000px:flex-row items-center justify-center max-w-6xl mx-auto px-6 sm:px-6 md:px-8 1000px:px-10 py-10 1000px:py-0 gap-8 lg:gap-14 overflow-hidden">
+      {/* IMAGE SECTION */}
       <div className="relative w-full 1000px:w-[40%] flex justify-center items-center">
-        {/* Decorative background */}
-        <div className="absolute -z-10 w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] 1000px:w-[520px] 1000px:h-[520px] 1500px:w-[620px] 1500px:h-[620px] rounded-full hero_animation "></div>
+        {/* Animated Background */}
+        <div
+          className="
+            absolute 
+            -z-10
+            w-[180px] h-[180px]
+            sm:w-[240px] sm:h-[240px]
+            md:w-[280px] md:h-[280px]
+            1000px:w-[410px] 1000px:h-[410px]
+           
+            rounded-full hero_animation
+          "
+        />
+
         <Image
           src={data?.layout?.banner?.image?.url}
           alt="banner"
           width={400}
           height={400}
-          className="object-contain max-h-[360px] 1000px:max-h-[480px] relative z-10"
+          priority
+          className="
+            object-contain
+            w-[220px]
+            sm:w-[280px]
+            md:w-[320px]
+           
+            1000px:w-[420px]
+            h-auto
+            relative
+            z-10
+          "
         />
       </div>
 
-      {/* Content */}
-      <div className="w-full 1000px:w-[60%] text-center 1000px:text-left flex flex-col justify-center">
-        <h1 className="text-3xl sm:text-4xl 1000px:text-5xl font-semibold text-gray-900 dark:text-white leading-tight">
+      {/* CONTENT SECTION */}
+      <div className="w-full 1000px:w-[60%] flex flex-col justify-center text-center 1000px:text-left">
+        {/* HEADING */}
+        <h1
+          className="
+            font-semibold
+            text-[24px]
+            leading-[34px]
+            sm:text-[32px]
+            sm:leading-[42px]
+          
+            1000px:text-4xl
+            1000px:leading-tight
+            text-gray-900
+            dark:text-white
+            md:mt-5
+            1000px:mt-0
+          "
+        >
           {data?.layout?.banner?.title}
         </h1>
 
-        <p className="mt-5 text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto 1000px:mx-0">
+        {/* SUBTITLE */}
+        <p
+          className="
+            mt-5
+            text-[14px]
+            sm:text-[15px]
+            md:text-lg
+            leading-[24px]
+            text-gray-600
+            dark:text-gray-300
+            max-w-xl
+            mx-auto
+            1000px:mx-0
+          "
+        >
           {data?.layout?.banner?.subTitle}
         </p>
 
-        {/* Search */}
-        <div className="mt-8 w-full max-w-lg relative mx-auto 1000px:mx-0">
-          <input
-            type="text"
-            placeholder="Search courses"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-[44px] rounded-md border px-4 pr-12 text-sm outline-none dark:bg-slate-800 dark:border-white/10 dark:text-white"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSearch();
-              }
-            }}
-          />
-          <button
-            onClick={handleSearch}
-            className="absolute right-1 top-1 h-[36px] w-[36px] rounded-md bg-teal-500 flex items-center justify-center"
-          >
-            <BiSearch className="text-white" size={18} />
-          </button>
+        {/* SEARCH BAR */}
+        <div className="w-full flex justify-center 1000px:justify-start">
+          <div className="relative md:mt-8 mt-4 w-full sm:w-[90%] md:w-[80%] 1000px:w-[88%]">
+            <input
+              type="text"
+              placeholder="Search Courses..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearch();
+                }
+              }}
+              className="
+                bg-transparent
+                border
+                
+                dark:border-white/10
+                dark:bg-slate-800
+                dark:text-white
+                rounded-[8px]
+                p-3
+                pr-14
+                w-full
+                h-[46px]
+                sm:h-[50px]
+                outline-none
+                text-sm
+                sm:text-base
+              "
+            />
+
+            <button
+              onClick={handleSearch}
+              className="
+                absolute
+                right-1
+                top-1
+                h-[38px]
+                w-[38px]
+                sm:h-[42px]
+                sm:w-[42px]
+                bg-[#37a39a]
+                rounded-md
+                flex
+                items-center
+                justify-center
+                hover:bg-[#2d8f87]
+                transition
+              "
+            >
+              <BiSearch className="text-white text-[20px]" />
+            </button>
+          </div>
         </div>
 
-        {/* Trust */}
-        <div className="mt-10 flex items-center justify-center 1000px:justify-start gap-3">
-          <div className="flex -space-x-3">
+        {/* TRUSTED USERS */}
+        <div
+          className="
+            mt-8
+            flex
+            flex-col
+            sm:flex-row
+            items-center
+            justify-center
+            1000px:justify-start
+            gap-4
+          "
+        >
+          {/* USERS IMAGES */}
+          <div className="flex items-center -space-x-3">
             <Image
               src={require("../../public/assets/client-1.png")}
-              alt="c1"
-              className="rounded-full"
+              alt="client-1"
+              width={48}
+              height={48}
+              className="rounded-full border-2 border-white dark:border-slate-900 w-10 h-10 sm:w-11 sm:h-11"
             />
+
             <Image
               src={require("../../public/assets/client-2.png")}
-              alt="c2"
-              className="rounded-full"
+              alt="client-2"
+              width={48}
+              height={48}
+              className="rounded-full border-2 border-white dark:border-slate-900 w-10 h-10 sm:w-11 sm:h-11"
             />
+
             <Image
               src={require("../../public/assets/client-3.png")}
-              alt="c3"
-              className="rounded-full"
+              alt="client-3"
+              width={48}
+              height={48}
+              className="rounded-full border-2 border-white dark:border-slate-900 w-10 h-10 sm:w-11 sm:h-11"
             />
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
+
+          {/* TEXT */}
+          <p
+            className="
+              text-center
+              1000px:text-left
+              text-sm
+              sm:text-base
+              text-gray-600
+              dark:text-gray-300
+              leading-[24px]
+            "
+          >
             500K+ trusted users ·{" "}
-            <Link href="/courses" className="text-teal-500 font-medium">
-              View courses
+            <Link
+              href="/courses"
+              className="text-[#37a39a] font-[600] hover:underline"
+            >
+              View Courses
             </Link>
           </p>
         </div>

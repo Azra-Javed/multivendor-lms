@@ -105,24 +105,26 @@ const AllInvoices = ({ isDashboard }: Props) => {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row: any, index: number) => (
-              <tr
-                key={index}
-                className="border-b border-white/[0.06]
-                           hover:bg-white/[0.03]
-                           transition-colors duration-150 last:border-0"
-              >
-                <td className="py-3 px-3 text-sm text-white font-medium truncate max-w-[100px]">
-                  {row.userName}
-                </td>
-                <td className="py-3 px-3 text-sm text-teal-400 font-semibold whitespace-nowrap">
-                  {row.price}
-                </td>
-                <td className="py-3 px-3 text-xs text-gray-500 whitespace-nowrap">
-                  {row.created_at}
-                </td>
-              </tr>
-            ))}
+            {(isDashboard ? rows.slice(0, 5) : rows).map(
+              (row: any, index: number) => (
+                <tr
+                  key={index}
+                  className="border-b border-white/[0.06]
+                 hover:bg-white/[0.03]
+                 transition-colors duration-150 last:border-0"
+                >
+                  <td className="py-3 px-3 text-[12px] dark:text-[#e2e8f0] text-[#1e293b] truncate max-w-[100px]">
+                    {row.userName}
+                  </td>
+                  <td className="py-3 px-3 text-sm text-teal-400 font-semibold whitespace-nowrap">
+                    {row.price}
+                  </td>
+                  <td className="py-3 px-3 text-xs text-gray-500 whitespace-nowrap">
+                    {row.created_at}
+                  </td>
+                </tr>
+              ),
+            )}
 
             {rows.length === 0 && (
               <tr>

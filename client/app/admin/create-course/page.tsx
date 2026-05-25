@@ -1,30 +1,40 @@
 "use client";
-import AdminSidebar from "../../components/Admin/Sidebar/AdminSidebar";
-import CreateCourse from "../../components/Admin/Course/CreateCourse";
-import Heading from "@/app/utils/Heading";
+
+import CreateCourse from "@/app/components/Admin/Course/CreateCourse";
 import DashboardHeader from "@/app/components/Admin/DashboardHeader";
+import AdminSidebar from "@/app/components/Admin/Sidebar/AdminSidebar";
+import AdminProtected from "@/app/hooks/adminProtected";
+import Heading from "@/app/utils/Heading";
+import { useState } from "react";
 
 type Props = {};
 
 const page = (props: Props) => {
-  return (
-    <>
-      <Heading
-        title="Elearning - Admin"
-        description="ELearning is a platform for students to learn and get help from teachers"
-        keywords="Prograaming,MERN,Redux,Machine Learning"
-      />
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
-      <div className="flex">
-        <div className="1500px:w-[16%] w-1/5">
-          <AdminSidebar />
-        </div>
-        <div className="w-[85%]">
-          <DashboardHeader />
-          <CreateCourse />
+  return (
+    <AdminProtected>
+      <div>
+        <Heading
+          title="Elearning- Admin"
+          description="ELearning is a platform for students to learn and get help from teachers"
+          keywords="Programming,MERN,Redux,Machine Learning"
+        />
+
+        <div className="flex w-full">
+          <AdminSidebar onCollapsedChange={setIsCollapsed} />
+
+          <div
+            className={`flex-1 transition-all duration-300 min-w-0 ${
+              isCollapsed ? "ml-[52px] lg:ml-[72px]" : "ml-[52px] lg:ml-[255px]"
+            }`}
+          >
+            <DashboardHeader />
+            <CreateCourse isCollapsed={isCollapsed} />
+          </div>
         </div>
       </div>
-    </>
+    </AdminProtected>
   );
 };
 

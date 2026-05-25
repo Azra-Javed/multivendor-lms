@@ -1,10 +1,12 @@
 "use client";
+
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import {
   AiOutlineEye,
   AiOutlineEyeInvisible,
   AiFillGithub,
+  AiOutlineClose,
 } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
 import { useEffect, useState } from "react";
@@ -34,15 +36,10 @@ const Login = ({ setRoute, setOpen, refetch }: Props) => {
     if (isSuccess) {
       toast.success("Login Successfully!");
       setOpen(false);
-      if (refetch) {
-        refetch();
-      }
+      if (refetch) refetch();
     }
-    if (error) {
-      if ("data" in error) {
-        const errorData = error as any;
-        toast.error(errorData.data.message);
-      }
+    if (error && "data" in error) {
+      toast.error((error as any).data.message);
     }
   }, [isSuccess, error, setOpen, refetch]);
 
@@ -63,118 +60,133 @@ const Login = ({ setRoute, setOpen, refetch }: Props) => {
         callbackUrl: "/",
       });
 
+      // only show error if actual error exists
       if (result?.error) {
-        toast.error(`${provider} login failed. Please try again.`);
-        console.error(`${provider} auth error:`, result.error);
-      } else if (result?.ok) {
-        toast.success(`Logged in with ${provider} successfully!`);
-        setOpen(false);
-        if (refetch) {
-          refetch();
-        }
+        toast.error(`${provider} login failed`);
+        return;
       }
-    } catch (error) {
-      console.error(`${provider} authentication error:`, error);
-      toast.error(`Failed to authenticate with ${provider}`);
+
+      // success
+      if (result?.ok || result?.url) {
+        toast.success(`Logged in with ${provider}`);
+        setOpen(false);
+        refetch?.();
+      }
+    } catch {
+      toast.error(`Failed to login with ${provider}`);
     }
   };
 
   return (
-    <>
-      <div className="w-full">
-        <h1 className={`${styles.title}`}>Login with Elearning</h1>
-        <form onSubmit={handleSubmit}>
-          <label className={`${styles.label}`} htmlFor="email">
+    <div className="w-full px-4 sm:px-6 py-5 sm:py-6 relative">
+      {/* CLOSE BUTTON */}
+      <button
+        onClick={() => setOpen(false)}
+        className="absolute top-3 right-3 text-gray-500 hover:text-black dark:hover:text-white"
+      >
+        <AiOutlineClose size={20} />
+      </button>
+
+      {/* TITLE */}
+      <h1
+        className={`${styles.title} text-center sm:text-left text-lg sm:text-xl mb-5`}
+      >
+        Login with Elearning
+      </h1>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* EMAIL */}
+        <div>
+          <label className={`${styles.label} text-xs sm:text-sm`}>
             Enter your Email
           </label>
+
           <input
             type="email"
             name="email"
             value={values.email}
             onChange={handleChange}
-            id="email"
             placeholder="loginmail@gmail.com"
-            className={`${errors.email && touched.email && "border-red-500"} ${
-              styles.input
-            }`}
+            className={`${styles.input} text-sm sm:text-base`}
           />
-          {errors.email && touched.email && (
-            <span className="text-red-500 pt-2 block">{errors.email}</span>
-          )}
-          <div className="w-full mt-5 relative mb-1">
-            <label className={`${styles.label}`} htmlFor="password">
-              Enter your Password
-            </label>
-            <input
-              type={!show ? "password" : "text"}
-              name="password"
-              value={values.password}
-              onChange={handleChange}
-              id="password"
-              placeholder="password!@%"
-              className={`${
-                errors.password && touched.password && "border-red-500"
-              } ${styles.input}`}
-            />
-            {!show ? (
-              <AiOutlineEyeInvisible
-                className="absolute bottom-3 right-2 z-1 cursor-pointer dark:text-white text-black"
-                size={20}
-                onClick={() => setShow(true)}
-              />
-            ) : (
-              <AiOutlineEye
-                className="absolute bottom-3 right-2 z-1 cursor-pointer dark:text-white text-black"
-                size={20}
-                onClick={() => setShow(false)}
-              />
-            )}
-            {errors.password && touched.password && (
-              <span className="text-red-500 pt-2 block">{errors.password}</span>
-            )}
-          </div>
 
-          <div className="w-full mt-5">
-            <input type="submit" value="Login" className={`${styles.button}`} />
-          </div>
-          <br />
-          <h5 className="text-center pt-4 font-Poppins text-[14px] text-black dark:text-white">
-            or join with
-          </h5>
-          <div className="flex items-center justify-center my-3 gap-4">
-            <button
-              type="button"
-              onClick={() => handleSocialAuth("google")}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
-              aria-label="Sign in with Google"
-            >
-              <FcGoogle size={30} className="cursor-pointer" />
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSocialAuth("github")}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
-              aria-label="Sign in with GitHub"
-            >
-              <AiFillGithub
-                size={30}
-                className="cursor-pointer dark:text-white text-black"
-              />
-            </button>
-          </div>
-          <h5 className="text-center pt-4 font-Poppins text-[14px] text-black dark:text-white">
-            Not have any account?{" "}
-            <span
-              className="text-[#2190ff] pl-1 cursor-pointer hover:underline"
-              onClick={() => setRoute("Sign-Up")}
-            >
-              Sign up
+          {errors.email && touched.email && (
+            <span className="text-red-500 text-[11px] sm:text-sm">
+              {errors.email}
             </span>
-          </h5>
-          <br />
-        </form>
-      </div>
-    </>
+          )}
+        </div>
+
+        {/* PASSWORD */}
+        <div className="relative">
+          <label className={`${styles.label} text-xs sm:text-sm`}>
+            Enter your Password
+          </label>
+
+          <input
+            type={show ? "text" : "password"}
+            name="password"
+            value={values.password}
+            onChange={handleChange}
+            placeholder="password"
+            className={`${styles.input} pr-10 text-sm sm:text-base`}
+          />
+
+          {show ? (
+            <AiOutlineEye
+              className="absolute bottom-3 right-3 cursor-pointer"
+              size={18}
+              onClick={() => setShow(false)}
+            />
+          ) : (
+            <AiOutlineEyeInvisible
+              className="absolute bottom-3 right-3 cursor-pointer"
+              size={18}
+              onClick={() => setShow(true)}
+            />
+          )}
+
+          {errors.password && touched.password && (
+            <span className="text-red-500 text-[11px] sm:text-sm">
+              {errors.password}
+            </span>
+          )}
+        </div>
+
+        {/* BUTTON */}
+        <input
+          type="submit"
+          value="Login"
+          className={`${styles.button} text-sm sm:text-base`}
+        />
+
+        {/* SOCIAL */}
+        <h5 className="text-center text-[12px] sm:text-sm text-black dark:text-white">
+          or join with
+        </h5>
+
+        <div className="flex justify-center gap-4">
+          <button type="button" onClick={() => handleSocialAuth("google")}>
+            <FcGoogle size={26} />
+          </button>
+
+          <button type="button" onClick={() => handleSocialAuth("github")}>
+            <AiFillGithub size={26} />
+          </button>
+        </div>
+
+        {/* SIGNUP */}
+        <h5 className="text-center text-[12px] sm:text-sm text-black dark:text-white">
+          Not have an account?{" "}
+          <span
+            className="text-[#2190ff] cursor-pointer"
+            onClick={() => setRoute("Sign-Up")}
+          >
+            Sign up
+          </span>
+        </h5>
+      </form>
+    </div>
   );
 };
 

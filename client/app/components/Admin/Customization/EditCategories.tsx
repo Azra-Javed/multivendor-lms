@@ -74,8 +74,9 @@ const EditCategories = (props: Props) => {
   if (isLoading) return <Loader />;
 
   return (
-    <div className="w-[90%] 800px:w-[70%] mx-auto py-10 mt-15">
+    <div className="w-full min-h-screen p-6 sm:p-8  mt-15">
       {/* Page header */}
+
       <div className="mb-8">
         <span className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.18em] uppercase text-teal-500">
           <span className="w-5 h-px bg-teal-500 inline-block" />

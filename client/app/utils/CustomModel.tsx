@@ -25,7 +25,29 @@ const CustomModel = ({
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[450px] bg-white dark:bg-slate-900 rounded-[8px] shadow p-4 outline-none z-999999">
+        <Box
+          className="
+    absolute
+    top-1/2
+    left-1/2
+    -translate-x-1/2
+    -translate-y-1/2
+
+    w-[90%] 
+    sm:w-[420px] 
+    md:w-[450px]
+
+    max-h-[90vh]
+    overflow-y-auto
+
+    bg-white dark:bg-slate-900
+    rounded-[8px]
+    shadow
+    p-4
+    outline-none
+    z-[999999]
+  "
+        >
           <Component setOpen={setOpen} setRoute={setRoute} refetch={refetch} />
         </Box>
       </Modal>

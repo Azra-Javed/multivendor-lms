@@ -1,38 +1,43 @@
 "use client";
-import React from "react";
-import AdminSidebar from "../../../components/Admin/Sidebar/AdminSidebar";
-import EditCourse from "../../../components/Admin/Course/EditCourse";
-import Heading from "@/app/utils/Heading";
+
+import EditCourse from "@/app/components/Admin/Course/EditCourse";
 import DashboardHeader from "@/app/components/Admin/DashboardHeader";
+import AdminSidebar from "@/app/components/Admin/Sidebar/AdminSidebar";
+import AdminProtected from "@/app/hooks/adminProtected";
+import Heading from "@/app/utils/Heading";
+import { use, useState } from "react";
 
 type Params = {
   id: string;
 };
 
 const Page = ({ params }: { params: Promise<Params> }) => {
-  const { id } = React.use<Params>(params);
-
-  console.log("page id", id);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { id } = use(params);
 
   return (
-    <>
-      <Heading
-        title="Elearning - Admin"
-        description="ELearning is a platform for students to learn and get help from teachers"
-        keywords="Programming,MERN,Redux,Machine Learning"
-      />
+    <AdminProtected>
+      <div>
+        <Heading
+          title="Elearning- Admin"
+          description="ELearning is a platform for students to learn and get help from teachers"
+          keywords="Programming,MERN,Redux,Machine Learning"
+        />
 
-      <div className="flex">
-        <div className="1500px:w-[16%] w-1/5">
-          <AdminSidebar />
-        </div>
+        <div className="flex w-full">
+          <AdminSidebar onCollapsedChange={setIsCollapsed} />
 
-        <div className="w-[85%]">
-          <DashboardHeader />
-          <EditCourse id={id} />
+          <div
+            className={`flex-1 transition-all duration-300 min-w-0 ${
+              isCollapsed ? "ml-[52px] lg:ml-[72px]" : "ml-[52px] lg:ml-[255px]"
+            }`}
+          >
+            <DashboardHeader />
+            <EditCourse isCollapsed={isCollapsed} id={id} />
+          </div>
         </div>
       </div>
-    </>
+    </AdminProtected>
   );
 };
 

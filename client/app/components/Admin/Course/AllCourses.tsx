@@ -1,4 +1,5 @@
 "use client";
+
 import {
   useDeleteCourseMutation,
   useGetAllCoursesQuery,
@@ -14,11 +15,15 @@ import { format } from "timeago.js";
 import Loader from "../../Loader/Loader";
 import StyledDataGridContainer from "../Analytics/StyledDataGridContainer";
 
-type Props = {};
+type Props = {
+  isCollapsed: boolean;
+};
 
-const AllCourses = (props: Props) => {
+const AllCourses = ({ isCollapsed }: Props) => {
   const [open, setOpen] = useState(false);
   const [courseId, setCourseId] = useState("");
+
+  const sidebarWidth = isCollapsed ? 80 : 260;
 
   const { isLoading, data, refetch } = useGetAllCoursesQuery(
     {},
@@ -39,7 +44,7 @@ const AllCourses = (props: Props) => {
       flex: 0.2,
       renderCell: (params: any) => (
         <Link href={`/admin/edit-course/${params.row.id}`}>
-          <FiEdit2 className="dark:text-white text-black mt-1" size={20} />
+          <FiEdit2 className="dark:text-white text-black mt-4" size={20} />
         </Link>
       ),
     },
@@ -62,16 +67,15 @@ const AllCourses = (props: Props) => {
 
   const rows: any = [];
 
-  data &&
-    data.courses.forEach((item: any) => {
-      rows.push({
-        id: item._id,
-        title: item.name,
-        ratings: Number(item.ratings).toFixed(2),
-        purchased: item.purchased,
-        created_at: format(item.createdAt),
-      });
+  data?.courses?.forEach((item: any) => {
+    rows.push({
+      id: item._id,
+      title: item.name,
+      ratings: Number(item.ratings).toFixed(2),
+      purchased: item.purchased,
+      created_at: format(item.createdAt),
     });
+  });
 
   useEffect(() => {
     if (isSuccess) {
@@ -89,12 +93,11 @@ const AllCourses = (props: Props) => {
   };
 
   return (
-    <div className="mt-[70px] px-6">
+    <div className="mt-[80px]">
       {isLoading ? (
         <Loader />
       ) : (
         <Box>
-          {/* Data grid */}
           <StyledDataGridContainer>
             <DataGrid
               checkboxSelection
@@ -104,67 +107,68 @@ const AllCourses = (props: Props) => {
             />
           </StyledDataGridContainer>
 
-          {/* Delete modal */}
+          {/* DELETE MODAL */}
           {open && (
             <Modal open={open} onClose={() => setOpen(false)}>
               <Box
                 sx={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "calc(50% + 120px)",
+                  position: "fixed",
+
+                  // base center
+                  top: { xs: "45%", md: "50%" },
+                  left: "55%",
                   transform: "translate(-50%, -50%)",
-                  width: "90%",
+
+                  // sidebar-aware shift
+                  "@media (min-width: 768px)": {
+                    left: `calc(50% + ${sidebarWidth / 2}px)`,
+                  },
+
+                  width: {
+                    xs: "75%",
+                    sm: "380px",
+                    md: "420px",
+                  },
+
                   maxWidth: "420px",
                   outline: "none",
+
+                  zIndex: 2000,
                 }}
-                className="bg-white dark:bg-slate-800 rounded-2xl
-                           border border-gray-200 dark:border-white/10
-                           shadow-2xl overflow-hidden"
+                className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden"
               >
-                <div className="p-7 text-center">
+                <div className="p-5 sm:p-7 text-center">
                   {/* Icon */}
-                  <div
-                    className="w-14 h-14 rounded-full bg-gray-100 dark:bg-white/10
-                                  flex items-center justify-center mx-auto mb-4"
-                  >
-                    <AiOutlineDelete className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+                  <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center">
+                    <AiOutlineDelete className="text-gray-500" size={22} />
                   </div>
 
                   {/* Title */}
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white font-Poppins mb-2">
-                    Delete Course
-                  </h2>
+                  <h2 className="text-lg font-semibold mb-2">Delete Course</h2>
 
                   {/* Message */}
-                  <p className="text-sm text-gray-500 dark:text-gray-400 font-Poppins leading-relaxed">
+                  <p className="text-sm text-gray-500">
                     Are you sure you want to delete this course? This action
                     cannot be undone.
                   </p>
 
-                  {/* Divider */}
-                  <div className="h-px bg-gray-100 dark:bg-white/10 my-6" />
-
                   {/* Buttons */}
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-col-reverse sm:flex-row gap-3 mt-6">
                     <button
                       onClick={() => setOpen(false)}
-                      className="flex-1 py-2.5 rounded-lg text-sm font-medium font-Poppins
-                                 border border-gray-200 dark:border-white/10
-                                 text-gray-700 dark:text-gray-300
-                                 hover:border-teal-500 hover:text-teal-500
-                                 dark:hover:border-teal-500 dark:hover:text-teal-400
-                                 transition-all duration-200"
+                      className="w-full flex-1 py-2.5 rounded-lg
+                      border border-gray-200 dark:border-white/10
+                      text-gray-700 dark:text-gray-300"
                     >
                       Cancel
                     </button>
+
                     <button
                       onClick={handleDelete}
-                      className="flex-1 py-2.5 rounded-lg text-sm font-medium font-Poppins
-                                 border border-gray-200 dark:border-white/10
-                                 text-gray-700 dark:text-gray-300
-                                 hover:border-red-400 hover:text-red-400
-                                 dark:hover:border-red-400 dark:hover:text-red-400
-                                 transition-all duration-200"
+                      className="w-full flex-1 py-2.5 rounded-lg
+                      border border-gray-200 dark:border-white/10
+                      text-gray-700 dark:text-gray-300
+                      hover:border-red-400 hover:text-red-400"
                     >
                       Delete
                     </button>

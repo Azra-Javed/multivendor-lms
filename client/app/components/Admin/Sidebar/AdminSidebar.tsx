@@ -14,18 +14,22 @@ import {
   ManageHistoryIcon,
   MapOutlinedIcon,
   OndemandVideoIcon,
+  PeopleOutlinedIcon,
+  QuizIcon,
   ReceiptOutlinedIcon,
   VideoCallIcon,
+  WebIcon,
+  WysiwygIcon,
 } from "./Icon";
 
 import avatarDefault from "../../../../public/assets/avatar.png";
 
-import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
+import { useLogout } from "@/app/hooks/useLogout";
 
 interface ItemProps {
   title: string;
@@ -34,13 +38,19 @@ interface ItemProps {
   isCollapsed: boolean;
 }
 
+interface SidebarProps {
+  onCollapsedChange?: (collapsed: boolean) => void;
+}
+
 const Item = ({ title, to, icon, isCollapsed }: ItemProps) => {
   const pathname = usePathname();
-  const isActive = pathname === to;
+
+  const isActive =
+    pathname === to || (to !== "/admin" && pathname.startsWith(to + "/"));
 
   const content = (
     <Link href={to} className="no-underline">
-      <MenuItem icon={icon} active={isActive}>
+      <MenuItem active={isActive} icon={icon}>
         {!isCollapsed && title}
       </MenuItem>
     </Link>
@@ -88,13 +98,19 @@ const SectionTitle = ({
   );
 };
 
-const SidebarComponent = () => {
+const SidebarComponent = ({ onCollapsedChange }: SidebarProps) => {
   const { user } = useSelector((state: any) => state.auth);
 
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const logout = useLogout();
 
-  const pathname = usePathname();
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth < 768;
+    }
+
+    return false;
+  });
   const router = useRouter();
 
   const { resolvedTheme } = useTheme();
@@ -104,18 +120,14 @@ const SidebarComponent = () => {
     setMounted(true);
   }, []);
 
-  const handleLogout = async () => {
-    try {
-      localStorage.clear();
-      sessionStorage.clear();
+  useEffect(() => {
+    localStorage.setItem("admin-sidebar-collapsed", String(isCollapsed));
 
-      await signOut({ redirect: false });
+    onCollapsedChange?.(isCollapsed);
+  }, [isCollapsed, onCollapsedChange]);
 
-      router.push("/");
-      router.refresh();
-    } catch (err) {
-      console.log(err);
-    }
+  const handleToggle = () => {
+    setIsCollapsed((prev) => !prev);
   };
 
   if (!mounted) return null;
@@ -123,96 +135,167 @@ const SidebarComponent = () => {
   return (
     <Sidebar
       collapsed={isCollapsed}
+      width="260px"
+      collapsedWidth={
+        typeof window !== "undefined" && window.innerWidth >= 1024
+          ? "82px"
+          : "58px"
+      }
+      transitionDuration={300}
+      backgroundColor={isDark ? "#0B1120" : "#ffffff"}
       rootStyles={{
-        backgroundColor: isDark ? "#0B1120" : "#ffffff",
         borderRight: isDark
           ? "1px solid rgba(255,255,255,0.06)"
           : "1px solid #e5e7eb",
+
         height: "100vh",
         position: "fixed",
         top: 0,
         left: 0,
+
         overflowY: "auto",
         overflowX: "hidden",
+
         zIndex: 9999,
-        transition: "all 0.3s ease",
-        width: isCollapsed ? "82px" : "255px",
-        minWidth: isCollapsed ? "82px" : "255px",
+
+        "& .ps-sidebar-container": {
+          paddingLeft: "0px",
+          paddingRight: "0px",
+          marginLeft: "0px",
+          marginRight: "0px",
+        },
+
+        "& .ps-menu-root": {
+          paddingLeft: "0px",
+          paddingRight: "0px",
+          marginLeft: "0px",
+          marginRight: "0px",
+        },
       }}
     >
       <Menu
         menuItemStyles={{
           button: ({ active }) => ({
-            padding: isCollapsed ? "13px 0px" : "12px 16px",
+            height: isCollapsed ? "58px" : "50px",
+
+            padding: isCollapsed ? "0px" : "0px 16px",
+
             justifyContent: isCollapsed ? "center" : "flex-start",
-            borderRadius: "12px",
-            margin: "4px 10px",
+
+            borderRadius: "14px",
+
+            margin: isCollapsed ? "5px 6px" : "5px 10px",
+
             fontSize: "14px",
-            fontWeight: active ? 600 : 500,
+
+            fontWeight: active ? 700 : 500,
+
             fontFamily: "Poppins",
+
             color: active ? "#14b8a6" : isDark ? "#ffffff" : "#0f172a",
+
             backgroundColor: active
               ? isDark
-                ? "rgba(20,184,166,0.15)"
+                ? "rgba(20,184,166,0.18)"
                 : "#ccfbf1"
               : "transparent",
+
+            border: active
+              ? "1px solid rgba(20,184,166,0.25)"
+              : "1px solid transparent",
+
             transition: "all 0.2s ease",
+
             "&:hover": {
               backgroundColor: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9",
+
               color: "#14b8a6",
             },
+
+            "@media (max-width: 768px)": {
+              height: isCollapsed ? "50px" : "46px",
+
+              margin: isCollapsed ? "4px" : "4px 8px",
+
+              fontSize: "13px",
+            },
           }),
+
           icon: ({ active }) => ({
             color: active ? "#14b8a6" : isDark ? "#ffffff" : "#64748b",
-            minWidth: "34px",
+
+            minWidth: isCollapsed ? "100%" : "36px",
+
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+
+            "& svg": {
+              fontSize: isCollapsed ? "25px" : "20px",
+            },
+
+            "@media (max-width: 768px)": {
+              "& svg": {
+                fontSize: isCollapsed ? "20px" : "18px",
+              },
+            },
           }),
         }}
       >
-        {/* HEADER */}
+        {/* STICKY HEADER */}
         <div
-          className={`flex items-center py-4 px-4 ${
-            isCollapsed ? "justify-center" : "justify-between"
+          className={`sticky top-0 z-50 border-b ${
+            isDark ? "bg-[#0B1120] border-white/5" : "bg-white border-gray-200"
           }`}
         >
-          {!isCollapsed && (
-            <Link
-              href="/"
-              className={`text-[24px] font-[700] font-Poppins ${
-                isDark ? "text-white" : "text-black"
-              }`}
-            >
-              E<span className="text-teal-500">Learning</span>
-            </Link>
-          )}
-
-          <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
-            {isCollapsed ? (
-              <ArrowForwardIosIcon sx={{ fontSize: 14 }} />
-            ) : (
-              <ArrowBackIosIcon sx={{ fontSize: 14 }} />
+          <div
+            className={`flex items-center py-4 ${
+              isCollapsed ? "justify-center px-2" : "justify-between px-4"
+            }`}
+          >
+            {!isCollapsed && (
+              <Link
+                href="/"
+                className={`text-[24px] font-[700] font-Poppins ${
+                  isDark ? "text-white" : "text-black"
+                }`}
+              >
+                E<span className="text-teal-500">Learning</span>
+              </Link>
             )}
-          </IconButton>
-        </div>
 
-        <div className="h-[1px] bg-white/5 mx-4 mb-3" />
+            <IconButton
+              onClick={handleToggle}
+              sx={{
+                padding: isCollapsed ? "4px" : "8px",
+                color: isDark ? "#ffffff" : "#111827",
+              }}
+            >
+              {isCollapsed ? (
+                <ArrowForwardIosIcon sx={{ fontSize: 15 }} />
+              ) : (
+                <ArrowBackIosIcon sx={{ fontSize: 15 }} />
+              )}
+            </IconButton>
+          </div>
+        </div>
 
         {/* USER */}
         {!isCollapsed && (
           <Link href="/profile">
             <div
-              className={`mx-3 mb-4 rounded-xl px-3 py-3 border ${
-                isDark ? "border-slate-700" : "border-slate-200 bg-white"
+              className={`mx-3 mt-4 mb-4 rounded-2xl px-3 py-3 border ${
+                isDark
+                  ? "border-slate-700 bg-slate-900/40"
+                  : "border-slate-200 bg-white"
               }`}
             >
               <div className="flex items-center gap-3">
                 <Image
                   src={user?.avatar?.url || avatarDefault}
                   alt="user"
-                  width={44}
-                  height={44}
+                  width={46}
+                  height={46}
                   className="rounded-full object-cover border border-teal-500"
                 />
 
@@ -224,6 +307,7 @@ const SidebarComponent = () => {
                   >
                     {user?.name}
                   </p>
+
                   <p className="text-[12px] text-slate-500 capitalize">
                     {user?.role}
                   </p>
@@ -234,78 +318,106 @@ const SidebarComponent = () => {
         )}
 
         {/* MENU */}
-        <Item
-          title="Dashboard"
-          to="/admin"
-          icon={<HomeOutlinedIcon sx={{ fontSize: 20 }} />}
-          isCollapsed={isCollapsed}
-        />
+        <div className="pb-6">
+          <Item
+            title="Dashboard"
+            to="/admin"
+            icon={<HomeOutlinedIcon />}
+            isCollapsed={isCollapsed}
+          />
 
-        <SectionTitle title="Data" collapsed={isCollapsed} />
+          <SectionTitle title="Data" collapsed={isCollapsed} />
 
-        <Item
-          title="Users"
-          to="/admin/users"
-          icon={<GroupsIcon sx={{ fontSize: 20 }} />}
-          isCollapsed={isCollapsed}
-        />
+          <Item
+            title="Users"
+            to="/admin/users"
+            icon={<GroupsIcon />}
+            isCollapsed={isCollapsed}
+          />
 
-        <Item
-          title="Invoices"
-          to="/admin/invoices"
-          icon={<ReceiptOutlinedIcon sx={{ fontSize: 20 }} />}
-          isCollapsed={isCollapsed}
-        />
+          <Item
+            title="Invoices"
+            to="/admin/invoices"
+            icon={<ReceiptOutlinedIcon />}
+            isCollapsed={isCollapsed}
+          />
 
-        <SectionTitle title="Content" collapsed={isCollapsed} />
+          <SectionTitle title="Content" collapsed={isCollapsed} />
 
-        <Item
-          title="Create Course"
-          to="/admin/create-course"
-          icon={<VideoCallIcon sx={{ fontSize: 20 }} />}
-          isCollapsed={isCollapsed}
-        />
+          <Item
+            title="Create Course"
+            to="/admin/create-course"
+            icon={<VideoCallIcon />}
+            isCollapsed={isCollapsed}
+          />
 
-        <Item
-          title="Live Courses"
-          to="/admin/courses"
-          icon={<OndemandVideoIcon sx={{ fontSize: 20 }} />}
-          isCollapsed={isCollapsed}
-        />
+          <Item
+            title="Live Courses"
+            to="/admin/courses"
+            icon={<OndemandVideoIcon />}
+            isCollapsed={isCollapsed}
+          />
 
-        <SectionTitle title="Analytics" collapsed={isCollapsed} />
+          <SectionTitle title="Customization" collapsed={isCollapsed} />
 
-        <Item
-          title="Courses Analytics"
-          to="/admin/courses-analytics"
-          icon={<BarChartOutlinedIcon sx={{ fontSize: 20 }} />}
-          isCollapsed={isCollapsed}
-        />
+          <Item
+            title="Hero"
+            to="/admin/hero"
+            icon={<WebIcon />}
+            isCollapsed={isCollapsed}
+          />
 
-        <Item
-          title="Orders Analytics"
-          to="/admin/orders-analytics"
-          icon={<MapOutlinedIcon sx={{ fontSize: 20 }} />}
-          isCollapsed={isCollapsed}
-        />
+          <Item
+            title="FAQ"
+            to="/admin/faq"
+            icon={<QuizIcon />}
+            isCollapsed={isCollapsed}
+          />
 
-        <Item
-          title="Users Analytics"
-          to="/admin/users-analytics"
-          icon={<ManageHistoryIcon sx={{ fontSize: 20 }} />}
-          isCollapsed={isCollapsed}
-        />
+          <Item
+            title="Categories"
+            to="/admin/categories"
+            icon={<WysiwygIcon />}
+            isCollapsed={isCollapsed}
+          />
 
-        <SectionTitle title="Extras" collapsed={isCollapsed} />
+          <SectionTitle title="Controllers" collapsed={isCollapsed} />
 
-        <MenuItem
-          icon={<ExitToAppIcon sx={{ fontSize: 20 }} />}
-          onClick={handleLogout}
-        >
-          {!isCollapsed && "Logout"}
-        </MenuItem>
+          <Item
+            title="Manage Team"
+            to="/admin/team"
+            icon={<PeopleOutlinedIcon />}
+            isCollapsed={isCollapsed}
+          />
+          <SectionTitle title="Analytics" collapsed={isCollapsed} />
 
-        <div className="h-5" />
+          <Item
+            title="Courses Analytics"
+            to="/admin/courses-analytics"
+            icon={<BarChartOutlinedIcon />}
+            isCollapsed={isCollapsed}
+          />
+
+          <Item
+            title="Orders Analytics"
+            to="/admin/orders-analytics"
+            icon={<MapOutlinedIcon />}
+            isCollapsed={isCollapsed}
+          />
+
+          <Item
+            title="Users Analytics"
+            to="/admin/users-analytics"
+            icon={<ManageHistoryIcon />}
+            isCollapsed={isCollapsed}
+          />
+
+          <SectionTitle title="Extras" collapsed={isCollapsed} />
+
+          <MenuItem icon={<ExitToAppIcon />} onClick={logout}>
+            {!isCollapsed && "Logout"}
+          </MenuItem>
+        </div>
       </Menu>
     </Sidebar>
   );

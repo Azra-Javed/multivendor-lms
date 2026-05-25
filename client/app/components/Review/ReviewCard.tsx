@@ -52,7 +52,7 @@ export const FeaturedReviewCard = ({
       <BiSolidQuoteAltLeft className="text-teal-500/30 w-10 h-10 mb-4" />
 
       {/* Comment */}
-      <p className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white leading-relaxed flex-1">
+      <p className="text-sm sm:text-2xl font-semibold text-gray-900 dark:text-white leading-relaxed flex-1">
         "{item.comment}"
       </p>
 
@@ -68,7 +68,7 @@ export const FeaturedReviewCard = ({
             <p className="font-semibold text-gray-900 dark:text-white">
               {item.name}
             </p>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
               {item.profession}
             </p>
           </div>

@@ -1,44 +1,3 @@
-// "use client";
-// import { useState } from "react";
-// import Heading from "./utils/Heading";
-// import Header from "./components/Header";
-// import Hero from "./components/Hero";
-// import Courses from "./components/Route/Courses";
-// import FAQ from "./components/FAQ/FAQ";
-// import Reviews from "./components/Route/Reviews";
-// import Footer from "./components/footer";
-// interface Props {}
-
-// const page = () => {
-//   const [open, setOpen] = useState(false);
-//   const [activeItem, setActiveItem] = useState(0);
-//   const [route, setRoute] = useState("Login");
-
-//   return (
-//     <>
-//       <Heading
-//         title="ELearning"
-//         description="ELearning is a platform for students to learn and get help from teachers"
-//         keywords="Prograaming,MERN,Redux,Machine Learning"
-//       />
-//       <Header
-//         open={open}
-//         activeItem={activeItem}
-//         setOpen={setOpen}
-//         setRoute={setRoute}
-//         route={route}
-//       />
-//       <Hero />
-//       <Courses />
-//       <Reviews />
-//       <FAQ />
-//       <Footer />
-//     </>
-//   );
-// };
-
-// export default page;
-
 "use client";
 
 import { useState } from "react";
@@ -58,9 +17,9 @@ export default function Page() {
   return (
     <>
       <Heading
-        title="ELearning"
-        description="ELearning is a platform for students to learn and get help from teachers"
-        keywords="Programming, MERN, Redux, Machine Learning"
+        title="SkillBridge"
+        description="SkillBridge is an online learning platform where students can learn modern skills from expert instructors."
+        keywords="SkillBridge, programming, MERN, Redux, machine learning, admin dashboard"
       />
       <Header
         open={open}

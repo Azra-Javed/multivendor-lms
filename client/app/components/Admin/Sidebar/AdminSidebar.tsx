@@ -24,12 +24,12 @@ import {
 
 import avatarDefault from "../../../../public/assets/avatar.png";
 
+import { useLogout } from "@/app/hooks/useLogout";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
-import { useLogout } from "@/app/hooks/useLogout";
 
 interface ItemProps {
   title: string;

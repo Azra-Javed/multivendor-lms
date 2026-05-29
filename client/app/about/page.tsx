@@ -15,9 +15,9 @@ const page = (props: Props) => {
   return (
     <div>
       <Heading
-        title="About Us - Elearning"
-        description="Elearning is a learning management system for helping programmers."
-        keywords="programming, MERN, web development, courses"
+        title="SkillBridge - About"
+        description="SkillBridge is an online learning platform where students can learn modern skills from expert instructors."
+        keywords="SkillBridge, programming, MERN, Redux, machine learning, admin dashboard"
       />
       <Header
         open={open}

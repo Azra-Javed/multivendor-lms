@@ -35,7 +35,6 @@ interface ICourseData extends Document {
 export interface ICourse extends Document {
   name: string;
   description: string;
-  categories: string;
   price: number;
   estimatedPrice?: number;
   thumbnail: object;
@@ -48,6 +47,8 @@ export interface ICourse extends Document {
   courseData: ICourseData[];
   ratings?: number;
   purchased: number;
+  categories: string[];
+  createdBy: mongoose.Types.ObjectId;
 }
 
 const reviewSchema = new Schema<IReview>(
@@ -60,7 +61,7 @@ const reviewSchema = new Schema<IReview>(
     comment: String,
     commentReplies: [Object],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const linkSchema = new Schema<ILink>({
@@ -74,7 +75,7 @@ const commentSchema = new Schema<IComment>(
     question: String,
     questionReplies: [Object],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const courseDataSchema = new Schema<ICourseData>({
@@ -100,8 +101,13 @@ const courseSchema = new Schema<ICourse>(
       type: String,
       required: true,
     },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     categories: {
-      type: String,
+      type: [String],
       required: true,
     },
     price: {
@@ -144,7 +150,7 @@ const courseSchema = new Schema<ICourse>(
       default: 0,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const CourseModel: Model<ICourse> = mongoose.model("Course", courseSchema);

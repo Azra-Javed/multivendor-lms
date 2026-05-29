@@ -2,18 +2,36 @@
 
 export default function Loader() {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-      <div className="flex flex-col items-center gap-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center
+                    bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm"
+    >
+      <div className="flex flex-col items-center gap-5">
         {/* Spinner */}
-        <div className="relative w-16 h-16">
-          <div className="absolute inset-0 rounded-full border-4 border-gray-200 dark:border-gray-700"></div>
-          <div className="absolute inset-0 rounded-full border-4 border-t-blue-600 animate-spin"></div>
+        <div className="relative w-14 h-14">
+          {/* Track */}
+          <div
+            className="absolute inset-0 rounded-full
+                          border-[3px] border-gray-100 dark:border-white/10"
+          />
+          {/* Spinning arc */}
+          <div
+            className="absolute inset-0 rounded-full
+                          border-[3px] border-transparent
+                          border-t-teal-500
+                          animate-spin"
+          />
         </div>
 
-        {/* Text */}
-        <p className="text-base font-medium text-gray-600 dark:text-gray-300 tracking-wide">
-          Loading, please wait...
-        </p>
+        {/* Brand + message */}
+        <div className="text-center">
+          <p className="text-base font-semibold text-gray-900 dark:text-white font-Poppins">
+            Skill<span className="text-teal-500">Bridge</span>
+          </p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 font-Poppins mt-1">
+            Loading, please wait...
+          </p>
+        </div>
       </div>
     </div>
   );

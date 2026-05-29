@@ -33,7 +33,7 @@ const policies = [
   {
     number: "04",
     title: "Intellectual Property",
-    body: "All course materials, videos, and resources are the intellectual property of E-Learning. Unauthorized use is not allowed.",
+    body: "All course materials, videos, and resources are the intellectual property of SkillBridge. Unauthorized use is not allowed.",
     icon: <FiShield className="w-5 h-5 text-teal-500" />,
   },
   {
@@ -45,7 +45,7 @@ const policies = [
   {
     number: "06",
     title: "Limitation of Liability",
-    body: "E-Learning provides educational content and guidance. Results depend on individual effort and circumstances.",
+    body: "SkillBridge provides educational content and guidance. Results depend on individual effort and circumstances.",
     icon: <FiInfo className="w-5 h-5 text-teal-500" />,
   },
   {
@@ -130,7 +130,7 @@ const Policy = (props: Props) => {
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-300 font-Poppins leading-relaxed">
             By using{" "}
-            <span className="text-teal-500 font-medium">E-Learning</span>, you
+            <span className="text-teal-500 font-medium">SkillBridge</span>, you
             agree to follow these guidelines and ensure a positive experience
             for yourself and the community. If you have any questions, feel free
             to{" "}

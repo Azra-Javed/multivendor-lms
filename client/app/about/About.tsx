@@ -29,7 +29,7 @@ const About = () => {
         </span>
 
         <h1 className="mt-4 text-3xl sm:text-4xl 1000px:text-5xl font-semibold leading-tight text-gray-900 dark:text-white font-Poppins">
-          What is <span className="text-teal-500">E-Learning?</span>
+          What is <span className="text-teal-500">SkillBridge?</span>
         </h1>
 
         <p className="mt-5 text-base text-gray-600 dark:text-gray-300 font-Poppins leading-relaxed">
@@ -81,7 +81,7 @@ const About = () => {
         <div className="space-y-5 text-base text-gray-600 dark:text-gray-300 font-Poppins leading-relaxed">
           <p>
             Whether you are just starting your journey or already working in the
-            tech industry, E-Learning gives you the tools, guidance, and
+            tech industry, SkillBridge gives you the tools, guidance, and
             structure you need to move forward.
           </p>
           <p>
@@ -94,7 +94,7 @@ const About = () => {
             We also provide certifications on course completion to help you
             showcase your skills and stand out in the job market. With a
             supportive learning community and industry-focused content,
-            E-Learning helps turn ambition into achievement.
+            SkillBridge helps turn ambition into achievement.
           </p>
         </div>
       </div>
@@ -114,7 +114,7 @@ const About = () => {
         </div>
         <div>
           <p className="text-sm text-gray-500 dark:text-gray-400 font-Poppins italic leading-relaxed">
-            "E-Learning was built with one belief — that where you come from
+            "SkillBridge was built with one belief — that where you come from
             should never limit how far you go. Every course here is designed to
             close that gap."
           </p>
@@ -125,7 +125,7 @@ const About = () => {
                 Azra Javed
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 font-Poppins">
-                Founder & CEO, E-Learning
+                Founder & CEO, SkillBridge
               </p>
             </div>
           </div>

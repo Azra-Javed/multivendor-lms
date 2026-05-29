@@ -1,5 +1,5 @@
 import { useGetHeroDataQuery } from "@/redux/features/layout/layoutApi";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Props = {
   courseInfo: any;
@@ -26,12 +26,28 @@ const CourseInformation = ({
 }: Props) => {
   const [dragging, setDragging] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [open, setOpen] = useState(false);
   const { data } = useGetHeroDataQuery("Categories");
+
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (data) setCategories(data.layout.categories);
   }, [data]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: any) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   const handleSubmit = (e: any) => {
     e.preventDefault();
     setActive(active + 1);
@@ -146,26 +162,67 @@ const CourseInformation = ({
             className={inputClass}
           />
         </div>
-        <div>
+
+        {/* CATEGORY SECTION */}
+        <div className="relative" ref={dropdownRef}>
           <label className={labelClass}>Course Categories</label>
-          <select
-            className={inputClass}
-            value={courseInfo.category}
-            onChange={(e) =>
-              setCourseInfo({ ...courseInfo, categories: e.target.value })
+
+          {/* dropdown button */}
+          <div
+            onClick={() => setOpen(!open)}
+            className={
+              inputClass + " cursor-pointer flex justify-between items-center"
             }
           >
-            <option value="">Select Category</option>
-            {categories &&
-              categories.map((item: any) => (
-                <option value={item.title} key={item._id}>
-                  {item.title}
-                </option>
-              ))}
-          </select>
+            <span>
+              {courseInfo.categories?.length > 0
+                ? courseInfo.categories.join(", ")
+                : "Select Category"}
+            </span>
+            <span>▼</span>
+          </div>
+
+          {/* dropdown list */}
+          {open && (
+            <div className="absolute left-0 right-0 z-50 mt-2 w-full border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-800 rounded-lg shadow-lg max-h-60 overflow-y-auto p-2">
+              {categories?.map((item: any) => {
+                const checked = courseInfo.categories?.includes(item.title);
+
+                return (
+                  <label
+                    key={item._id}
+                    className="flex items-center gap-2 p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-white/5 rounded"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => {
+                        let updated = [...(courseInfo.categories || [])];
+
+                        if (checked) {
+                          updated = updated.filter((t) => t !== item.title);
+                        } else {
+                          updated.push(item.title);
+                        }
+
+                        setCourseInfo({
+                          ...courseInfo,
+                          categories: updated,
+                        });
+                      }}
+                      className="w-4 h-4 cursor-pointer accent-teal-500"
+                    />
+
+                    <span className="text-sm text-gray-700 dark:text-white">
+                      {item.title}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
-
       {/* Level + Demo URL row */}
       <div className="grid grid-cols-1 800px:grid-cols-2 gap-5">
         <div>

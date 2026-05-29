@@ -30,12 +30,16 @@ const CoursesClient = (props: Props) => {
     let filtered = data.courses;
 
     if (category !== "All") {
-      filtered = filtered.filter((item: any) => item.categories === category);
+      filtered = filtered.filter((item: any) =>
+        item.categories?.includes(category),
+      );
     }
 
-    if (search) {
+    if (search?.trim()) {
+      const searchValue = search.trim().toLowerCase();
+
       filtered = filtered.filter((item: any) =>
-        item.name.toLowerCase().includes(search.toLowerCase()),
+        item.name?.trim().toLowerCase().includes(searchValue),
       );
     }
 
@@ -58,7 +62,7 @@ const CoursesClient = (props: Props) => {
 
       <div className="w-[95%] 800px:w-[85%] m-auto min-h-[70vh] py-10">
         <Heading
-          title="All Courses - E-Learning"
+          title="All Courses - SkillBridge"
           description="Browse high quality courses to grow your skills."
           keywords="programming courses, web development, mern, react"
         />

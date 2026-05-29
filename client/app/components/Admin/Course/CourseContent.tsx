@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { AiOutlineDelete, AiOutlinePlusCircle } from "react-icons/ai";
@@ -33,6 +35,7 @@ const CourseContent = ({
   const [isCollapsed, setIsCollapsed] = useState<boolean[]>(
     Array(courseContentData.length).fill(false),
   );
+
   const [activeSection, setActiveSection] = useState(1);
 
   const handleSubmit = (e: any) => e.preventDefault();
@@ -52,15 +55,20 @@ const CourseContent = ({
           }
         : item,
     );
+
     setCourseContentData(updatedData);
   };
 
   const handleAddLink = (index: number) => {
     const updatedData = courseContentData.map((item: any, i: number) =>
       i === index
-        ? { ...item, links: [...item.links, { title: "", url: "" }] }
+        ? {
+            ...item,
+            links: [...item.links, { title: "", url: "" }],
+          }
         : item,
     );
+
     setCourseContentData(updatedData);
   };
 
@@ -76,11 +84,16 @@ const CourseContent = ({
       toast.error("Please fill all the fields first!");
     } else {
       let newVideoSection = "";
+
       if (courseContentData.length > 0) {
         const lastVideoSection =
           courseContentData[courseContentData.length - 1].videoSection;
-        if (lastVideoSection) newVideoSection = lastVideoSection;
+
+        if (lastVideoSection) {
+          newVideoSection = lastVideoSection;
+        }
       }
+
       setCourseContentData([
         ...courseContentData,
         {
@@ -93,7 +106,7 @@ const CourseContent = ({
           suggestion: "",
         },
       ]);
-      // fix: expand isCollapsed array for the new item
+
       setIsCollapsed([...isCollapsed, false]);
     }
   };
@@ -109,6 +122,7 @@ const CourseContent = ({
       toast.error("Please fill all the fields first!");
     } else {
       setActiveSection(activeSection + 1);
+
       setCourseContentData([
         ...courseContentData,
         {
@@ -121,12 +135,14 @@ const CourseContent = ({
           suggestion: "",
         },
       ]);
-      // fix: expand isCollapsed array for the new item
+
       setIsCollapsed([...isCollapsed, false]);
     }
   };
 
-  const prevButton = () => setActive(active - 1);
+  const prevButton = () => {
+    setActive(active - 1);
+  };
 
   const handleOptions = () => {
     if (
@@ -163,8 +179,16 @@ const CourseContent = ({
                     type="text"
                     value={item.videoSection}
                     onChange={(e) => {
-                      const updatedData = [...courseContentData];
-                      updatedData[index].videoSection = e.target.value;
+                      const updatedData = courseContentData.map(
+                        (course: any, i: number) =>
+                          i === index
+                            ? {
+                                ...course,
+                                videoSection: e.target.value,
+                              }
+                            : course,
+                      );
+
                       setCourseContentData(updatedData);
                     }}
                     className="text-sm font-semibold font-Poppins
@@ -174,6 +198,7 @@ const CourseContent = ({
                                focus:border-teal-500 pb-0.5 transition-colors
                                min-w-[140px]"
                   />
+
                   <BsPencil className="w-3 h-3 text-gray-400 shrink-0" />
                 </div>
               )}
@@ -184,7 +209,7 @@ const CourseContent = ({
                               border border-gray-200 dark:border-white/10
                               bg-white dark:bg-[#1a2234]"
               >
-                {/* Card header */}
+                {/* Header */}
                 <div
                   className="flex items-center justify-between px-5 py-3
                                 bg-gray-50 dark:bg-[#151f30]
@@ -206,10 +231,15 @@ const CourseContent = ({
                       onClick={() => {
                         if (index > 0) {
                           const updatedData = [...courseContentData];
+
                           updatedData.splice(index, 1);
+
                           setCourseContentData(updatedData);
+
                           const updatedCollapsed = [...isCollapsed];
+
                           updatedCollapsed.splice(index, 1);
+
                           setIsCollapsed(updatedCollapsed);
                         }
                       }}
@@ -237,72 +267,116 @@ const CourseContent = ({
                     >
                       <MdOutlineKeyboardArrowDown
                         className={`w-4 h-4 transition-transform duration-200
-                                    ${isCollapsed[index] ? "rotate-180" : "rotate-0"}`}
+                                    ${
+                                      isCollapsed[index]
+                                        ? "rotate-180"
+                                        : "rotate-0"
+                                    }`}
                       />
                     </button>
                   </div>
                 </div>
 
-                {/* Card body */}
+                {/* Body */}
                 {!isCollapsed[index] && (
                   <div className="p-5 space-y-4">
+                    {/* Video Title */}
                     <div>
                       <label className={labelClass}>Video Title</label>
+
                       <input
                         type="text"
                         placeholder="Project Plan..."
                         className={inputClass}
                         value={item.title}
                         onChange={(e) => {
-                          const updatedData = [...courseContentData];
-                          updatedData[index].title = e.target.value;
+                          const updatedData = courseContentData.map(
+                            (course: any, i: number) =>
+                              i === index
+                                ? {
+                                    ...course,
+                                    title: e.target.value,
+                                  }
+                                : course,
+                          );
+
                           setCourseContentData(updatedData);
                         }}
                       />
                     </div>
 
+                    {/* Video URL */}
                     <div>
                       <label className={labelClass}>Video URL</label>
+
                       <input
                         type="text"
                         placeholder="Enter video URL"
                         className={inputClass}
                         value={item.videoUrl}
                         onChange={(e) => {
-                          const updatedData = [...courseContentData];
-                          updatedData[index].videoUrl = e.target.value;
+                          const updatedData = courseContentData.map(
+                            (course: any, i: number) =>
+                              i === index
+                                ? {
+                                    ...course,
+                                    videoUrl: e.target.value,
+                                  }
+                                : course,
+                          );
+
                           setCourseContentData(updatedData);
                         }}
                       />
                     </div>
 
+                    {/* Video Length */}
                     <div>
                       <label className={labelClass}>
                         Video Length (minutes)
                       </label>
+
                       <input
                         type="number"
                         placeholder="20"
                         className={inputClass}
                         value={item.videoLength}
                         onChange={(e) => {
-                          const updatedData = [...courseContentData];
-                          updatedData[index].videoLength = e.target.value;
+                          const updatedData = courseContentData.map(
+                            (course: any, i: number) =>
+                              i === index
+                                ? {
+                                    ...course,
+                                    videoLength: e.target.value,
+                                  }
+                                : course,
+                          );
+
                           setCourseContentData(updatedData);
                         }}
                       />
                     </div>
 
+                    {/* Description */}
                     <div>
                       <label className={labelClass}>Video Description</label>
+
                       <textarea
                         rows={4}
                         placeholder="Enter video description"
                         className={`${inputClass} resize-none`}
                         value={item.description}
                         onChange={(e) => {
-                          const updatedData = [...courseContentData];
-                          updatedData[index].description = e.target.value;
+                          const updatedData = courseContentData.map(
+                            (course: any, i: number) =>
+                              i === index
+                                ? {
+                                    ...course,
+                                    description: e.target.value,
+                                  }
+                                : course,
+                          );
+
                           setCourseContentData(updatedData);
                         }}
                       />
@@ -320,6 +394,7 @@ const CourseContent = ({
                             <label className={labelClass}>
                               Link {linkIndex + 1}
                             </label>
+
                             <button
                               type="button"
                               onClick={() =>
@@ -339,27 +414,63 @@ const CourseContent = ({
                               <AiOutlineDelete className="w-3.5 h-3.5" />
                             </button>
                           </div>
+
+                          {/* Link Title */}
                           <input
                             type="text"
                             placeholder="Link title (e.g. Source Code)"
                             className={inputClass}
                             value={link.title}
                             onChange={(e) => {
-                              const updatedData = [...courseContentData];
-                              updatedData[index].links[linkIndex].title =
-                                e.target.value;
+                              const updatedData = courseContentData.map(
+                                (course: any, i: number) => {
+                                  if (i !== index) return course;
+
+                                  return {
+                                    ...course,
+                                    links: course.links.map(
+                                      (l: any, li: number) =>
+                                        li === linkIndex
+                                          ? {
+                                              ...l,
+                                              title: e.target.value,
+                                            }
+                                          : l,
+                                    ),
+                                  };
+                                },
+                              );
+
                               setCourseContentData(updatedData);
                             }}
                           />
+
+                          {/* Link URL */}
                           <input
                             type="url"
                             placeholder="Link URL"
                             className={inputClass}
                             value={link.url}
                             onChange={(e) => {
-                              const updatedData = [...courseContentData];
-                              updatedData[index].links[linkIndex].url =
-                                e.target.value;
+                              const updatedData = courseContentData.map(
+                                (course: any, i: number) => {
+                                  if (i !== index) return course;
+
+                                  return {
+                                    ...course,
+                                    links: course.links.map(
+                                      (l: any, li: number) =>
+                                        li === linkIndex
+                                          ? {
+                                              ...l,
+                                              url: e.target.value,
+                                            }
+                                          : l,
+                                    ),
+                                  };
+                                },
+                              );
+
                               setCourseContentData(updatedData);
                             }}
                           />
@@ -367,7 +478,7 @@ const CourseContent = ({
                       ))}
                     </div>
 
-                    {/* Add Link + Add Content row */}
+                    {/* Buttons */}
                     <div className="flex items-center gap-5 pt-1 border-t border-gray-100 dark:border-white/10 mt-2">
                       <button
                         type="button"
@@ -401,7 +512,7 @@ const CourseContent = ({
         })}
       </form>
 
-      {/* Add new section */}
+      {/* Add Section */}
       <button
         type="button"
         onClick={addNewSection}
@@ -416,7 +527,7 @@ const CourseContent = ({
         Add New Section
       </button>
 
-      {/* Nav buttons */}
+      {/* Footer Buttons */}
       <div
         className="flex items-center justify-between pt-4
                       border-t border-gray-200 dark:border-white/10 mt-4"
@@ -432,6 +543,7 @@ const CourseContent = ({
         >
           Prev
         </button>
+
         <button
           type="button"
           onClick={handleOptions}

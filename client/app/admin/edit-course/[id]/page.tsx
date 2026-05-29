@@ -19,9 +19,9 @@ const Page = ({ params }: { params: Promise<Params> }) => {
     <AdminProtected>
       <div>
         <Heading
-          title="Elearning- Admin"
-          description="ELearning is a platform for students to learn and get help from teachers"
-          keywords="Programming,MERN,Redux,Machine Learning"
+          title="SkillBridge Admin | Edit Course"
+          description="SkillBridge is an online learning platform where students can learn modern skills from expert instructors."
+          keywords="SkillBridge, programming, MERN, Redux, machine learning, admin dashboard"
         />
 
         <div className="flex w-full">

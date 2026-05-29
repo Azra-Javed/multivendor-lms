@@ -54,7 +54,7 @@ const SignUp = ({ setRoute, setOpen }: Props) => {
 
   return (
     <div className="w-full px-4 sm:px-6 py-5 sm:py-6 relative">
-      {/* ❌ CLOSE BUTTON */}
+      {/* CLOSE BUTTON */}
       {setOpen && (
         <button
           onClick={() => setOpen(false)}
@@ -68,7 +68,7 @@ const SignUp = ({ setRoute, setOpen }: Props) => {
       <h1
         className={`${styles.title} text-center sm:text-left text-lg sm:text-xl mb-5`}
       >
-        Join to ELearning
+        Join to SkillBridge
       </h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -83,7 +83,7 @@ const SignUp = ({ setRoute, setOpen }: Props) => {
             name="name"
             value={values.name}
             onChange={handleChange}
-            placeholder="Azra Javed"
+            placeholder="John Doe"
             className={`${styles.input} text-sm sm:text-base`}
           />
 

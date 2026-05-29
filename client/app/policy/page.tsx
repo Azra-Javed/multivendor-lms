@@ -15,10 +15,11 @@ const Page = (props: Props) => {
   return (
     <div>
       <Heading
-        title="Policy - Elearning"
-        description="Elearning is a learning management system for helping programmers."
-        keywords="programming,mern"
+        title={`SkillBridge - Policy`}
+        description="SkillBridge is an online learning platform where students can learn modern skills from expert instructors."
+        keywords="SkillBridge, online learning, MERN stack, programming courses, web development"
       />
+
       <Header
         open={open}
         setOpen={setOpen}

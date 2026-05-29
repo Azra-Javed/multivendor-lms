@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import AdminProtected from "@/app/hooks/adminProtected";
-import Heading from "@/app/utils/Heading";
-import AdminSidebar from "@/app/components/Admin/Sidebar/AdminSidebar";
-import AllUsers from "../../components/Admin/Users/AllUsers";
 import DashboardHeader from "@/app/components/Admin/DashboardHeader";
 import AllInvoices from "@/app/components/Admin/Order/AllInvoices";
+import AdminSidebar from "@/app/components/Admin/Sidebar/AdminSidebar";
+import AdminProtected from "@/app/hooks/adminProtected";
+import Heading from "@/app/utils/Heading";
+import { useState } from "react";
 
 type Props = {};
 
@@ -17,9 +16,9 @@ const page = (props: Props) => {
     <AdminProtected>
       <div>
         <Heading
-          title="Elearning- Admin"
-          description="ELearning is a platform for students to learn and get help from teachers"
-          keywords="Programming,MERN,Redux,Machine Learning"
+          title="SkillBridge Admin | Invoices"
+          description="SkillBridge is an online learning platform where students can learn modern skills from expert instructors."
+          keywords="SkillBridge, programming, MERN, Redux, machine learning, admin dashboard"
         />
 
         <div className="flex w-full">

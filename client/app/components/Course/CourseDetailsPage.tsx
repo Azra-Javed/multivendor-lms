@@ -48,10 +48,11 @@ const CourseDetailsPage = ({ id }: Props) => {
   return (
     <>
       <Heading
-        title={`${data?.course?.name} - ELearning`}
-        description="ELearning is a platform for students to learn and get help from teachers"
+        title={`${data?.course?.name} - SkillBridge`}
+        description="SkillBridge is an online learning platform where students can learn modern skills from expert instructors."
         keywords={data?.course?.tags}
       />
+
       <Header
         route={route}
         setRoute={setRoute}

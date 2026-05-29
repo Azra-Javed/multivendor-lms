@@ -11,7 +11,7 @@ const Footer = (props: Props) => {
           {/* Brand column — full width on mobile */}
           <div className="hidden md:block col-span-2 md:col-span-1 space-y-3">
             <h2 className="text-base font-semibold text-gray-900 dark:text-white font-Poppins">
-              E<span className="text-teal-500">Learning</span>
+              Skill<span className="text-teal-500">Bridge</span>
             </h2>
             <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 font-Poppins leading-relaxed max-w-[220px]">
               Empowering developers with practical skills through real-world
@@ -53,7 +53,6 @@ const Footer = (props: Props) => {
               {[
                 { label: "Courses", href: "/courses" },
                 { label: "My Account", href: "/profile" },
-                { label: "Course Dashboard", href: "/profile" },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
@@ -104,8 +103,9 @@ const Footer = (props: Props) => {
         {/* Bottom row */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 font-Poppins">
-            © 2026 <span className="text-teal-500 font-medium">ELearning</span>{" "}
-            · All Rights Reserved
+            © 2026{" "}
+            <span className="text-teal-500 font-medium">SkillBridge</span> · All
+            Rights Reserved
           </p>
 
           {/* Social icons */}

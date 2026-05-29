@@ -17,9 +17,9 @@ const ProfilePage = ({}: Props) => {
   return (
     <Protected>
       <Heading
-        title={`${user?.name} profile - E-Learning`}
-        description="ELearning is a platform for students to learn and get help from teachers"
-        keywords="Programming, MERN, Redux, Machine Learning"
+        title={`${user?.name} Profile - SkillBridge`}
+        description="SkillBridge is an online learning platform where students can learn modern skills from expert instructors."
+        keywords="SkillBridge, online learning, MERN stack, programming courses, web development"
       />
       <Header
         open={open}

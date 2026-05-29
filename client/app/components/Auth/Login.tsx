@@ -91,7 +91,7 @@ const Login = ({ setRoute, setOpen, refetch }: Props) => {
       <h1
         className={`${styles.title} text-center sm:text-left text-lg sm:text-xl mb-5`}
       >
-        Login with Elearning
+        Login with SkillBridge
       </h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">

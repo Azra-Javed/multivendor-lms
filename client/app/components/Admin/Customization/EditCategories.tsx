@@ -45,7 +45,13 @@ const EditCategories = (props: Props) => {
     if (categories[categories.length - 1]?.title === "") {
       toast.error("Category title cannot be empty");
     } else {
-      setCategories((prevCategory: any) => [...prevCategory, { title: "" }]);
+      setCategories((prevCategory: any) => [
+        ...prevCategory,
+        {
+          _id: Date.now().toString(),
+          title: "",
+        },
+      ]);
     }
   };
 
@@ -97,7 +103,7 @@ const EditCategories = (props: Props) => {
       <div className="space-y-3">
         {categories?.map((item: any, index: number) => (
           <div
-            key={item._id || Math.random()}
+            key={item._id}
             className="flex items-center gap-3 rounded-xl
                        border border-gray-200 dark:border-white/10
                        bg-white dark:bg-slate-800

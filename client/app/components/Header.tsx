@@ -87,11 +87,10 @@ const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
             {/* Logo */}
             <Link
               href="/"
-              className="text-base font-semibold text-gray-900 dark:text-white font-Poppins shrink-0 hover:text-teal-500 dark:hover:text-teal-400 transition-colors duration-200"
+              className="text-[24px] font-[700] text-gray-900 dark:text-white font-Poppins shrink-0 hover:text-teal-500 dark:hover:text-teal-400 transition-colors duration-200"
             >
-              Azra <span className="text-teal-500">Javed</span>
+              Skill<span className="text-teal-500">Bridge</span>
             </Link>
-
             {/* Center: desktop nav */}
             <div className="hidden 800px:flex flex-1 justify-center">
               <NavItems activeItem={activeItem} isMobile={false} />
@@ -167,8 +166,8 @@ const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
           >
             {/* Sidebar header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-white/10">
-              <span className="text-sm font-semibold text-gray-900 dark:text-white font-Poppins">
-                Azra <span className="text-teal-500">Javed</span>
+              <span className="text-xl font-semibold text-gray-900 dark:text-white font-Poppins">
+                Skill<span className="text-teal-500">Bridge</span>
               </span>
               <button
                 onClick={() => setOpenSidebar(false)}
@@ -227,7 +226,7 @@ const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
               )}
 
               <p className="mt-4 text-xs text-gray-400 dark:text-gray-500 font-Poppins text-center">
-                © 2026 Azra Javed
+                © 2026 SkillBridge
               </p>
             </div>
           </aside>

@@ -1,5 +1,5 @@
 "use client";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import CourseInformation from "./CourseInformation";
 import CourseOptions from "./CourseOptions";
 import CourseData from "./CourseData";
@@ -41,25 +41,6 @@ const EditCourse = ({ id, isCollapsed }: Props) => {
 
   const [active, setActive] = useState(0);
 
-  useEffect(() => {
-    if (editCourseData) {
-      setCourseInfo({
-        name: editCourseData.name,
-        description: editCourseData.description,
-        price: editCourseData.price,
-        estimatedPrice: editCourseData?.estimatedPrice,
-        tags: editCourseData.tags,
-        level: editCourseData.level,
-        categories: editCourseData.categories,
-        demoUrl: editCourseData.demoUrl,
-        thumbnail: editCourseData?.thumbnail?.url,
-      });
-      setBenefits(editCourseData.benefits);
-      setPrerequisites(editCourseData.prerequisites);
-      setCourseContentData(editCourseData.courseData);
-    }
-  }, [editCourseData]);
-
   const [courseInfo, setCourseInfo] = useState({
     name: "",
     description: "",
@@ -67,7 +48,7 @@ const EditCourse = ({ id, isCollapsed }: Props) => {
     estimatedPrice: "",
     tags: "",
     level: "",
-    categories: "",
+    categories: [],
     demoUrl: "",
     thumbnail: "",
   });
@@ -84,6 +65,30 @@ const EditCourse = ({ id, isCollapsed }: Props) => {
     },
   ]);
   const [courseData, setCourseData] = useState({});
+
+  const initializedRef = useRef(false);
+
+  useEffect(() => {
+    if (editCourseData && !initializedRef.current) {
+      setCourseInfo({
+        name: editCourseData.name,
+        description: editCourseData.description,
+        price: editCourseData.price,
+        estimatedPrice: editCourseData?.estimatedPrice,
+        tags: editCourseData.tags,
+        level: editCourseData.level,
+        categories: editCourseData.categories,
+        demoUrl: editCourseData.demoUrl,
+        thumbnail: editCourseData?.thumbnail?.url,
+      });
+
+      setBenefits(editCourseData.benefits);
+      setPrerequisites(editCourseData.prerequisites);
+      setCourseContentData(editCourseData.courseData);
+
+      initializedRef.current = true;
+    }
+  }, [editCourseData]);
 
   const handleSubmit = async () => {
     const formattedBenefits = benefits.map((benefit) => ({

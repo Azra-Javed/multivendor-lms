@@ -70,30 +70,6 @@ const CoursePreview = ({
             Buy Now ${courseData?.price} (Preview)
           </button>
 
-          {/* Discount code */}
-          <div className="flex items-center gap-3 mb-5">
-            <input
-              type="text"
-              placeholder="Discount code..."
-              className="flex-1 px-4 py-2.5 rounded-lg text-sm font-Poppins
-                         border border-gray-200 dark:border-white/10
-                         bg-gray-50 dark:bg-slate-700
-                         text-gray-900 dark:text-white
-                         placeholder-gray-400 dark:placeholder-gray-500
-                         outline-none focus:border-teal-500
-                         transition-colors duration-200"
-            />
-            <button
-              className="px-4 py-2.5 rounded-lg text-sm font-medium font-Poppins
-                         border border-gray-200 dark:border-white/10
-                         text-gray-700 dark:text-gray-300
-                         hover:border-teal-500 hover:text-teal-500
-                         transition-all duration-200"
-            >
-              Apply
-            </button>
-          </div>
-
           {/* Includes */}
           <div className="h-px bg-gray-100 dark:bg-white/10 mb-4" />
           <p

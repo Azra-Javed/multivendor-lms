@@ -66,10 +66,6 @@ const CourseDetails = ({
       setRoute("Login");
       openAuthModel(true);
     }
-
-    console.log("isCourseOwner:", isCourseOwner);
-    console.log("course id:", data._id);
-    console.log("createdBy:", data.createdBy);
   };
 
   const includes = [

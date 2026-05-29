@@ -30,9 +30,15 @@ const CoursesClient = (props: Props) => {
     let filtered = data.courses;
 
     if (category !== "All") {
-      filtered = filtered.filter((item: any) =>
-        item.categories?.includes(category),
-      );
+      filtered = filtered.filter((item: any) => {
+        const courseCategories = Array.isArray(item.categories)
+          ? item.categories
+          : item.categories
+            ? [item.categories]
+            : [];
+
+        return courseCategories.includes(category);
+      });
     }
 
     if (search?.trim()) {
@@ -46,7 +52,8 @@ const CoursesClient = (props: Props) => {
     setCourses(filtered);
   }, [data, category, search]);
 
-  const categories = categoriesData?.layout?.categories;
+  const categories =
+    categoriesData?.layout?.categories?.map((c: any) => c.title) || [];
 
   if (isLoading) return <Loader />;
 
@@ -81,18 +88,18 @@ const CoursesClient = (props: Props) => {
           </button>
 
           {categories &&
-            categories.map((item: any, index: number) => (
+            categories.map((title: string, index: number) => (
               <button
                 key={index}
-                onClick={() => setCategory(item.title)}
+                onClick={() => setCategory(title)}
                 className={`h-[36px] px-5 rounded-full text-sm font-medium transition-all
                   ${
-                    category === item.title
+                    category === title
                       ? "bg-teal-500 text-white shadow-md"
                       : "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:text-teal-500"
                   }`}
               >
-                {item.title}
+                {title}
               </button>
             ))}
         </div>

@@ -6,7 +6,7 @@ import CourseOptions from "./CourseOptions";
 import CoursePreview from "./CoursePreview";
 import { useCreateCourseMutation } from "@/redux/features/courses/coursesApi";
 import toast from "react-hot-toast";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 type Props = {
   isCollapsed?: boolean;
@@ -16,6 +16,7 @@ const CreateCourse = ({ isCollapsed }: Props) => {
   const [createCourse, { isSuccess, isLoading, error }] =
     useCreateCourseMutation();
   const [active, setActive] = useState(0);
+  const router = useRouter();
   const [courseInfo, setCourseInfo] = useState({
     name: "",
     description: "",
@@ -23,7 +24,7 @@ const CreateCourse = ({ isCollapsed }: Props) => {
     estimatedPrice: "",
     tags: "",
     level: "",
-    categories: "",
+    categories: [],
     demoUrl: "",
     thumbnail: "",
   });
@@ -93,7 +94,7 @@ const CreateCourse = ({ isCollapsed }: Props) => {
   useEffect(() => {
     if (isSuccess) {
       toast.success("Course created successfully!");
-      redirect("/admin/courses");
+      router.push("/admin/courses");
     }
     if (error) {
       if ("data" in error) {

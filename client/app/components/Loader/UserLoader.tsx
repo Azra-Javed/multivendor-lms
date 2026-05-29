@@ -1,5 +1,3 @@
-// "use client";
-
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
 import { ReactNode, useEffect } from "react";
 import Loader from "./Loader";

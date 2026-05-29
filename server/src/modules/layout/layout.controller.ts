@@ -44,7 +44,7 @@ export const createLayout = CatchAsyncError(
               question: item.question,
               answer: item.answer,
             };
-          })
+          }),
         );
         await LayoutModel.create({ type: "FAQ", faq: faqItems });
       }
@@ -57,7 +57,7 @@ export const createLayout = CatchAsyncError(
             return {
               title: item.title,
             };
-          })
+          }),
         );
         await LayoutModel.create({
           type: "Categories",
@@ -72,7 +72,7 @@ export const createLayout = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
-  }
+  },
 );
 
 //@desc: edit layout
@@ -98,7 +98,7 @@ export const editLayout = CatchAsyncError(
         if (!image.startsWith("https")) {
           // delete old image
           await cloudinary.v2.uploader.destroy(
-            bannerData.banner.image.public_id
+            bannerData.banner.image.public_id,
           );
 
           // upload new one
@@ -122,7 +122,7 @@ export const editLayout = CatchAsyncError(
               subTitle,
             },
           },
-          { new: true }
+          { new: true },
         );
 
         return res.status(200).json({
@@ -148,7 +148,7 @@ export const editLayout = CatchAsyncError(
         await LayoutModel.findByIdAndUpdate(
           faqData._id,
           { type: "FAQ", faq: faqItems },
-          { new: true }
+          { new: true },
         );
 
         return res.status(200).json({
@@ -175,7 +175,7 @@ export const editLayout = CatchAsyncError(
         await LayoutModel.findByIdAndUpdate(
           categoriesData._id,
           { type: "Categories", categories: categoryItems },
-          { new: true }
+          { new: true },
         );
 
         return res.status(200).json({
@@ -188,7 +188,7 @@ export const editLayout = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
-  }
+  },
 );
 
 //@desc: get layout by type
@@ -206,5 +206,5 @@ export const getLayoutBYType = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
-  }
+  },
 );

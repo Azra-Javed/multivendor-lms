@@ -28,7 +28,7 @@ export default function Loader() {
           <p className="text-base font-semibold text-gray-900 dark:text-white font-Poppins">
             Skill<span className="text-teal-500">Bridge</span>
           </p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 font-Poppins mt-1">
+          <p className="text-s text-gray-400 dark:text-gray-500 font-Poppins mt-1">
             Loading, please wait...
           </p>
         </div>

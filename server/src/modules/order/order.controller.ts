@@ -1,22 +1,19 @@
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { CatchAsyncError } from "../../middleware/catchAsyncErrors.js";
 import ErrorHandler from "../../utils/ErrorHandler.js";
-import OrderModel from "./order.model.js";
-import { IOrder } from "./order.model.js";
-import userModel from "../user/user.model.js";
-import CourseModel, { ICourse } from "../course/course.model.js";
-import path from "path";
-import ejs from "ejs";
 import sendMail from "../../utils/sendMail.js";
+import CourseModel, { ICourse } from "../course/course.model.js";
 import NotificationModel from "../notification/notification.model.js";
+import userModel from "../user/user.model.js";
+import { IOrder } from "./order.model.js";
 import { getAllOrdersService, newOrder } from "./order.service.js";
-import { fileURLToPath } from "url";
+
 import { redis } from "../../utils/redis.js";
 
 //Stripe
 
-import Stripe from "stripe";
 import mongoose from "mongoose";
+import Stripe from "stripe";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error("STRIPE_SECRET_KEY is missing in environment variables");
@@ -65,6 +62,12 @@ export const createOrder = CatchAsyncError(
         courseId: course._id,
         userId: user?._id,
         payment_info,
+
+        // snapshot fields
+        userName: user?.name,
+        userEmail: user?.email,
+        courseTitle: course.name,
+        price: course.price,
       };
 
       const mailData = {

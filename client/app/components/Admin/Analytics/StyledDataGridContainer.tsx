@@ -87,7 +87,18 @@ const StyledDataGridContainer = ({
           "& .MuiDataGrid-virtualScroller": {
             backgroundColor: isDark ? "#0f172a" : "#ffffff",
           },
+          "& .MuiDataGrid-overlay": {
+            backgroundColor: isDark
+              ? "#0f172a !important"
+              : "#ffffff !important",
+            color: isDark ? "#e2e8f0 !important" : "#1e293b !important",
+          },
 
+          "& .MuiDataGrid-overlayWrapper": {
+            backgroundColor: isDark
+              ? "#0f172a !important"
+              : "#ffffff !important",
+          },
           "& .MuiDataGrid-footerContainer": {
             backgroundColor: isDark
               ? "#1e293b !important"

@@ -22,18 +22,24 @@ const AllInvoices = ({ isDashboard }: Props) => {
   const [orderData, setOrderData] = useState<any>([]);
 
   useEffect(() => {
-    if (data && usersData && coursesData) {
+    if (data) {
       const temp = data?.orders?.map((item: any) => {
         const user = usersData?.users?.find((u: any) => u._id === item.userId);
         const course = coursesData?.courses?.find(
           (c: any) => c._id === item.courseId,
         );
+
         return {
           ...item,
-          userName: user?.name || "Unknown",
-          userEmail: user?.email || "—",
-          title: course?.name || "—",
-          price: "$" + (course?.price ?? "—"),
+          userName: user?.name || item.userName || "Deleted User",
+          userEmail: user?.email || item.userEmail || "—",
+          title: course?.name || item.courseTitle || "Deleted Course",
+          price:
+            course?.price != null
+              ? "$" + course.price
+              : item.price != null
+                ? "$" + item.price
+                : "—",
         };
       });
       setOrderData(temp);
@@ -86,7 +92,7 @@ const AllInvoices = ({ isDashboard }: Props) => {
 
   if (isLoading) return <Loader />;
 
-  // ── Dashboard mode: clean custom table ──
+  // ── Dashboard mode
   if (isDashboard) {
     return (
       <div className="w-full overflow-auto">
@@ -151,6 +157,14 @@ const AllInvoices = ({ isDashboard }: Props) => {
           rows={rows}
           columns={columns}
           slots={{ toolbar: GridToolbar }}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 10,
+              },
+            },
+          }}
+          pageSizeOptions={[10, 25, 50]}
         />
       </StyledDataGridContainer>
     </div>

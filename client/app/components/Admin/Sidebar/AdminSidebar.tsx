@@ -111,7 +111,6 @@ const SidebarComponent = ({ onCollapsedChange }: SidebarProps) => {
 
     return false;
   });
-  const router = useRouter();
 
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
@@ -260,7 +259,7 @@ const SidebarComponent = ({ onCollapsedChange }: SidebarProps) => {
                   isDark ? "text-white" : "text-black"
                 }`}
               >
-                E<span className="text-teal-500">Learning</span>
+                Skill<span className="text-teal-500">Bridge</span>
               </Link>
             )}
 
@@ -414,8 +413,10 @@ const SidebarComponent = ({ onCollapsedChange }: SidebarProps) => {
 
           <SectionTitle title="Extras" collapsed={isCollapsed} />
 
-          <MenuItem icon={<ExitToAppIcon />} onClick={logout}>
-            {!isCollapsed && "Logout"}
+          <MenuItem icon={<ExitToAppIcon />}>
+            <div onClick={() => logout()} className="w-full flex items-center">
+              {!isCollapsed && "Logout"}
+            </div>
           </MenuItem>
         </div>
       </Menu>

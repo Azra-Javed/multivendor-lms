@@ -46,26 +46,33 @@ const CourseDetails = ({
   const discountPercentengePrice = discountPercentage.toFixed(0);
 
   const isPurchased =
-    user && user?.courses?.find((item: any) => item._id === data._id);
+    user?.courses?.some((item: any) => item._id === data._id) || false;
 
   const isCourseOwner =
-    user?._id === data?.createdBy?._id || user?._id === data?.createdBy;
+    user && (user._id === data?.createdBy?._id || user._id === data?.createdBy);
 
   const handleOrder = () => {
+    // no user → login
+    if (!user) {
+      setRoute("Login");
+      openAuthModel(true);
+      return;
+    }
+
+    // owner → manage course
     if (isCourseOwner) {
       router.push(`/course-access/${data._id}`);
       return;
     }
+
+    // already purchased → go to course
     if (isPurchased) {
       router.push(`/course-access/${data._id}`);
       return;
     }
-    if (user) {
-      setOpen(true);
-    } else {
-      setRoute("Login");
-      openAuthModel(true);
-    }
+
+    // otherwise → checkout
+    setOpen(true);
   };
 
   const includes = [
@@ -296,13 +303,15 @@ const CourseDetails = ({
                                font-Poppins bg-teal-500 hover:bg-teal-600
                                text-white transition-colors duration-200"
                   >
-                    {isCourseOwner
-                      ? "Manage Course"
-                      : isPurchased
-                        ? "Go to Course"
-                        : data.price === 0
-                          ? "Enroll for Free"
-                          : `Buy Now · $${data.price}`}
+                    {!user
+                      ? "Buy Course"
+                      : isCourseOwner
+                        ? "Manage Course"
+                        : isPurchased
+                          ? "Go to Course"
+                          : data.price === 0
+                            ? "Enroll for Free"
+                            : `Buy Now · $${data.price}`}
                   </button>
 
                   {/* Owner hint */}

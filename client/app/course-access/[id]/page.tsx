@@ -1,38 +1,52 @@
 "use client";
 
-import * as React from "react";
+import { use, useEffect } from "react";
 import Loader from "@/app/components/Loader/Loader";
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
 import { useRouter } from "next/navigation";
 import CourseContent from "../../components/Course/CourseContent";
+import { useGetCourseDetailsQuery } from "@/redux/features/courses/coursesApi";
 
 type Props = {
   params: Promise<{ id: string }>;
 };
 
 export default function Page({ params }: Props) {
-  const { id } = React.use(params);
-
-  const { isLoading, error, data } = useLoadUserQuery(undefined, {});
-
+  const { id } = use(params);
   const router = useRouter();
 
-  React.useEffect(() => {
+  // USER (purchased courses)
+  const { data: userData, isLoading, error } = useLoadUserQuery(undefined);
+
+  // COURSE (owner check comes from here)
+  const { data: courseData, isLoading: courseLoading } =
+    useGetCourseDetailsQuery(id);
+
+  useEffect(() => {
     if (error) {
       router.replace("/");
       return;
     }
 
-    if (data?.user?.courses) {
-      const isPurchased = data.user.courses.some(
-        (item: any) => item._id === id,
-      );
+    if (!userData?.user || !courseData?.course) return;
 
-      if (!isPurchased) router.replace("/");
+    // ✅ PURCHASE CHECK
+    const isPurchased = userData.user.courses?.some(
+      (item: any) => String(item._id) === String(id),
+    );
+
+    // ✅ OWNER CHECK (FIXED)
+    const isOwner =
+      String(courseData.course.createdBy) === String(userData.user._id);
+
+    const hasAccess = isPurchased || isOwner;
+
+    if (!hasAccess) {
+      router.replace("/");
     }
-  }, [data, error, id, router]);
+  }, [userData, courseData, error, id, router]);
 
-  if (isLoading) return <Loader />;
+  if (isLoading || courseLoading) return <Loader />;
 
-  return <CourseContent id={id} user={data?.user} />;
+  return <CourseContent id={id} user={userData?.user} />;
 }

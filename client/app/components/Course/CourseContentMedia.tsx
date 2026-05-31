@@ -217,7 +217,7 @@ const CourseContentMedia = ({
       </div>
 
       {/* Tab content */}
-      <div className="mt-6">
+      <div className="m-6">
         {/* Overview */}
         {activeBar === 0 && (
           <p className="text-sm text-gray-600 dark:text-gray-300 font-Poppins leading-relaxed whitespace-pre-line">
@@ -227,7 +227,7 @@ const CourseContentMedia = ({
 
         {/* Resources */}
         {activeBar === 1 && (
-          <div className="space-y-4">
+          <div className="space-y-4 mb-[20]">
             {data[activeVideo]?.links.map((item: any, index: number) => (
               <div
                 key={index}

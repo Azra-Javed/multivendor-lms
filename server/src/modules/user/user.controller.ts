@@ -43,35 +43,105 @@ const createActivationToken = (user: IRegistration): IActivationToken => {
   return { token, activationCode };
 };
 
-//@desc: register user
-//@route: POST /api/v1/user/register
+// //@desc: register user
+// //@route: POST /api/v1/user/register
+// export const registerUser = CatchAsyncError(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     const { name, email, password } = req.body;
+
+//     if (!password || password.length < 6) {
+//       return next(
+//         new ErrorHandler("Password must be at least 6 characters", 400),
+//       );
+//     }
+
+//     // Check existing user
+//     const isEmailExists = await userModel.findOne({ email });
+
+//     if (isEmailExists) {
+//       return next(new ErrorHandler("Email already exists", 400));
+//     }
+
+//     // Create activation token
+//     const user: IRegistration = { name, email, password };
+//     const activationToken = createActivationToken(user);
+//     const activationCode = activationToken.activationCode;
+
+//     // Prepare template data
+//     const data = { user: { name: user.name }, activationCode };
+
+//     // Send activation mail
+//     try {
+//       await sendMail({
+//         email: user.email,
+//         subject: "Activate your account",
+//         template: "activation-mail",
+//         data,
+//       });
+
+//       res.status(201).json({
+//         success: true,
+//         message: `Please check your email (${user.email}) to activate your account.`,
+//         activationToken: activationToken.token,
+//       });
+//     } catch (error: any) {
+//       return next(new ErrorHandler(error.message, 400));
+//     }
+//   },
+// );
+
 export const registerUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, email, password } = req.body;
-
-    if (!password || password.length < 6) {
-      return next(
-        new ErrorHandler("Password must be at least 6 characters", 400),
-      );
-    }
-
-    // Check existing user
-    const isEmailExists = await userModel.findOne({ email });
-
-    if (isEmailExists) {
-      return next(new ErrorHandler("Email already exists", 400));
-    }
-
-    // Create activation token
-    const user: IRegistration = { name, email, password };
-    const activationToken = createActivationToken(user);
-    const activationCode = activationToken.activationCode;
-
-    // Prepare template data
-    const data = { user: { name: user.name }, activationCode };
-
-    // Send activation mail
     try {
+      console.log("========== REGISTER START ==========");
+      console.log("Request body:", {
+        name: req.body.name,
+        email: req.body.email,
+      });
+
+      const { name, email, password } = req.body;
+
+      console.log("1. Validating password");
+
+      if (!password || password.length < 6) {
+        return next(
+          new ErrorHandler("Password must be at least 6 characters", 400),
+        );
+      }
+
+      console.log("2. Checking existing email");
+
+      const isEmailExists = await userModel.findOne({ email });
+
+      console.log("3. Existing email result:", !!isEmailExists);
+
+      if (isEmailExists) {
+        return next(new ErrorHandler("Email already exists", 400));
+      }
+
+      console.log("4. Creating activation token");
+
+      const user: IRegistration = {
+        name,
+        email,
+        password,
+      };
+
+      const activationToken = createActivationToken(user);
+
+      console.log("5. Activation token created");
+
+      const activationCode = activationToken.activationCode;
+
+      const data = {
+        user: {
+          name: user.name,
+        },
+        activationCode,
+      };
+
+      console.log("6. About to send email");
+
       await sendMail({
         email: user.email,
         subject: "Activate your account",
@@ -79,13 +149,23 @@ export const registerUser = CatchAsyncError(
         data,
       });
 
+      console.log("7. Email sent successfully");
+
       res.status(201).json({
         success: true,
         message: `Please check your email (${user.email}) to activate your account.`,
         activationToken: activationToken.token,
       });
+
+      console.log("8. Response sent");
+      console.log("========== REGISTER END ==========");
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      console.error("========== REGISTER ERROR ==========");
+      console.error(error);
+
+      return next(
+        new ErrorHandler(error.message || "Registration failed", 400),
+      );
     }
   },
 );

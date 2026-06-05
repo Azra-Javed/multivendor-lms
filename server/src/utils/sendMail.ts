@@ -43,17 +43,13 @@
 
 // export default sendMail;
 
-import nodemailer, { Transporter } from "nodemailer";
+import { Resend } from "resend";
 import ejs from "ejs";
 import path from "path";
 import fs from "fs";
-import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
 dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 interface IEmail {
   email: string;
@@ -62,36 +58,14 @@ interface IEmail {
   data: { [key: string]: any };
 }
 
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 const sendMail = async (options: IEmail): Promise<void> => {
   try {
-    console.log("========== SEND MAIL START ==========");
+    console.log("========== RESEND EMAIL START ==========");
     console.log("Recipient:", options.email);
     console.log("Subject:", options.subject);
     console.log("Template:", options.template);
-
-    console.log("SMTP_SERVICE:", process.env.SMTP_SERVICE);
-    console.log("SMTP_MAIL:", process.env.SMTP_MAIL);
-
-    console.log("Creating transporter...");
-
-    const transporter: Transporter = nodemailer.createTransport({
-      service: process.env.SMTP_SERVICE,
-      auth: {
-        user: process.env.SMTP_MAIL,
-        pass: process.env.SMTP_PASSWORD,
-      },
-
-      // Debugging timeouts
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 15000,
-    });
-
-    console.log("Transporter created");
-
-    console.log("Verifying SMTP connection...");
-    await transporter.verify();
-    console.log("SMTP verified successfully");
 
     const templatePath = path.join(
       process.cwd(),
@@ -102,30 +76,27 @@ const sendMail = async (options: IEmail): Promise<void> => {
     console.log("Template path:", templatePath);
     console.log("Template exists:", fs.existsSync(templatePath));
 
-    console.log("Rendering template...");
-
+    // Render EJS template → HTML
     const html: string = await ejs.renderFile(templatePath, options.data);
 
     console.log("Template rendered successfully");
 
-    console.log("Sending email...");
+    console.log("Sending email via Resend...");
 
-    const info = await transporter.sendMail({
-      from: process.env.SMTP_MAIL,
+    const result = await resend.emails.send({
+      from: process.env.EMAIL_FROM as string,
       to: options.email,
       subject: options.subject,
       html,
     });
 
     console.log("Email sent successfully");
-    console.log("Message ID:", info.messageId);
+    console.log("Resend response:", result);
 
-    console.log("========== SEND MAIL END ==========");
+    console.log("========== RESEND EMAIL END ==========");
   } catch (error: any) {
-    console.error("========== SEND MAIL ERROR ==========");
+    console.error("========== RESEND EMAIL ERROR ==========");
     console.error("Message:", error?.message);
-    console.error("Code:", error?.code);
-    console.error("Command:", error?.command);
     console.error(error);
 
     throw error;

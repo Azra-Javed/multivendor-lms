@@ -1,5 +1,6 @@
 import { useGetHeroDataQuery } from "@/redux/features/layout/layoutApi";
 import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 
 type Props = {
   courseInfo: any;
@@ -50,6 +51,10 @@ const CourseInformation = ({
   }, []);
   const handleSubmit = (e: any) => {
     e.preventDefault();
+    if (!courseInfo.thumbnail) {
+      toast.error("Please upload a course thumbnail");
+      return;
+    }
     setActive(active + 1);
   };
 

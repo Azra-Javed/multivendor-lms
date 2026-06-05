@@ -57,6 +57,7 @@ export const registerUser = CatchAsyncError(
 
     // Check existing user
     const isEmailExists = await userModel.findOne({ email });
+
     if (isEmailExists) {
       return next(new ErrorHandler("Email already exists", 400));
     }

@@ -295,9 +295,8 @@ const SidebarComponent = ({ onCollapsedChange }: SidebarProps) => {
                   alt="user"
                   width={46}
                   height={46}
-                  className="rounded-full object-cover border border-teal-500"
+                  className="w-[46px] h-[46px] rounded-full object-cover border border-teal-500"
                 />
-
                 <div>
                   <p
                     className={`text-[14px] font-semibold ${

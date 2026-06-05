@@ -7,6 +7,7 @@ import {
 } from "@/redux/features/notifications/notificationApi";
 import { format } from "timeago.js";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import socketIO from "socket.io-client";
 
@@ -24,14 +25,16 @@ const DashboardHeader = ({ open = false, setOpen }: Props) => {
   });
 
   const [updateNotificationStatus] = useUpdateNotificationStatusMutation();
-
   const [notifications, setNotifications] = useState<any>([]);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
-
   const [internalOpen, setInternalOpen] = useState(false);
   const isOpen = setOpen ? open : internalOpen;
-
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true); // needed for createPortal (SSR safe)
+  }, []);
 
   useEffect(() => {
     audioRef.current = new Audio(
@@ -42,7 +45,6 @@ const DashboardHeader = ({ open = false, setOpen }: Props) => {
 
   const playNotificationSound = () => {
     if (!audioRef.current) return;
-
     audioRef.current.currentTime = 0;
     audioRef.current.play().catch(() => {});
   };
@@ -60,9 +62,7 @@ const DashboardHeader = ({ open = false, setOpen }: Props) => {
       refetch();
       playNotificationSound();
     };
-
     socket.on("newNotification", handleNewNotification);
-
     return () => {
       socket.off("newNotification", handleNewNotification);
     };
@@ -90,106 +90,123 @@ const DashboardHeader = ({ open = false, setOpen }: Props) => {
         handleClose();
       }
     };
-
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
 
   return (
-    <div
-      className="w-full flex items-center justify-end px-3 sm:px-6 py-3
-                 fixed top-0 right-0 left-0 z-[999]
-                 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md
-                 border-b border-gray-200 dark:border-white/10"
-    >
-      <ThemeSwitcher />
+    <>
+      {/* Header bar */}
+      <div
+        className="w-full flex items-center justify-end px-3 sm:px-6 py-3
+                   fixed top-0 right-0 left-0 z-[999]
+                   bg-white/80 dark:bg-slate-900/80 backdrop-blur-md
+                   border-b border-gray-200 dark:border-white/10"
+      >
+        <ThemeSwitcher />
 
-      <div className="relative ml-3">
-        <button
-          onClick={handleToggle}
-          className="w-9 h-9 rounded-lg flex items-center justify-center
-                     border border-gray-200 dark:border-white/10
-                     bg-white dark:bg-slate-800
-                     text-gray-600 dark:text-gray-300
-                     hover:border-teal-500 hover:text-teal-500
-                     transition-all duration-200"
-        >
-          <IoMdNotificationsOutline className="w-5 h-5" />
-        </button>
-
-        {notifications.length > 0 && (
-          <span
-            className="absolute -top-1.5 -right-1.5
-                       w-[18px] h-[18px] rounded-full
-                       bg-teal-500 text-white
-                       text-[10px] font-semibold flex items-center justify-center"
+        <div className="relative ml-3">
+          <button
+            onClick={handleToggle}
+            className="w-9 h-9 rounded-lg flex items-center justify-center
+                       border border-gray-200 dark:border-white/10
+                       bg-white dark:bg-slate-800
+                       text-gray-600 dark:text-gray-300
+                       hover:border-teal-500 hover:text-teal-500
+                       transition-all duration-200"
           >
-            {notifications.length}
-          </span>
-        )}
+            <IoMdNotificationsOutline className="w-5 h-5" />
+          </button>
+
+          {notifications.length > 0 && (
+            <span
+              className="absolute -top-1.5 -right-1.5
+                         w-[18px] h-[18px] rounded-full
+                         bg-teal-500 text-white
+                         text-[10px] font-semibold flex items-center justify-center"
+            >
+              {notifications.length}
+            </span>
+          )}
+        </div>
       </div>
 
-      {isOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/40 z-[9998]"
-            onClick={handleClose}
-          />
-
-          <div
-            ref={dropdownRef}
-            className="fixed top-[70px] right-6 w-[360px]
-                       max-h-[80vh] overflow-y-auto
-                       rounded-xl border border-gray-200 dark:border-white/10
-                       bg-white dark:bg-slate-900 shadow-xl z-[10000]"
-          >
-            <div className="px-5 py-4 border-b border-gray-100 dark:border-white/10 flex justify-between">
-              <h5 className="text-sm font-semibold">Notifications</h5>
-              <span className="text-xs text-teal-500">
-                {notifications.length} unread
-              </span>
-            </div>
-
-            {notifications.length === 0 && (
-              <div className="py-10 text-center text-gray-500">
-                No new notifications
-              </div>
-            )}
-
-            {notifications.map((item: any) => (
-              <div
-                key={item._id}
-                className="px-5 py-4 hover:bg-gray-50 dark:hover:bg-white/5"
-              >
-                <div className="flex justify-between">
-                  <p className="font-semibold text-sm">{item.title}</p>
-
-                  <button
-                    onClick={() => handleNotificationStatusChange(item._id)}
-                    className="text-xs text-teal-500 hover:underline"
-                  >
-                    Mark read
-                  </button>
+      {/* Portal — renders outside the z-[999] header so z-index works correctly */}
+      {mounted &&
+        isOpen &&
+        createPortal(
+          <>
+            <div
+              className="fixed inset-0 bg-black/20 z-[99999]"
+              onClick={handleClose}
+            />
+            {/* Notification panel */}
+            <div
+              ref={dropdownRef}
+              className="fixed z-[100000] top-[70px]
+             left-5 right-5 rounded-xl
+             min-[500px]:left-auto min-[500px]:right-6 min-[500px]:w-[360px]
+             max-h-[80vh] overflow-y-auto
+             border border-gray-200 dark:border-white/10
+             bg-white dark:bg-slate-900 shadow-xl"
+            >
+              {/* Header */}
+              <div className="px-5 py-4 border-b border-gray-100 dark:border-white/10 flex justify-between items-center">
+                <h5 className="text-sm font-semibold">Notifications</h5>
+                <div className="hidden min-[500px]:block flex items-center gap-3">
+                  <span className="text-xs text-teal-500">
+                    {notifications.length} unread
+                  </span>
                 </div>
 
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  {item.message}
-                </p>
-
-                <p className="text-xs text-gray-400 mt-1">
-                  {format(item.createdAt)}
-                </p>
+                <button
+                  onClick={handleClose}
+                  className="min-[500px]:hidden w-6 h-6 flex items-center justify-center
+                               rounded-md text-gray-400 hover:text-gray-600
+                               dark:hover:text-white hover:bg-gray-100
+                               dark:hover:bg-white/10 transition-colors"
+                >
+                  X
+                </button>
               </div>
-            ))}
-          </div>
-        </>
-      )}
-    </div>
+
+              {notifications.length === 0 && (
+                <div className="py-10 text-center text-gray-500 text-sm">
+                  No new notifications
+                </div>
+              )}
+
+              {notifications.map((item: any) => (
+                <div
+                  key={item._id}
+                  className="px-5 py-4 hover:bg-gray-50 dark:hover:bg-white/5 border-b border-gray-100 dark:border-white/5 last:border-0"
+                >
+                  <div className="flex justify-between items-start gap-2">
+                    <p className="font-semibold text-sm">{item.title}</p>
+                    <button
+                      onClick={() => handleNotificationStatusChange(item._id)}
+                      className="text-xs text-teal-500 hover:underline shrink-0"
+                    >
+                      Mark read
+                    </button>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                    {item.message}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {format(item.createdAt)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </>,
+          document.body, //  renders directly on body, no parent z-index interference
+        )}
+    </>
   );
 };
 

@@ -16,7 +16,7 @@ router.get(
   updateToken,
   isAuthenticated,
   authorizeRoles("admin"),
-  getAllOrers
+  getAllOrers,
 );
 router.get("/payment/stripepublishablekey", getStripePublishableKey);
 router.post("/payment", isAuthenticated, newPayment);

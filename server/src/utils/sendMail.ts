@@ -69,25 +69,29 @@ const sendMail = async (options: IEmail): Promise<void> => {
     console.log("Subject:", options.subject);
     console.log("Template:", options.template);
 
-    console.log("SMTP_HOST:", process.env.SMTP_HOST);
-    console.log("SMTP_PORT:", process.env.SMTP_PORT);
     console.log("SMTP_SERVICE:", process.env.SMTP_SERVICE);
     console.log("SMTP_MAIL:", process.env.SMTP_MAIL);
 
     console.log("Creating transporter...");
 
     const transporter: Transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: Number(process.env.SMTP_PORT) === 465,
       service: process.env.SMTP_SERVICE,
       auth: {
         user: process.env.SMTP_MAIL,
         pass: process.env.SMTP_PASSWORD,
       },
+
+      // Debugging timeouts
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
     });
 
     console.log("Transporter created");
+
+    console.log("Verifying SMTP connection...");
+    await transporter.verify();
+    console.log("SMTP verified successfully");
 
     const templatePath = path.join(
       process.cwd(),
@@ -115,10 +119,15 @@ const sendMail = async (options: IEmail): Promise<void> => {
 
     console.log("Email sent successfully");
     console.log("Message ID:", info.messageId);
+
     console.log("========== SEND MAIL END ==========");
-  } catch (error) {
+  } catch (error: any) {
     console.error("========== SEND MAIL ERROR ==========");
+    console.error("Message:", error?.message);
+    console.error("Code:", error?.code);
+    console.error("Command:", error?.command);
     console.error(error);
+
     throw error;
   }
 };

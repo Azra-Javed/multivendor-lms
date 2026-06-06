@@ -53,7 +53,7 @@ export const courseApi = apiSlice.injectEndpoints({
         credentials: "include" as const,
       }),
     }),
-    addNewQeustion: builder.mutation({
+    AddNewQuestion: builder.mutation({
       query: ({ question, courseId, contentId }) => ({
         url: `add-question`,
         method: "PUT",
@@ -112,7 +112,7 @@ export const {
   useGetUsersAllCoursesQuery,
   useGetCourseDetailsQuery,
   useGetCourseContentQuery,
-  useAddNewQeustionMutation,
+  useAddNewQuestionMutation,
   useAddAnswerInQuestionMutation,
   useAddReviewInCourseMutation,
   useAddReplyInReviewMutation,

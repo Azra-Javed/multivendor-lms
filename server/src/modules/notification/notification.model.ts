@@ -28,11 +28,11 @@ const NotificationSchema = new Schema<INotification>(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const NotificationModel: Model<INotification> = mongoose.model(
   "Notification",
-  NotificationSchema
+  NotificationSchema,
 );
 export default NotificationModel;

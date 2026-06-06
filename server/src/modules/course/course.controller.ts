@@ -292,14 +292,13 @@ export const addAnswer = CatchAsyncError(
       await course.save();
 
       // Notify or email
-      if (req.user._id === question.user._id) {
-        //create notification
+      if (req.user._id.toString() !== question.user._id.toString()) {
         await NotificationModel.create({
-          user: req.user._id,
+          userId: question.user._id,
           title: "New Question Reply Received",
-          message: `You have a new question in ${course.name}`,
+          message: `You have a new reply on your question in ${course.name}`,
         });
-      } else {
+
         const data = {
           name: question.user.name || "User",
           title: courseContent.title,
@@ -313,7 +312,7 @@ export const addAnswer = CatchAsyncError(
             data,
           });
         } catch (error: any) {
-          return next(new ErrorHandler(error.message, 500));
+          console.error("Email error:", error);
         }
       }
 

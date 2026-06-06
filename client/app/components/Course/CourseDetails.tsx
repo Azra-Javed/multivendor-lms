@@ -11,6 +11,7 @@ import { IoCheckmarkDoneOutline, IoCloseOutline } from "react-icons/io5";
 import { format } from "timeago.js";
 import CoursePlayer from "../../utils/CoursePlayer";
 import CheckOutForm from "../Payment/CheckOutForm";
+import { useTheme } from "next-themes";
 import CourseContentList from "./CourseContentList";
 
 type Props = {
@@ -94,6 +95,9 @@ const CourseDetails = ({
     },
   ];
 
+  //theme
+  const { resolvedTheme } = useTheme();
+  console.log("resolvedTheme:", resolvedTheme);
   return (
     <>
       <div className="w-[92%] mx-auto py-12">
@@ -381,15 +385,18 @@ const CourseDetails = ({
 
               {stripePromise && clientSecret && (
                 <Elements
+                  key={resolvedTheme}
                   stripe={stripePromise}
                   options={{
                     clientSecret,
                     appearance: {
-                      theme: "night",
+                      theme: resolvedTheme === "dark" ? "night" : "stripe",
                       variables: {
                         colorPrimary: "#14b8a6",
-                        colorBackground: "#0f172a",
-                        colorText: "#e2e8f0",
+                        colorBackground:
+                          resolvedTheme === "dark" ? "#0f172a" : "#ffffff",
+                        colorText:
+                          resolvedTheme === "dark" ? "#e2e8f0" : "#111827",
                         colorDanger: "#f87171",
                         borderRadius: "8px",
                         fontFamily: "Poppins, sans-serif",

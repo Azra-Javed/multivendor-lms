@@ -112,7 +112,8 @@ const Hero = () => {
               className="
                 bg-transparent
                 border
-                
+                shadow
+                border-gray-400
                 dark:border-white/10
                 dark:bg-slate-800
                 dark:text-white

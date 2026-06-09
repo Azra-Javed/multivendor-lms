@@ -30,10 +30,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${poppins.variable} ${josefin.variable} bg-white dark:bg-gradient-to-b dark:from-gray-900 dark:to-black duration-300`}
-      >
-        <ClientProviders>{children}</ClientProviders>
+      <body className={`${poppins.variable} ${josefin.variable} duration-300`}>
+        <div
+          className={` min-h-screen dark:bg-gradient-to-br dark:from-[#1f1f23] dark:via-[#3b3b52] dark:to-[#16232b]`}
+        >
+          <ClientProviders>{children}</ClientProviders>
+        </div>
       </body>
     </html>
   );

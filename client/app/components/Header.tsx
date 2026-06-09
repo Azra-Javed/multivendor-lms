@@ -62,7 +62,7 @@ const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
 
   // sticky on scroll
   useEffect(() => {
-    const onScroll = () => setActive(window.scrollY > 80);
+    const onScroll = () => setActive(window.scrollY > 70);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -78,12 +78,12 @@ const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
         className={`h-[64px] w-full transition-all duration-300
           ${
             active
-              ? "fixed top-0 left-0 z-[80] bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-gray-200 dark:border-white/10 shadow-sm"
-              : "border-b border-gray-200 dark:border-white/10 bg-white dark:bg-transparent"
+              ? "fixed top-0 left-0 z-[80] bg-transparnet  backdrop-blur-md border-b border-gray-300 dark:border-white/10 shadow-sm"
+              : "border-b border-gray-300 dark:border-white/10 bg-transparent"
           }`}
       >
-        <div className="max-w-6xl mx-auto h-full px-4 sm:px-6">
-          <div className="h-full flex items-center justify-between gap-6">
+        <div className="max-w-6xl mx-auto h-full px-4 sm:px-10">
+          <div className="h-full flex items-center justify-between gap-8">
             {/* Logo */}
             <Link
               href="/"
@@ -92,7 +92,7 @@ const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
               Skill<span className="text-teal-500">Bridge</span>
             </Link>
             {/* Center: desktop nav */}
-            <div className="hidden 800px:flex flex-1 justify-center">
+            <div className="hidden 800px:flex flex-1 justify-center" pl-8>
               <NavItems activeItem={activeItem} isMobile={false} />
             </div>
 

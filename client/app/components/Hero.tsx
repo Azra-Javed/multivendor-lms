@@ -26,7 +26,7 @@ const Hero = () => {
         <div
           className="
             absolute 
-            -z-10
+            z-0
             w-[180px] h-[180px]
             sm:w-[240px] sm:h-[240px]
             md:w-[280px] md:h-[280px]

@@ -53,7 +53,7 @@ const CourseCard = ({ item, isProfile }: Props) => {
 
           {/* Discount badge — e.g. "30% OFF" */}
           {hasDiscount && (
-            <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md text-xs font-semibold bg-rose-500 text-white">
+            <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md text-xs font-semibold bg-[#d97706] text-white">
               {discountPercent}% OFF
             </span>
           )}

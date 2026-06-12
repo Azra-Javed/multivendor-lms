@@ -572,9 +572,6 @@ sequenceDiagram
 | Designing the data model so a single-admin platform today can become a multi-vendor platform later without a schema rewrite. | Added an `instructor` value to the user role enum and a `createdBy` reference on every course from the start, and built the course-content authorization check around ownership rather than role, so it already works correctly once instructors are allowed to create courses. |
 | Managing a growing notifications collection. | Added a `node-cron` job that runs daily and deletes notifications that are both marked as read and older than 30 days. |
 
-This table reflects the technical trade-offs visible in the codebase; feel free to extend it with the specific debugging stories and "aha" moments from your own development process (for example, any issues you hit while integrating VdoCipher, Tailwind configuration, or NextAuth).
-
-
 
 ## Best Practices
 

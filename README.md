@@ -29,13 +29,6 @@ The core goals were:
 
 SkillBridge follows a three-tier architecture consisting of a Node.js/Express backend, a MongoDB database (with Redis as a supporting cache/session layer), and a Next.js frontend.
 
-| Layer | Description | Key Components / Features |
-|---|---|---|
-| Backend Layer | Built with Express 5, exposing modular RESTful APIs under a single `/api/v1` prefix. | User module (`/api/v1/registeration`, `/login`, `/me`, role/profile management) - Course module (`/create-course`, `/get-courses`, `/add-question`, `/add-review`, etc.) - Order module (`/create-order`, `/payment`, Stripe integration) - Notification module (`/get-all-notifications`, `/update-notification/:id`) - Analytics module (12-month growth stats for users, courses, orders) - Layout module (banner, FAQ, categories management). Extras: global API rate limiting, centralized error middleware, cookie-based auth. |
-| Data Layer | Uses MongoDB with Mongoose for schema modeling, plus Redis for sessions and caching. | User model with bcrypt-hashed passwords, role enum (user/admin/instructor) and JWT signing methods - Course model with embedded lessons (`courseData`), questions, reviews and reply threads - Order model storing payment info plus an invoice "snapshot" of user/course details - Notification model with read/unread status and a scheduled cleanup job - Layout model for editable homepage content. |
-| Frontend Layer | Built with Next.js (App Router) and React, providing the student and admin experiences. | Redux Toolkit + RTK Query for state and API management, split into per-domain API slices (auth, courses, orders, layout, notifications, analytics) - Socket.IO client for real-time admin notifications - NextAuth for social login (Google/GitHub) - Material UI and MUI X Data Grid for the admin dashboard, Recharts for analytics charts. |
-| Security Features | Ensures controlled access and data protection across the system. | JWT authentication with short-lived access tokens (about 5 minutes) and longer-lived refresh tokens (about 7 days), with sessions cached in Redis - Role-based authorization middleware (`authorizeRoles`) guarding admin-only routes - CORS restricted to a configured frontend origin - Password hashing with bcryptjs - Server-side verification of Stripe PaymentIntents before an order is created. |
-
 ## System Architecture Diagram
 
 ```mermaid
@@ -166,18 +159,6 @@ Any write operation (course edit, new question, new answer, new review, reply to
 - Scoped visibility: notification retrieval is scoped to the requesting user's own id (`userId: req.user._id`), so an admin sees the notifications generated for their own account and their own courses rather than every notification on the platform. In the multi-vendor model this is exactly the behaviour an instructor would want: each instructor only sees activity (new questions, new reviews, new orders) related to the courses they themselves created, not the entire platform's notification stream.
 - Automatic cleanup: a scheduled job removes notifications that are marked as read and older than 30 days, keeping the collection from growing without bound.
 
-## API Architecture
-
-All endpoints are grouped by business domain under the `/api/v1` prefix.
-
-- User authentication and profiles: `/api/v1/registeration`, `/activate-user`, `/login`, `/logout`, `/refresh`, `/me`, `/social-auth`, `/update-user`, `/update-user-password`, `/update-user-avatar`
-- User administration (admin only): `/api/v1/get-all-users`, `/update-role`, `/delete-user/:id`
-- Course catalogue operations: `/api/v1/get-course/:id`, `/get-courses`, `/get-course-content/:id`, `/add-question`, `/add-answer`, `/add-review/:id`, `/add-reply`, `/getVdoCipherOTP`
-- Course administration (admin only): `/api/v1/create-course`, `/edit-course/:id`, `/get-all-courses`, `/delete-course/:id`
-- Order processing: `/api/v1/create-order`, `/payment`, `/payment/stripepublishablekey`, `/get-orders` (admin only)
-- Notification system: `/api/v1/get-all-notifications`, `/update-notification/:id` (both scoped to the authenticated user, admin only)
-- Analytics and reporting (admin only): `/api/v1/get-users-analytics`, `/get-courses-analytics`, `/get-orders-analytics`
-- Layout customization: `/api/v1/get-layout/:type` (public), `/create-layout`, `/edit-layout` (admin only)
 
 ## Tech Stack
 
@@ -593,34 +574,7 @@ sequenceDiagram
 
 This table reflects the technical trade-offs visible in the codebase; feel free to extend it with the specific debugging stories and "aha" moments from your own development process (for example, any issues you hit while integrating VdoCipher, Tailwind configuration, or NextAuth).
 
-## Environment Variables
 
-Both the client and the server are configured entirely through environment variables, which are not committed to the repository.
-
-Server environment variables include:
-
-- `PORT`, `ORIGIN` - server port and the allowed frontend origin for CORS
-- `DB_URL` - MongoDB connection string
-- `REDIS_URL` - Redis connection string
-- `ACCESS_TOKEN`, `REFRESH_TOKEN`, `ACTIVATION_SECRET`, `ACCESS_TOKEN_EXPIRE`, `REFRESH_TOKEN_EXPIRE` - JWT secrets and expiry settings
-- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` - media storage credentials
-- `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY` - payment processing
-- `VDOCIPHER_API_SECRET` - secure video OTP generation
-- SMTP and/or Resend credentials for transactional email
-- `NODE_ENV` - controls cookie `secure` and `sameSite` settings
-
-Client environment variables include the API base URL, the NextAuth provider credentials (Google/GitHub client id and secret), the NextAuth secret, the Stripe publishable key, and the Socket.IO server URL.
-
-To run the project, create an `.env` file in the `server` directory and an `.env` file in the `client` directory with the variables above filled in for your own MongoDB, Redis, Cloudinary, Stripe, VdoCipher and email provider accounts. Neither file should be committed to version control.
-
-## Running the Project Locally
-
-1. Clone the repository and install dependencies separately in `client` and `server` (`npm install` in each folder).
-2. Create the server `.env` file with `DB_URL` pointing at a MongoDB instance and `REDIS_URL` pointing at a Redis instance, along with the other variables listed above.
-3. Start the backend in development mode (`npm run dev` inside `server`), which runs the TypeScript server with `tsx`, connects to MongoDB and Redis, and starts the Socket.IO server.
-4. Create the client `.env` file with the API base URL, NextAuth credentials and Stripe publishable key.
-5. Start the frontend (`npm run dev` inside `client`) and open the app in the browser.
-6. To test the full purchase flow, use Stripe's published test card numbers against your configured test keys.
 
 ## Best Practices
 
@@ -644,12 +598,6 @@ Instead of hardcoding "admins can see everything, students can see what they bou
 
 Payment success is never taken on the client's word. The server independently retrieves the PaymentIntent from Stripe and checks its status before creating an order, enrolling the user, or sending a confirmation email, which protects against tampered or replayed requests from the client.
 
-## Current Limitations and Roadmap
-
-- The `instructor` role and per-course `createdBy` ownership are modeled in the database, but course management routes (`/create-course`, `/edit-course/:id`) are currently restricted to `authorizeRoles("admin")`. Extending these to `authorizeRoles("admin", "instructor")` and building a vendor dashboard for instructors is the main step toward a true multi-vendor marketplace.
-- Notifications are scoped to `req.user._id`, which already gives admins/instructors a "my activity" view. As the platform grows, this is the mechanism that will let each instructor see notifications only for their own courses, but it relies on notification records being created with the correct owning user id (the course's `createdBy`) rather than the acting user's id in every case - this is worth auditing as instructor-authored courses are introduced.
-- The order-creation flow performs several sequential writes (saving the user, creating a notification, saving the course, creating the order) without a MongoDB transaction; wrapping this sequence in a transaction would make it more resilient under concurrent purchases or partial failures.
-- Environment configuration currently relies on a single `.env` file per app; as the project grows, separating example/template files (without secrets) from local environment files would make onboarding new contributors easier.
 
 ## Conclusion
 

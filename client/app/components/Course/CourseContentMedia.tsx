@@ -232,25 +232,6 @@ const CourseContentMedia = ({
 
   return (
     <div className="w-[95%] 800px:w-[88%] mx-auto py-6">
-      {/* edit button only for instructor */}
-      {canReplyToReview && (
-        <div className="flex flex-wrap gap-3 m-4 mt-0 justify-end">
-          <Link href={`/profile/my-courses/edit-course/${id}`}>
-            <button
-              className="
-          px-5 py-2 md:py-3
-          bg-teal-500 hover:bg-teal-600
-          text-white
-          text-sm  font-medium font-Poppins
-          rounded-lg
-          transition-colors duration-200
-        "
-            >
-              Edit Course
-            </button>
-          </Link>
-        </div>
-      )}
       {/* Video player */}
       <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 shadow-sm">
         <CoursePlayer

@@ -13,14 +13,14 @@ router.get(
   updateToken,
   isAuthenticated,
   authorizeRoles("admin"),
-  getNotifications
+  getNotifications,
 );
 router.put(
   "/update-notification/:id",
   updateToken,
   isAuthenticated,
   authorizeRoles("admin"),
-  updateNotification
+  updateNotification,
 );
 
 export default router;

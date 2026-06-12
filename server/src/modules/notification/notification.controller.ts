@@ -8,9 +8,11 @@ import cron from "node-cron";
 //@route: GET /api/v1/notification/get-all-notifications
 
 export const getNotifications = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
-      const notifications = await NotificationModel.find().sort({
+      const notifications = await NotificationModel.find({
+        userId: req.user._id,
+      }).sort({
         createdAt: -1,
       });
 
@@ -21,9 +23,8 @@ export const getNotifications = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
-  }
+  },
 );
-
 //@desc: update notification status --> only for admin
 //@route: PUT /api/v1/notification/update-status
 export const updateNotification = CatchAsyncError(
@@ -33,7 +34,7 @@ export const updateNotification = CatchAsyncError(
       const notification = await NotificationModel.findByIdAndUpdate(
         req.params.id,
         { status: "read" },
-        { new: true }
+        { new: true },
       );
 
       if (!notification) {
@@ -52,7 +53,7 @@ export const updateNotification = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
-  }
+  },
 );
 
 //@desc: delete notificaions --> only for admin

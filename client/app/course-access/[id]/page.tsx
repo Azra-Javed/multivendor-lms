@@ -30,12 +30,12 @@ export default function Page({ params }: Props) {
 
     if (!userData?.user || !courseData?.course) return;
 
-    // ✅ PURCHASE CHECK
+    // PURCHASE CHECK
     const isPurchased = userData.user.courses?.some(
       (item: any) => String(item._id) === String(id),
     );
 
-    // ✅ OWNER CHECK (FIXED)
+    //  OWNER CHECK (FIXED)
     const isOwner =
       String(courseData.course.createdBy) === String(userData.user._id);
 

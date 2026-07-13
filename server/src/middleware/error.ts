@@ -5,11 +5,12 @@ const errorMiddleware = (
   err: any,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   err.statusCode = err.statusCode || 500;
   err.message = err.message || "Internal server error";
 
+  console.log(err);
   //wrong mongodb id error
   if (err.name === "CastError") {
     const message = `Resource not found. Invalid: ${err.path}`;
@@ -25,13 +26,13 @@ const errorMiddleware = (
   //wrong jwt error
   if (err.name === "JsonWebTokenError") {
     const message = "Json web token is invalid, try again";
-    err = new ErrorHandler(message, 400);
+    err = new ErrorHandler(message, 401);
   }
 
   //jwt expire error
   if (err.name === "TokenExpiredError") {
     const message = "Json webtoken is expired, try again";
-    err = new ErrorHandler(message, 400);
+    err = new ErrorHandler(message, 401);
   }
 
   res.status(err.statusCode).json({

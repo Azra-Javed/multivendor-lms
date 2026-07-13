@@ -243,21 +243,18 @@ const SidebarComponent = ({ onCollapsedChange }: SidebarProps) => {
       >
         {/* STICKY HEADER */}
         <div
-          className={`sticky top-0 z-50 border-b ${
-            isDark ? "bg-[#0B1120] border-white/5" : "bg-white border-gray-200"
-          }`}
+          className={`sticky top-0 z-50 border-b ${isDark ? "bg-[#0B1120] border-white/5" : "bg-white border-gray-200"
+            }`}
         >
           <div
-            className={`flex items-center py-4 ${
-              isCollapsed ? "justify-center px-2" : "justify-between px-4"
-            }`}
+            className={`flex items-center py-4 ${isCollapsed ? "justify-center px-2" : "justify-between px-4"
+              }`}
           >
             {!isCollapsed && (
               <Link
                 href="/"
-                className={`text-[24px] font-[700] font-Poppins ${
-                  isDark ? "text-white" : "text-black"
-                }`}
+                className={`text-[24px] font-[700] font-Poppins ${isDark ? "text-white" : "text-black"
+                  }`}
               >
                 Skill<span className="text-teal-500">Bridge</span>
               </Link>
@@ -283,11 +280,10 @@ const SidebarComponent = ({ onCollapsedChange }: SidebarProps) => {
         {!isCollapsed && (
           <Link href="/profile">
             <div
-              className={`mx-3 mt-4 mb-4 rounded-2xl px-3 py-3 border ${
-                isDark
-                  ? "border-slate-700 bg-slate-900/40"
-                  : "border-slate-200 bg-white"
-              }`}
+              className={`mx-3 mt-4 mb-4 rounded-2xl px-3 py-3 border ${isDark
+                ? "border-slate-700 bg-slate-900/40"
+                : "border-slate-200 bg-white"
+                }`}
             >
               <div className="flex items-center gap-3">
                 <Image
@@ -299,9 +295,8 @@ const SidebarComponent = ({ onCollapsedChange }: SidebarProps) => {
                 />
                 <div>
                   <p
-                    className={`text-[14px] font-semibold ${
-                      isDark ? "text-white" : "text-black"
-                    }`}
+                    className={`text-[14px] font-semibold ${isDark ? "text-white" : "text-black"
+                      }`}
                   >
                     {user?.name}
                   </p>
@@ -412,8 +407,8 @@ const SidebarComponent = ({ onCollapsedChange }: SidebarProps) => {
 
           <SectionTitle title="Extras" collapsed={isCollapsed} />
 
-          <MenuItem icon={<ExitToAppIcon />}>
-            <div onClick={() => logout()} className="w-full flex items-center">
+          <MenuItem onClick={() => logout()} icon={<ExitToAppIcon />}>
+            <div className="w-full flex items-center">
               {!isCollapsed && "Logout"}
             </div>
           </MenuItem>

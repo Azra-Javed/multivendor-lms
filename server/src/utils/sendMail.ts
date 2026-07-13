@@ -1,7 +1,6 @@
 import { Resend } from "resend";
 import ejs from "ejs";
 import path from "path";
-import fs from "fs";
 import dotenv from "dotenv";
 
 dotenv.config();

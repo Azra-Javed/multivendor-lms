@@ -18,7 +18,7 @@ export default function Page({ params }: Props) {
   // USER (purchased courses)
   const { data: userData, isLoading, error } = useLoadUserQuery(undefined);
 
-  // COURSE (owner check comes from here)
+  // COURSE 
   const { data: courseData, isLoading: courseLoading } =
     useGetCourseDetailsQuery(id);
 
@@ -30,12 +30,12 @@ export default function Page({ params }: Props) {
 
     if (!userData?.user || !courseData?.course) return;
 
-    // ✅ PURCHASE CHECK
+    // PURCHASE CHECK
     const isPurchased = userData.user.courses?.some(
       (item: any) => String(item._id) === String(id),
     );
 
-    // ✅ OWNER CHECK (FIXED)
+    //  OWNER CHECK 
     const isOwner =
       String(courseData.course.createdBy) === String(userData.user._id);
 

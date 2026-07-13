@@ -9,12 +9,12 @@ export const useLogout = () => {
 
   // RTK Query logout API (only runs when trigger = true)
   const { isSuccess } = useLogOutQuery(undefined, { skip: !trigger });
-  +
-    useEffect(() => {
-      if (isSuccess) {
-        signOut({ redirect: true, callbackUrl: "/" });
-      }
-    }, [isSuccess]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      signOut({ redirect: true, callbackUrl: "/" });
+    }
+  }, [isSuccess]);
 
   const handleLogout = async () => {
     setTrigger(true);

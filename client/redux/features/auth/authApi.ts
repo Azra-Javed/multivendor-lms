@@ -25,7 +25,7 @@ export const authApi = apiSlice.injectEndpoints({
           dispatch(
             userRegisteration({
               token: data.activationToken,
-            })
+            }),
           );
         } catch (error) {
           console.log(error);
@@ -61,7 +61,7 @@ export const authApi = apiSlice.injectEndpoints({
             userLoggedIn({
               accessToken: data.activationToken,
               user: data.user,
-            })
+            }),
           );
         } catch (error) {
           console.log(error);
@@ -87,7 +87,7 @@ export const authApi = apiSlice.injectEndpoints({
             userLoggedIn({
               accessToken: data.activationToken,
               user: data.user,
-            })
+            }),
           );
         } catch (error) {
           console.log(error);
@@ -103,7 +103,9 @@ export const authApi = apiSlice.injectEndpoints({
       }),
       async onQueryStarted(arg, { queryFulfilled, dispatch }) {
         try {
+          await queryFulfilled;
           dispatch(userLoggedOut());
+          dispatch(apiSlice.util.resetApiState()); // clears ALL RTK Query caches, not just loadUser
         } catch (error) {
           console.log(error);
         }

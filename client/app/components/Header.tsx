@@ -12,10 +12,7 @@ import Verification from "../components/Auth/Verification";
 import Image from "next/image";
 import avatar from "../../public/assets/avatar.png";
 import { useSession } from "next-auth/react";
-import {
-  useLogOutQuery,
-  useSocialAuthMutation,
-} from "@/redux/features/auth/authApi";
+import { useSocialAuthMutation } from "@/redux/features/auth/authApi";
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
 
 interface Props {
@@ -36,9 +33,6 @@ const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
     refetch,
   } = useLoadUserQuery(undefined, {});
   const [socialAuth, { isSuccess }] = useSocialAuthMutation();
-  const [logoutTrigger, setLogoutTrigger] = useState(false);
-
-  useLogOutQuery(undefined, { skip: !logoutTrigger });
 
   const { data } = useSession();
 
@@ -58,7 +52,7 @@ const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
       }
     };
     syncUser();
-  }, [data]);
+  }, [data, userData, socialAuth, refetch]);
 
   // sticky on scroll
   useEffect(() => {

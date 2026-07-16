@@ -38,21 +38,29 @@ const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
 
   useEffect(() => {
     const syncUser = async () => {
-      if (data?.user && !userData) {
-        try {
-          await socialAuth({
-            email: data.user.email,
-            name: data.user.name,
-            avatar: data.user.image,
-          }).unwrap();
-          await refetch();
-        } catch (err) {
-          console.log(err);
-        }
+      // Wait until backend user loading finishes
+      if (isLoading) return;
+
+      // Already logged into backend
+      if (userData?.user) return;
+
+      // No Google session
+      if (!data?.user) return;
+
+      try {
+        await socialAuth({
+          email: data.user.email,
+          name: data.user.name,
+          avatar: data.user.image,
+        }).unwrap();
+        await refetch();
+      } catch (err) {
+        console.log(err);
       }
     };
+
     syncUser();
-  }, [data, userData, socialAuth, refetch]);
+  }, [data, userData, isLoading]);
 
   // sticky on scroll
   useEffect(() => {

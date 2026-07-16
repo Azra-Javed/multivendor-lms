@@ -21,7 +21,7 @@ const router = express.Router();
 router.post("/registeration", registerUser);
 router.post("/activate-user", activateUser);
 router.post("/login", loginUser);
-router.get("/logout", updateToken, isAuthenticated, logoutUser);
+router.post("/logout", updateToken, isAuthenticated, logoutUser);
 router.get("/refresh", updateToken);
 router.get("/me", updateToken, isAuthenticated, getUserInfo);
 router.post("/social-auth", socialAuth);

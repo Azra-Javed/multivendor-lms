@@ -95,17 +95,18 @@ export const authApi = apiSlice.injectEndpoints({
       },
     }),
 
-    logOut: builder.query({
+    logOut: builder.mutation<any, void>({
       query: () => ({
         url: "logout",
-        method: "GET",
-        credentials: "include" as const,
+        method: "POST",
+        credentials: "include",
       }),
       async onQueryStarted(arg, { queryFulfilled, dispatch }) {
         try {
           await queryFulfilled;
+
           dispatch(userLoggedOut());
-          dispatch(apiSlice.util.resetApiState()); // clears ALL RTK Query caches, not just loadUser
+          dispatch(apiSlice.util.resetApiState());
         } catch (error) {
           console.log(error);
         }
@@ -118,5 +119,5 @@ export const {
   useActivationMutation,
   useLoginMutation,
   useSocialAuthMutation,
-  useLogOutQuery,
+  useLogOutMutation,
 } = authApi;

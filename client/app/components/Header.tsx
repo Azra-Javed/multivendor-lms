@@ -34,10 +34,11 @@ const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
   } = useLoadUserQuery(undefined, {});
   const [socialAuth, { isSuccess }] = useSocialAuthMutation();
 
-  const { data } = useSession();
+  const { data, status } = useSession();
 
   useEffect(() => {
     const syncUser = async () => {
+      if (status !== "authenticated") return;
       // Wait until backend user loading finishes
       if (isLoading) return;
 
@@ -60,7 +61,7 @@ const Header = ({ open, setOpen, activeItem, route, setRoute }: Props) => {
     };
 
     syncUser();
-  }, [data, userData, isLoading]);
+  }, [data, userData, isLoading, status]);
 
   // sticky on scroll
   useEffect(() => {

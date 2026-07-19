@@ -14,28 +14,26 @@ export const useLogout = () => {
 
   const [logout] = useLogOutMutation();
 
-  const handleLogout = async () => {
-    try {
-      // 1. Logout from backend
-      await logout().unwrap();
+ const handleLogout = async () => {
+  try {
+    // 1. Remove NextAuth session first
+    await signOut({ redirect: false });
 
-      // 2. Clear Redux state
-      dispatch(userLoggedOut());
+    // 2. Logout backend
+    await logout().unwrap();
 
-      // 3. Clear RTK Query cache
-      dispatch(apiSlice.util.resetApiState());
+    // 3. Clear Redux
+    dispatch(userLoggedOut());
 
-      // 4. Logout from NextAuth
-      await signOut({
-        redirect: false,
-      });
+    // 4. Clear RTK Query cache
+    dispatch(apiSlice.util.resetApiState());
 
-      // 5. Redirect
-      router.replace("/");
-    } catch (err) {
-      console.log(err);
-    }
-  };
+    // 5. Redirect
+    router.replace("/");
+  } catch (err) {
+    console.log(err);
+  }
+};
 
   return handleLogout;
 };
